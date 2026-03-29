@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.6] - 2026-03-29
+
+### Optimizations
+
+- Improved the save system to reduce memory usage and avoid unnecessary data being saved repeatedly.
+
+### Bug Fixes
+
 ## [1.0.5] - 2025-12-03
 
 ### Features
