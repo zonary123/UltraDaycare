@@ -75,14 +75,7 @@ public class CobbleDaycare implements ModInitializer {
   }
 
   private static void tasks() {
-    ASYNC_CONTEXT.scheduleAtFixedRate(() -> {
-      try {
-        DatabaseClient.USERS.asMap().forEach(((uuid, user) -> user.save()));
-      } catch (Exception e) {
-        CobbleUtils.LOGGER.error(MOD_ID, "Error on scheduled task");
-        e.printStackTrace();
-      }
-    }, 1, 1, TimeUnit.MINUTES);
+    ASYNC_CONTEXT.scheduleAtFixedRate(() -> database.saveAll(), 1, 1, TimeUnit.MINUTES);
   }
 
   private static void files() {

@@ -58,7 +58,7 @@ public class MongoDBClient extends DatabaseClient {
 
   @Override
   public void saveOrUpdateUser(User user) {
-    Bson filter = Filters.eq("playerUUID", user.getPlayerUUID());
+    Bson filter = Filters.eq("playerUUID", user.getPlayerUUID().toString());
     Document document = user.toDocument();
     collection.replaceOne(filter, document, new ReplaceOptions().upsert(true));
   }
