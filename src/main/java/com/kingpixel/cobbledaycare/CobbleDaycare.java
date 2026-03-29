@@ -75,7 +75,10 @@ public class CobbleDaycare implements ModInitializer {
   }
 
   private static void tasks() {
-    ASYNC_CONTEXT.scheduleAtFixedRate(() -> database.saveAll(), 1, 1, TimeUnit.MINUTES);
+    ASYNC_CONTEXT.scheduleAtFixedRate(() -> {
+      if (database == null) return;
+      database.saveAll();
+    }, 0, 30, TimeUnit.SECONDS);
   }
 
   private static void files() {
@@ -139,7 +142,7 @@ public class CobbleDaycare implements ModInitializer {
       CustomPokemonProperty.Companion.register(BreedablePropertyType.getInstance());
     });
 
-    LifecycleEvent.SERVER_STOPPED.register(server -> database.disconnect());
+    LifecycleEvent.SERVER_STOPPING.register(server -> database.disconnect());
 
     PlayerEvent.PLAYER_JOIN.register(player -> database.find(player)
       .whenComplete((user, throwable) -> {
