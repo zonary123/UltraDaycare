@@ -2,7 +2,7 @@ package com.kingpixel.cobbledaycare.commands.admin;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.database.DatabaseClientFactory;
+import com.kingpixel.cobbledaycare.CobbleDaycare;
 import com.kingpixel.cobbledaycare.models.EggData;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.mojang.brigadier.CommandDispatcher;
@@ -13,6 +13,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Carlos Varas Alonso - 05/04/2025 2:03
@@ -36,8 +37,7 @@ public class CommandSteps {
                         var party = Cobblemon.INSTANCE.getStorage().getParty(player);
                         for (Pokemon pokemon : party) {
                           if (pokemon.showdownId().equals("egg")) {
-                            EggData.steps(player, pokemon, amount,
-                              DatabaseClientFactory.INSTANCE.getUserInformation(player));
+                            EggData.steps(player, pokemon, amount, Objects.requireNonNull(CobbleDaycare.database.getUser(player)));
                           }
                         }
                       }

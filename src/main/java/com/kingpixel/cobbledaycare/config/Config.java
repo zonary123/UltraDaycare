@@ -10,14 +10,15 @@ import com.kingpixel.cobbleutils.Model.FilterPokemons;
 import com.kingpixel.cobbleutils.Model.PokemonBlackList;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
-import com.kingpixel.cobbleutils.util.Utils;
+import com.kingpixel.cobbleutils.util.UtilsFile;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Carlos Varas Alonso - 30/01/2025 23:47
@@ -164,21 +165,20 @@ public class Config {
   }
 
   public void init() {
-    CompletableFuture<Boolean> futureRead = Utils.readFileAsync(
-      CobbleDaycare.PATH, "config.json", call -> {
-        CobbleDaycare.config = Utils.newGson().fromJson(call, Config.class);
+    Path path = CobbleDaycare.getPath().resolve("config.json");
+    try {
+      Config config = UtilsFile.read(path, Config.class);
+      if (config != null) {
         CobbleDaycare.config.check();
-        Utils.writeFileAsync(
-          CobbleDaycare.PATH, "config.json", Utils.newGson().toJson(CobbleDaycare.config)
-        );
+      } else {
+        config = new Config();
       }
-    );
-
-    if (Boolean.FALSE.equals(futureRead.join())) {
-      CobbleDaycare.config = this;
-      Utils.writeFileAsync(
-        CobbleDaycare.PATH, "config.json", Utils.newGson().toJson(CobbleDaycare.config)
-      );
+      config.check();
+      CobbleDaycare.config = config;
+      UtilsFile.write(path, config);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
+
   }
 }

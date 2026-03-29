@@ -47,8 +47,7 @@ public class CommandTree {
             return 1;
           }).then(
             CommandManager.literal("other")
-              .requires(source -> PermissionApi.hasPermission(source, List.of("cobbledaycare.admin", "cobbledaycare" +
-                ".other"), 4))
+              .requires(source -> PermissionApi.hasPermission(source, List.of("cobbledaycare.admin", "cobbledaycare" + ".other"), 2))
               .then(
                 CommandManager.argument("player", EntityArgumentType.player())
                   .executes(context -> {

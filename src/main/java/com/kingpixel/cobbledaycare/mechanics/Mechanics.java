@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * Author: Carlos Varas Alonso - 31/01/2025 0:25
@@ -74,10 +75,10 @@ public abstract class Mechanics {
 
   public <T> T readFromFile(Class<T> clazz) {
     try {
+      Path path = CobbleDaycare.getPath().resolve("modules").resolve(fileName() + ".json");
       Gson gson = Utils.newGson();
-      String filePath = Utils.getAbsolutePath(CobbleDaycare.PATH_MODULES + fileName() + ".json").getAbsolutePath();
-
-      File file = new File(filePath);
+      File file = path.toFile();
+      String filePath = file.getAbsolutePath();
 
 
       if (!file.exists()) {

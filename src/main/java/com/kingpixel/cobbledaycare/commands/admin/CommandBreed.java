@@ -4,7 +4,6 @@ import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.command.argument.PartySlotArgumentType;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.database.DatabaseClientFactory;
 import com.kingpixel.cobbledaycare.models.Plot;
 import com.kingpixel.cobbledaycare.models.SelectGender;
 import com.kingpixel.cobbleutils.CobbleUtils;
@@ -66,12 +65,13 @@ public class CommandBreed {
 
   private static int breed(CommandContext<ServerCommandSource> context, ServerPlayerEntity player) {
     if (player == null) return 0;
-    var userInfo = DatabaseClientFactory.INSTANCE.getUserInformation(player);
-    if (userInfo.hasCooldownBreed(player)) {
+    var user = CobbleDaycare.database.getUser(player);
+    if (user == null) return 0;
+    if (user.hasCooldownBreed(player)) {
       PlayerUtils.sendMessage(
         player,
         CobbleDaycare.language.getMessageCooldownBreed()
-          .replace("%cooldown%", PlayerUtils.getCooldown(userInfo.getCooldownBreed())),
+          .replace("%cooldown%", PlayerUtils.getCooldown(user.getCooldownBreed())),
         CobbleDaycare.language.getPrefix(),
         TypeMessage.CHAT
       );
@@ -93,8 +93,8 @@ public class CommandBreed {
     }
     if (maleCanBreed && femaleCanBreed) {
       Cobblemon.INSTANCE.getStorage().getParty(player).add(plot.createEgg(player));
-      userInfo.setCooldownBreed(player);
-      DatabaseClientFactory.INSTANCE.saveOrUpdateUserInformation(player, userInfo);
+      user.setCooldownBreed(player);
+      user.markDirty();
     } else {
       PlayerUtils.sendMessage(
         player,

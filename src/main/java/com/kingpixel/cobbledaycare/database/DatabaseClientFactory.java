@@ -1,6 +1,7 @@
 package com.kingpixel.cobbledaycare.database;
 
 
+import com.kingpixel.cobbledaycare.CobbleDaycare;
 import com.kingpixel.cobbleutils.Model.DataBaseConfig;
 
 /**
@@ -8,22 +9,17 @@ import com.kingpixel.cobbleutils.Model.DataBaseConfig;
  */
 public class DatabaseClientFactory {
 
-
-  public static DatabaseClient INSTANCE;
-
   public synchronized static DatabaseClient createDatabaseClient(DataBaseConfig database) {
-    if (INSTANCE != null) INSTANCE.disconnect();
-    INSTANCE = null;
+    if (CobbleDaycare.database != null) CobbleDaycare.database.disconnect();
+    CobbleDaycare.database = null;
     switch (database.getType()) {
-      case MONGODB -> INSTANCE = new MongoDBClient();
-      case JSON -> INSTANCE = new JSONClient();
-      default -> {
-        throw new IllegalArgumentException("Unsupported database type: " + database.getType());
-      }
+      case MONGODB -> CobbleDaycare.database = new MongoDBClient();
+      case JSON -> CobbleDaycare.database = new JSONClient();
+      default -> throw new IllegalArgumentException("Unsupported database type: " + database.getType());
     }
 
-    INSTANCE.connect(database);
-    return INSTANCE;
+    CobbleDaycare.database.connect(database);
+    return CobbleDaycare.database;
   }
 
 }

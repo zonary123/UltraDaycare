@@ -3,14 +3,13 @@ package com.kingpixel.cobbledaycare.models;
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.google.gson.Gson;
 import com.kingpixel.cobbledaycare.CobbleDaycare;
 import com.kingpixel.cobbledaycare.mechanics.DayCarePokemon;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
-import com.kingpixel.cobbleutils.util.Utils;
+import com.kingpixel.cobbleutils.util.UtilsFile;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +20,7 @@ import org.bson.Document;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Carlos Varas Alonso - 31/01/2025 1:16
@@ -29,9 +29,7 @@ import java.util.UUID;
 @Setter
 @Data
 @ToString
-public class UserInformation {
-  public static final Gson GSON = Utils.newWithoutSpacingGson().newBuilder()
-    .serializeNulls().create();
+public class User {
   private UUID playerUUID;
   private String playerName;
   private String country;
@@ -45,8 +43,9 @@ public class UserInformation {
   private long cooldownHatch;
   private long cooldownBreed;
   private ArrayList<Plot> plots;
+  private transient AtomicBoolean dirty = new AtomicBoolean(false);
 
-  public UserInformation() {
+  public User() {
     this.playerUUID = null;
     this.playerName = null;
     this.multiplierSteps = 1.0f;
@@ -58,20 +57,30 @@ public class UserInformation {
     this.notifyCreateEgg = userInfoOptions.isNotifyCreateEgg();
     this.actionBar = userInfoOptions.isActionBar();
     this.plots = new ArrayList<>();
+    this.dirty = new AtomicBoolean(false);
   }
 
-  public UserInformation(ServerPlayerEntity player) {
+  public User(ServerPlayerEntity player) {
     super();
     this.playerUUID = player.getUuid();
     this.playerName = player.getGameProfile().getName();
   }
 
-  public synchronized static UserInformation fromDocument(Document document) {
-    return GSON.fromJson(document.toJson(), UserInformation.class);
+  public synchronized static User fromDocument(Document document) {
+    return UtilsFile.getGson().fromJson(document.toJson(), User.class);
+  }
+
+  public AtomicBoolean getDirty() {
+    if (dirty == null) dirty = new AtomicBoolean(false);
+    return dirty;
+  }
+
+  public void markDirty() {
+    getDirty().set(true);
   }
 
   public synchronized Document toDocument() {
-    return Document.parse(GSON.toJson(this));
+    return Document.parse(UtilsFile.getGson().toJson(this));
   }
 
   public float getActualMultiplier(ServerPlayerEntity player) {
@@ -119,9 +128,14 @@ public class UserInformation {
       update = true;
     }
 
-    if (playerUUID == null || playerName == null) {
+    String username = player.getGameProfile().getName();
+    if (playerName == null || !playerName.equals(username)) {
+      playerName = username;
+      update = true;
+    }
+
+    if (playerUUID == null) {
       playerUUID = player.getUuid();
-      playerName = player.getGameProfile().getName();
       update = true;
     }
 
@@ -189,5 +203,9 @@ public class UserInformation {
   public CharSequence getIndexPlot(Plot plot) {
     int index = plots.indexOf(plot) + 1;
     return index + "";
+  }
+
+  public void save() {
+    if (dirty.getAndSet(false)) CobbleDaycare.database.saveOrUpdateUser(this);
   }
 }

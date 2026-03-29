@@ -6,9 +6,9 @@ import com.cobblemon.mod.common.api.pokemon.egg.EggGroup;
 import com.cobblemon.mod.common.pokemon.Gender;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.database.DatabaseClientFactory;
 import com.kingpixel.cobbledaycare.mechanics.DayCarePokemon;
 import com.kingpixel.cobbledaycare.mechanics.Mechanics;
+import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.CobbleUtilsTags;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
@@ -139,7 +139,7 @@ public class Plot {
     List<Pokemon> remove = new ArrayList<>();
     for (Pokemon egg : eggs) {
       if (egg == null) continue;
-      CobbleDaycare.server.execute(() -> Cobblemon.INSTANCE.getStorage().getParty(player).add(egg));
+      CobbleUtils.server.execute(() -> Cobblemon.INSTANCE.getStorage().getParty(player).add(egg));
       remove.add(egg);
     }
     if (!remove.isEmpty()) {
@@ -168,12 +168,12 @@ public class Plot {
     return limit;
   }
 
-  public synchronized boolean checkEgg(ServerPlayerEntity player, UserInformation userInformation) {
+  public synchronized boolean checkEgg(ServerPlayerEntity player, User user) {
     try {
       boolean update = false;
 
       if (!hasTwoParents()) return update;
-      int index = userInformation.getPlots().indexOf(this) + 1;
+      int index = user.getPlots().indexOf(this) + 1;
       int sizeEggs = eggs.size();
       if (sizeEggs >= limitEggs(player)) return update;
 
@@ -189,8 +189,9 @@ public class Plot {
           TypeMessage.CHAT
         );
         Pokemon pokemonFemale = female.clone(false, DynamicRegistryManager.EMPTY);
-        CobbleDaycare.server.executeSync(() -> party.add(pokemonFemale));
+        CobbleUtils.server.executeSync(() -> party.add(pokemonFemale));
         setFemale(null);
+        user.markDirty();
       }
       if (!maleCanBreed) {
         PlayerUtils.sendMessage(
@@ -201,8 +202,9 @@ public class Plot {
           TypeMessage.CHAT
         );
         Pokemon pokemonMale = male.clone(false, DynamicRegistryManager.EMPTY);
-        CobbleDaycare.server.executeSync(() -> party.add(pokemonMale));
+        CobbleUtils.server.executeSync(() -> party.add(pokemonMale));
         setMale(null);
+        user.markDirty();
       }
       if (!maleCanBreed || !femaleCanBreed) return true;
       fixCooldown(player);
@@ -216,7 +218,7 @@ public class Plot {
             TypeMessage.CHAT
           );
         } else {
-          if (userInformation.isNotifyCreateEgg()) {
+          if (user.isNotifyCreateEgg()) {
             List<Pokemon> pokemons = new ArrayList<>();
             pokemons.add(male);
             pokemons.add(female);
@@ -231,7 +233,7 @@ public class Plot {
             );
           }
           if (PermissionApi.hasPermission(player, CobbleDaycare.MOD_ID + ".autoclaim", 4)) {
-            CobbleDaycare.server.executeSync(() -> Cobblemon.INSTANCE.getStorage().getParty(player).add(egg));
+            CobbleUtils.server.executeSync(() -> Cobblemon.INSTANCE.getStorage().getParty(player).add(egg));
           } else {
             eggs.add(egg);
           }
@@ -239,6 +241,7 @@ public class Plot {
           setTime(player);
         }
       }
+      if (update) user.markDirty();
       return update;
     } catch (Exception e) {
       e.printStackTrace();
@@ -279,15 +282,13 @@ public class Plot {
 
 
   public synchronized void addPokemon(ServerPlayerEntity player, Pokemon pokemon, SelectGender gender,
-                                      UserInformation userInformation) {
+                                      User user) {
     if (gender == SelectGender.FEMALE) addFemale(player, pokemon);
     else addMale(player, pokemon);
-
-    CobbleDaycare.server.submit(() -> {
+    user.markDirty();
+    CobbleUtils.server.execute(() -> {
       Cobblemon.INSTANCE.getStorage().getParty(player).remove(pokemon);
       Cobblemon.INSTANCE.getStorage().getPC(player).remove(pokemon);
-    }).join();
-
-    DatabaseClientFactory.INSTANCE.saveOrUpdateUserInformation(player, userInformation);
+    });
   }
 }

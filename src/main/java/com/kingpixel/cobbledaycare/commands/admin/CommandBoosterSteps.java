@@ -1,7 +1,7 @@
 package com.kingpixel.cobbledaycare.commands.admin;
 
-import com.kingpixel.cobbledaycare.database.DatabaseClientFactory;
-import com.kingpixel.cobbledaycare.models.UserInformation;
+import com.kingpixel.cobbledaycare.CobbleDaycare;
+import com.kingpixel.cobbledaycare.models.User;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
@@ -36,11 +36,11 @@ public class CommandBoosterSteps {
                           float multiplier = FloatArgumentType.getFloat(context, "multiplier");
                           int seconds = IntegerArgumentType.getInteger(context, "seconds");
                           for (ServerPlayerEntity player : players) {
-                            UserInformation userInformation =
-                              DatabaseClientFactory.INSTANCE.getUserInformation(player);
-                            userInformation.setTimeMultiplierSteps(seconds * 20L);
-                            userInformation.setMultiplierSteps(multiplier);
-                            DatabaseClientFactory.INSTANCE.saveOrUpdateUserInformation(player, userInformation);
+                            User user = CobbleDaycare.database.getUser(player);
+                            if (user == null) continue;
+                            user.setTimeMultiplierSteps(seconds * 20L);
+                            user.setMultiplierSteps(multiplier);
+                            user.save();
                           }
                           return 1;
                         })

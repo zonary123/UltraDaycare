@@ -4,7 +4,6 @@ import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.command.argument.PartySlotArgumentType;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.database.DatabaseClientFactory;
 import com.kingpixel.cobbledaycare.models.EggData;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
@@ -114,12 +113,13 @@ public class CommandHatch {
       .stream()
       .anyMatch(pokemon -> pokemon.getSpecies().showdownId().equals("egg"));
     if (!hasEgg) return;
-    var userInfo = DatabaseClientFactory.INSTANCE.getUserInformation(player);
-    if (!byPassCooldown && userInfo.hasCooldownHatch(player)) {
+    var user = CobbleDaycare.database.getUser(player);
+    if (user == null) return;
+    if (!byPassCooldown && user.hasCooldownHatch(player)) {
       PlayerUtils.sendMessage(
         player,
         CobbleDaycare.language.getMessageCooldownHatch()
-          .replace("%cooldown%", PlayerUtils.getCooldown(userInfo.getCooldownHatch())),
+          .replace("%cooldown%", PlayerUtils.getCooldown(user.getCooldownHatch())),
         CobbleDaycare.language.getPrefix(),
         TypeMessage.CHAT
       );
@@ -129,9 +129,8 @@ public class CommandHatch {
     for (Pokemon pokemon : pokemons) {
       if (!pokemon.getSpecies().showdownId().equals("egg")) continue;
       EggData.hatch(player, pokemon);
-      userInfo.setCooldownHatch(player);
-      CobbleDaycare.runAsync(() -> DatabaseClientFactory.INSTANCE.saveOrUpdateUserInformation(player, userInfo));
+      user.setCooldownHatch(player);
+      user.save();
     }
-
   }
 }

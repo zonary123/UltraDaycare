@@ -5,10 +5,10 @@ import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.database.DatabaseClientFactory;
 import com.kingpixel.cobbledaycare.models.EggData;
 import com.kingpixel.cobbledaycare.models.Position;
-import com.kingpixel.cobbledaycare.models.UserInformation;
+import com.kingpixel.cobbledaycare.models.User;
+import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
 import lombok.Data;
@@ -37,13 +37,13 @@ public class TaskDayCare implements Runnable {
     cobbleDaycare$scheduler.scheduleAtFixedRate(this, 5, 1, TimeUnit.SECONDS);
   }
 
-  private static void cobbleDaycare$sendMessageMultiplierSteps(UserInformation userInformation, ServerPlayerEntity player) {
+  private static void cobbleDaycare$sendMessageMultiplierSteps(User user, ServerPlayerEntity player) {
     boolean activeMultiplier = CobbleDaycare.config.isGlobalMultiplierSteps();
-    float multiplier = userInformation.getActualMultiplier(player);
+    float multiplier = user.getActualMultiplier(player);
     boolean hasMultiplier = multiplier >= CobbleDaycare.config.getMultiplierSteps();
 
     if (activeMultiplier || hasMultiplier) {
-      long cooldown = userInformation.getTimeMultiplierSteps() * TICKS_TO_MILLISECONDS;
+      long cooldown = user.getTimeMultiplierSteps() * TICKS_TO_MILLISECONDS;
       String cooldownMessage = PlayerUtils.getCooldown(System.currentTimeMillis() + cooldown);
 
       PlayerUtils.sendMessage(
@@ -79,61 +79,57 @@ public class TaskDayCare implements Runnable {
   }
 
   private void cobbleDaycare$updateEggSteps(PlayerPartyStore party, double deltaMovement, ServerPlayerEntity player) {
-    UserInformation userInformation = DatabaseClientFactory.INSTANCE.getUserInformation(player);
-    if (userInformation == null) return;
+    User user = CobbleDaycare.database.getUser(player);
+    if (user == null) return;
     for (Pokemon pokemon : party) {
       if (pokemon != null && "egg".equals(pokemon.showdownId())) {
-        EggData.steps(player, pokemon, deltaMovement, userInformation);
+        EggData.steps(player, pokemon, deltaMovement, user);
       }
     }
   }
 
   private void cobbleDaycare$sendMessage(ServerPlayerEntity player) {
-    UserInformation userInformation = DatabaseClientFactory.INSTANCE.getUserInformation(player);
-    if (userInformation == null) return;
-    long timeMultiplierSteps = userInformation.getTimeMultiplierSteps();
+    User user = CobbleDaycare.database.getUser(player);
+    if (user == null) return;
+    long timeMultiplierSteps = user.getTimeMultiplierSteps();
 
     if (timeMultiplierSteps > 0) {
       timeMultiplierSteps -= CobbleDaycare.config.getTicksToWalking();
-      userInformation.setTimeMultiplierSteps(timeMultiplierSteps);
+      user.setTimeMultiplierSteps(timeMultiplierSteps);
 
       if (timeMultiplierSteps <= 0) {
-        userInformation.setMultiplierSteps(CobbleDaycare.config.getMultiplierSteps());
-        userInformation.setTimeMultiplierSteps(0);
+        user.setMultiplierSteps(CobbleDaycare.config.getMultiplierSteps());
+        user.setTimeMultiplierSteps(0);
       }
 
-      if (userInformation.isActionBar()) {
-        cobbleDaycare$sendMessageMultiplierSteps(userInformation, player);
+      if (user.isActionBar()) {
+        cobbleDaycare$sendMessageMultiplierSteps(user, player);
       }
     }
   }
 
   private void cobbleDaycare$processPlayers() {
-    if (CobbleDaycare.server == null) return;
+    if (CobbleUtils.server == null) return;
     long currentTime = System.currentTimeMillis();
-    if (CobbleDaycare.server.getPlayerManager().getPlayerList().isEmpty()) return;
-    var players = Collections.synchronizedList(CobbleDaycare.server.getPlayerManager().getPlayerList());
-    for (ServerPlayerEntity serverPlayerEntity : players) {
+    if (CobbleUtils.server.getPlayerManager().getPlayerList().isEmpty()) return;
+    var players = Collections.synchronizedList(CobbleUtils.server.getPlayerManager().getPlayerList());
+    for (ServerPlayerEntity player : players) {
+      if (player == null) continue;
       try {
-        ServerPlayerEntity player = serverPlayerEntity;
-        UserInformation userInformation = DatabaseClientFactory.INSTANCE.getUserInformation(player);
-        if (userInformation == null) continue;
-        if (player == null || !player.isAlive() || player.isRemoved()) continue;
+        User user = CobbleDaycare.database.getUser(player);
+        if (user == null) continue;
+        if (!player.isAlive() || player.isRemoved()) continue;
         if (!cobbleDaycare$isPlayerEligibleForStepUpdate(player)) continue;
 
         Entity entity = cobbleDaycare$getEffectiveEntity(player);
         if (entity == null) continue;
 
-        // Obtiene posición inicial o la crea si no existe
-        Position pos = cobbleDaycare$playerPositions.computeIfAbsent(player, p ->
-          new Position(entity.getX(), entity.getZ(), currentTime)
-        );
+        Position pos = cobbleDaycare$playerPositions.computeIfAbsent(player, p -> new Position(entity.getX(), entity.getZ(), currentTime));
 
         double deltaX = entity.getX() - pos.getX();
         double deltaZ = entity.getZ() - pos.getZ();
         double deltaMovement = Math.hypot(deltaX, deltaZ);
 
-        // Manejo de teletransportes
         int teleportCount = cobbleDaycare$playerTeleport.getOrDefault(player, 0);
         if (deltaMovement <= 0 || teleportCount > 0) {
           if (teleportCount > 0) teleportCount--;
@@ -144,24 +140,22 @@ public class TaskDayCare implements Runnable {
           continue;
         }
 
-        // Actualiza pasos de huevos y info de usuario
         PlayerPartyStore party = Cobblemon.INSTANCE.getStorage().getParty(player);
         cobbleDaycare$updateEggSteps(party, deltaMovement, player);
         cobbleDaycare$sendMessage(player);
 
-        // Actualiza posición inicial para el siguiente intervalo
         pos.setX(entity.getX());
         pos.setZ(entity.getZ());
         pos.setLastUpdate(currentTime);
         cobbleDaycare$playerPositions.put(player, pos);
-
       } catch (Exception e) {
         e.printStackTrace();
       }
     }
   }
 
-  @Override public void run() {
+  @Override
+  public void run() {
     try {
       cobbleDaycare$processPlayers();
     } catch (Exception e) {

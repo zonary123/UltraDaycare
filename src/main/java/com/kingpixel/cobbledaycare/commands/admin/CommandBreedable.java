@@ -66,7 +66,6 @@ public class CommandBreedable {
                             CommandContext<ServerCommandSource> context) {
     for (ServerPlayerEntity player : players) {
       Pokemon pokemon = PartySlotArgumentType.Companion.getPokemonOf(context, "slot", player);
-      if (pokemon == null) continue;
       CobbleDaycare.setBreedable(pokemon, breedable);
       pokemon.getPersistentData().putBoolean(CobbleUtilsTags.BREEDABLE_BUILDER_TAG, !breedable);
       PlayerUtils.sendMessage(

@@ -7,12 +7,12 @@ import com.kingpixel.cobbledaycare.ui.PlotMenu;
 import com.kingpixel.cobbledaycare.ui.PrincipalMenu;
 import com.kingpixel.cobbledaycare.ui.ProfileMenu;
 import com.kingpixel.cobbledaycare.ui.SelectPokemonMenu;
-import com.kingpixel.cobbleutils.CobbleUtils;
-import com.kingpixel.cobbleutils.util.Utils;
+import com.kingpixel.cobbleutils.util.UtilsFile;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.concurrent.CompletableFuture;
+import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * @author Carlos Varas Alonso - 30/01/2025 23:47
@@ -96,26 +96,15 @@ public class Language {
   }
 
   public void init() {
-    CompletableFuture<Boolean> futureRead = Utils.readFileAsync(
-      CobbleDaycare.PATH_LANGUAGE, CobbleDaycare.config.getLang() + ".json", call -> {
-        CobbleDaycare.language = Utils.newGson().fromJson(call, Language.class);
-
-        CompletableFuture<Boolean> futureWrite = Utils.writeFileAsync(
-          CobbleDaycare.PATH_LANGUAGE, CobbleDaycare.config.getLang() + ".json", Utils.newGson().toJson(CobbleDaycare.language)
-        );
-        if (!futureWrite.join()) {
-          CobbleUtils.LOGGER.error("Error creating language file");
-        }
-      }
-    );
-
-    if (!futureRead.join()) {
-      CompletableFuture<Boolean> futureWrite = Utils.writeFileAsync(
-        CobbleDaycare.PATH_LANGUAGE, CobbleDaycare.config.getLang() + ".json", Utils.newGson().toJson(CobbleDaycare.language)
-      );
-      if (!futureWrite.join()) {
-        CobbleUtils.LOGGER.error("Error creating language file");
-      }
+    Path path = CobbleDaycare.getPath().resolve("lang").resolve(CobbleDaycare.config.getLang() + ".json");
+    try {
+      Language language = UtilsFile.read(path, Language.class);
+      if (language == null) language = new Language();
+      CobbleDaycare.language = language;
+      UtilsFile.write(path, language);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
+
   }
 }

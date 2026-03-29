@@ -1,16 +1,16 @@
 package com.kingpixel.cobbledaycare.ui;
 
 import ca.landonjw.gooeylibs2.api.UIManager;
-import ca.landonjw.gooeylibs2.api.button.GooeyButton;
+import ca.landonjw.gooeylibs2.api.button.RateLimitedButton;
 import ca.landonjw.gooeylibs2.api.page.GooeyPage;
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate;
 import com.cobblemon.mod.common.battles.BattleRegistry;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.database.DatabaseClientFactory;
 import com.kingpixel.cobbledaycare.mechanics.Mechanics;
 import com.kingpixel.cobbledaycare.models.Plot;
-import com.kingpixel.cobbledaycare.models.UserInformation;
+import com.kingpixel.cobbledaycare.models.User;
+import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.ItemModel;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.AdventureTranslator;
@@ -24,6 +24,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Carlos Varas Alonso - 11/03/2025 4:11
@@ -96,26 +97,26 @@ public class PrincipalMenu {
 
   public void open(ServerPlayerEntity player) {
     if (isBattle(player)) return;
-    CobbleDaycare.runAsync(() -> {
+    CobbleDaycare.ASYNC_CONTEXT.runAsync(() -> {
       ChestTemplate template = ChestTemplate.builder(rows).build();
-      UserInformation userInformation = DatabaseClientFactory.INSTANCE.getUserInformation(player);
-
+      User user = CobbleDaycare.database.getUser(player);
+      if (user == null) return;
       int slotSize = CobbleDaycare.config.getSlotPlots().size();
-      int plotSize = userInformation.getPlots().size();
+      int plotSize = user.getPlots().size();
 
       for (int i = 0; i < slotSize; i++) {
         int slot = CobbleDaycare.config.getSlotPlots().get(i);
 
         if (!PermissionApi.hasPermission(player, Plot.plotPermission(i), 2) || i >= plotSize) {
           template.set(slot, blockedPlot.getButton(1, null, null, action -> {
-          }));
+          }, 1, TimeUnit.SECONDS, 1));
           continue;
         }
 
-        Plot plot = userInformation.getPlots().get(i);
+        Plot plot = user.getPlots().get(i);
         if (plot == null) {
           template.set(slot, blockedPlot.getButton(1, null, null, action -> {
-          }));
+          }, 1, TimeUnit.SECONDS, 1));
           continue;
         }
 
@@ -132,8 +133,8 @@ public class PrincipalMenu {
           plot.getEggs().size(),
           null,
           replacePlotLore(plot, player),
-          action -> CobbleDaycare.language.getPlotMenu().open(player, plot, userInformation)
-        ));
+          action -> CobbleDaycare.language.getPlotMenu().open(player, plot, user)
+          , 1, TimeUnit.SECONDS, 1));
       }
 
 
@@ -149,16 +150,12 @@ public class PrincipalMenu {
       });
 
       info.applyTemplate(template, info.getButton(1, null, loreInfo, action -> {
-      }));
+      }, 1, TimeUnit.SECONDS, 1));
 
-      close.applyTemplate(template, close.getButton(action -> {
-        UIManager.closeUI(player);
-      }));
+      close.applyTemplate(template, close.getButton(action -> UIManager.closeUI(player), 1, TimeUnit.SECONDS, 1));
 
 
-      GooeyButton profileButton = profileOptions.getButton(action -> {
-        CobbleDaycare.language.getProfileMenu().open(player, userInformation);
-      });
+      RateLimitedButton profileButton = profileOptions.getButton(action -> CobbleDaycare.language.getProfileMenu().open(player, user), 1, TimeUnit.SECONDS, 1);
 
       if (profileOptions.getItem().contains("minecraft:player_head")) {
         ItemStack headItem = PlayerUtils.getHeadItem(player);
@@ -173,10 +170,9 @@ public class PrincipalMenu {
       GooeyPage page = GooeyPage.builder()
         .template(template)
         .title(AdventureTranslator.toNative(title))
-        .onClose(action -> CobbleDaycare.runAsync(() -> DatabaseClientFactory.INSTANCE.saveOrUpdateUserInformation(player, userInformation)))
         .build();
 
-      CobbleDaycare.server.execute(() -> UIManager.openUIForcefully(player, page));
+      CobbleUtils.server.execute(() -> UIManager.openUIForcefully(player, page));
     });
   }
 

@@ -4,8 +4,7 @@ import ca.landonjw.gooeylibs2.api.UIManager;
 import ca.landonjw.gooeylibs2.api.page.GooeyPage;
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate;
 import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.database.DatabaseClientFactory;
-import com.kingpixel.cobbledaycare.models.UserInformation;
+import com.kingpixel.cobbledaycare.models.User;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.ItemModel;
 import com.kingpixel.cobbleutils.Model.PanelsConfig;
@@ -15,6 +14,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Carlos Varas Alonso - 14/03/2025 22:25
@@ -46,8 +46,8 @@ public class ProfileMenu {
     panels.add(new PanelsConfig(new ItemModel("minecraft:gray_stained_glass_pane"), rows));
   }
 
-  public void open(ServerPlayerEntity player, UserInformation userInformation) {
-    CobbleDaycare.runAsync(() -> {
+  public void open(ServerPlayerEntity player, User user) {
+    CobbleDaycare.ASYNC_CONTEXT.runAsync(() -> {
       ChestTemplate template = ChestTemplate
         .builder(rows)
         .build();
@@ -55,38 +55,38 @@ public class ProfileMenu {
       PanelsConfig.applyConfig(template, panels);
 
       notifyActionBar.applyTemplate(template, notifyActionBar.getButton(1, null, replaceLore(notifyActionBar.getLore(),
-        userInformation.isActionBar()), action -> {
-        userInformation.setActionBar(!userInformation.isActionBar());
-        DatabaseClientFactory.INSTANCE.saveOrUpdateUserInformation(player, userInformation);
-        open(player, userInformation);
-      }));
+        user.isActionBar()), action -> {
+        user.setActionBar(!user.isActionBar());
+        user.markDirty();
+        open(player, user);
+      }, 1, TimeUnit.SECONDS, 1));
 
       notifyCreateEgg.applyTemplate(template, notifyCreateEgg.getButton(1, null, replaceLore(notifyCreateEgg.getLore(),
-          userInformation.isNotifyCreateEgg()),
+          user.isNotifyCreateEgg()),
         action -> {
-          userInformation.setNotifyCreateEgg(!userInformation.isNotifyCreateEgg());
-          DatabaseClientFactory.INSTANCE.saveOrUpdateUserInformation(player, userInformation);
-          open(player, userInformation);
-        }));
+          user.setNotifyCreateEgg(!user.isNotifyCreateEgg());
+          user.markDirty();
+          open(player, user);
+        }, 1, TimeUnit.SECONDS, 1));
 
       notifyBanPokemon.applyTemplate(template, notifyBanPokemon.getButton(1, null,
         replaceLore(notifyBanPokemon.getLore(),
-          userInformation.isNotifyBanPokemon()), action -> {
-          userInformation.setNotifyBanPokemon(!userInformation.isNotifyBanPokemon());
-          DatabaseClientFactory.INSTANCE.saveOrUpdateUserInformation(player, userInformation);
-          open(player, userInformation);
-        }));
+          user.isNotifyBanPokemon()), action -> {
+          user.setNotifyBanPokemon(!user.isNotifyBanPokemon());
+          user.markDirty();
+          open(player, user);
+        }, 1, TimeUnit.SECONDS, 1));
 
       close.applyTemplate(template, close.getButton(action -> {
         CobbleDaycare.language.getPrincipalMenu().open(player);
-      }));
+      }, 1, TimeUnit.SECONDS, 1));
 
       GooeyPage page = GooeyPage.builder()
         .template(template)
         .title(AdventureTranslator.toNative(title))
         .build();
 
-      CobbleDaycare.server.execute(() -> UIManager.openUIForcefully(player, page));
+      CobbleUtils.server.execute(() -> UIManager.openUIForcefully(player, page));
     });
   }
 

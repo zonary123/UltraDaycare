@@ -39,8 +39,8 @@ public class EggData {
   private static final String PERCENTAGE_TAG = "percentage";
 
 
-  public static void steps(ServerPlayerEntity player, Pokemon egg, double deltaMovement, UserInformation userInformation) {
-    double totalSteps = deltaMovement * userInformation.getActualMultiplier(player);
+  public static void steps(ServerPlayerEntity player, Pokemon egg, double deltaMovement, User user) {
+    double totalSteps = deltaMovement * user.getActualMultiplier(player);
     double steps = egg.getPersistentData().getDouble(DayCarePokemon.TAG_STEPS);
     int cycles = egg.getPersistentData().getInt(DayCarePokemon.TAG_CYCLES);
     int referenceCycles = egg.getPersistentData().getInt(DayCarePokemon.TAG_REFERENCE_CYCLES);
