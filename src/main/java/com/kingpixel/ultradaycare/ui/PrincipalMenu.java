@@ -12,7 +12,6 @@ import com.kingpixel.cobbledaycare.models.Plot;
 import com.kingpixel.cobbledaycare.models.User;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.ItemModel;
-import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.AdventureTranslator;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
@@ -96,8 +95,8 @@ public class PrincipalMenu {
   }
 
   public void open(ServerPlayerEntity player) {
-    if (isBattle(player)) return;
-    CobbleDaycare.ASYNC_CONTEXT.runAsync(() -> {
+    if (isBattle(player) || CobbleDaycare.config.hasOpenCooldown(player)) return;
+    CobbleDaycare.getAsyncContext().runAsync(() -> {
       ChestTemplate template = ChestTemplate.builder(rows).build();
       User user = CobbleDaycare.database.getUser(player);
       if (user == null) return;
@@ -107,7 +106,7 @@ public class PrincipalMenu {
       for (int i = 0; i < slotSize; i++) {
         int slot = CobbleDaycare.config.getSlotPlots().get(i);
 
-        if (!PermissionApi.hasPermission(player, Plot.plotPermission(i), 2) || i >= plotSize) {
+        if (!CobbleDaycare.hasPermission(player, Plot.plotPermission(i), 2) || i >= plotSize) {
           template.set(slot, blockedPlot.getButton(1, null, null, action -> {
           }, 1, TimeUnit.SECONDS, 1));
           continue;

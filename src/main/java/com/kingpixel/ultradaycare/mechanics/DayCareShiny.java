@@ -16,7 +16,8 @@ import java.util.Map;
 /**
  * @author Carlos Varas Alonso - 31/01/2025 0:25
  */
-@EqualsAndHashCode(callSuper = true) @Data
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class DayCareShiny extends Mechanics {
   public static final String TAG = "shiny";
   private boolean masuda;
@@ -48,7 +49,8 @@ public class DayCareShiny extends Mechanics {
     return shinyRate;
   }
 
-  @Override public String replace(String text, ServerPlayerEntity player) {
+  @Override
+  public String replace(String text, ServerPlayerEntity player) {
     return text
       .replace("%shinyrate%", String.format("%.2f", getShinyRate(player)))
       .replace("%multiplierShiny%", String.format("%.2f", multiplierShiny))
@@ -84,12 +86,13 @@ public class DayCareShiny extends Mechanics {
     if (shinyrate <= 1) {
       egg.setShiny(true);
     } else {
-      egg.setShiny(Utils.RANDOM.nextInt((int) shinyrate) == 0);
+      egg.setShiny(Utils.getRandom().nextInt((int) shinyrate) == 0);
     }
     egg.getPersistentData().putBoolean(TAG, egg.getShiny());
   }
 
-  @Override public void applyHatch(HatchBuilder builder) {
+  @Override
+  public void applyHatch(HatchBuilder builder) {
     Pokemon egg = builder.getEgg();
     Pokemon pokemon = builder.getPokemon();
     boolean shiny = egg.getPersistentData().getBoolean(TAG);
@@ -97,19 +100,23 @@ public class DayCareShiny extends Mechanics {
     egg.getPersistentData().remove(TAG);
   }
 
-  @Override public void createEgg(ServerPlayerEntity player, Pokemon pokemon, Pokemon egg) {
+  @Override
+  public void createEgg(ServerPlayerEntity player, Pokemon pokemon, Pokemon egg) {
     egg.setShiny(pokemon.getShiny());
     egg.getPersistentData().putBoolean(TAG, pokemon.getShiny());
   }
 
-  @Override public String getEggInfo(String s, NbtCompound nbt) {
+  @Override
+  public String getEggInfo(String s, NbtCompound nbt) {
     return s.replace("%shiny%", nbt.getBoolean(TAG) ? CobbleUtils.language.getSymbolshiny() : "");
   }
 
-  @Override public void validateData() {
+  @Override
+  public void validateData() {
   }
 
-  @Override public String fileName() {
+  @Override
+  public String fileName() {
     return "shiny";
   }
 }

@@ -47,7 +47,8 @@ public class ProfileMenu {
   }
 
   public void open(ServerPlayerEntity player, User user) {
-    CobbleDaycare.ASYNC_CONTEXT.runAsync(() -> {
+    if (CobbleDaycare.config.hasOpenCooldown(player)) return;
+    CobbleDaycare.getAsyncContext().runAsync(() -> {
       ChestTemplate template = ChestTemplate
         .builder(rows)
         .build();

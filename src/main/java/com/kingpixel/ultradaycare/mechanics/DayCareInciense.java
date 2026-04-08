@@ -8,6 +8,7 @@ import com.kingpixel.cobbledaycare.models.HatchBuilder;
 import com.kingpixel.cobbledaycare.models.Incense;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.api.ItemsMod;
+import com.kingpixel.cobbleutils.util.UtilsFile;
 import com.kingpixel.cobbleutils.util.Utils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -75,11 +76,11 @@ public class DayCareInciense extends Mechanics {
       if (file.getName().endsWith(".json")) {
         try {
           String data = Utils.readFileSync(file); // Read the file content
-          Incense incense = Utils.newGson().fromJson(data, Incense.class);
+          Incense incense = UtilsFile.getGson().fromJson(data, Incense.class);
           if (incense != null) {
             incense.setId(file.getName().replace(".json", ""));
             incenses.add(incense);
-            Utils.writeFileAsync(file, Utils.newGson().toJson(incense));
+            UtilsFile.writeAsync(file.toPath(), incense);
           }
         } catch (IOException e) {
           e.printStackTrace();
@@ -91,8 +92,7 @@ public class DayCareInciense extends Mechanics {
 
   private void createDefaultIncense(File folder, List<Incense> incenses) {
     for (Incense incense : incenses) {
-      String data = Utils.newGson().toJson(incense);
-      Utils.writeFileAsync(new File(folder.getAbsolutePath() + "/" + incense.getId() + ".json"), data).join();
+      UtilsFile.writeAsync(new File(folder.getAbsolutePath() + "/" + incense.getId() + ".json").toPath(), incense).join();
     }
   }
 

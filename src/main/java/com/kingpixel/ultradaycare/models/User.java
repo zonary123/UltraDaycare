@@ -6,7 +6,6 @@ import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobbledaycare.CobbleDaycare;
 import com.kingpixel.cobbledaycare.mechanics.DayCarePokemon;
 import com.kingpixel.cobbleutils.CobbleUtils;
-import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
 import com.kingpixel.cobbleutils.util.UtilsFile;
@@ -20,6 +19,7 @@ import org.bson.Document;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -42,6 +42,7 @@ public class User {
   private long timeMultiplierSteps;
   private long cooldownHatch;
   private long cooldownBreed;
+  private long lastActiveTime;
   private ArrayList<Plot> plots;
   private transient AtomicBoolean dirty = new AtomicBoolean(false);
 
@@ -52,6 +53,7 @@ public class User {
     this.timeMultiplierSteps = 0;
     this.cooldownHatch = 0;
     this.cooldownBreed = 0;
+    this.lastActiveTime = System.currentTimeMillis();
     var userInfoOptions = CobbleDaycare.config.getUserInfoOptions();
     this.notifyBanPokemon = userInfoOptions.isNotifyBanPokemon();
     this.notifyCreateEgg = userInfoOptions.isNotifyCreateEgg();
@@ -87,7 +89,7 @@ public class User {
     float multiplier = CobbleDaycare.config.getMultiplierSteps();
     for (Map.Entry<String, Float> entry : CobbleDaycare.config.getMultiplierStepsPermission().entrySet()) {
       if (entry.getValue() <= multiplier) continue;
-      if (PermissionApi.hasPermission(player, entry.getKey(), 2)) {
+      if (CobbleDaycare.hasPermission(player, entry.getKey(), 2)) {
         multiplier = entry.getValue();
       }
     }
@@ -95,7 +97,7 @@ public class User {
   }
 
   public boolean hasCooldownHatch(ServerPlayerEntity player) {
-    if (PermissionApi.hasPermission(player, "cobbledaycare.hatch.bypass", 4)) return false;
+    if (CobbleDaycare.hasPermission(player, "ultradaycare.hatch.bypass", 4)) return false;
     return cooldownHatch > System.currentTimeMillis();
   }
 
@@ -106,7 +108,7 @@ public class User {
   }
 
   public boolean hasCooldownBreed(ServerPlayerEntity player) {
-    if (PermissionApi.hasPermission(player, "cobbledaycare.breed.bypass", 4)) return false;
+    if (CobbleDaycare.hasPermission(player, "ultradaycare.breed.bypass", 4)) return false;
     return cooldownBreed > System.currentTimeMillis();
   }
 
@@ -123,7 +125,7 @@ public class User {
 
 
     if (plots == null) {
-      CobbleUtils.LOGGER.error(CobbleDaycare.MOD_ID, "UserInformation plots was null for player " + player.getGameProfile().getName() + " fixing...");
+      CobbleDaycare.LOGGER.error("UserInformation plots was null for player " + player.getGameProfile().getName() + " fixing...");
       plots = new ArrayList<>();
       update = true;
     }
@@ -182,7 +184,7 @@ public class User {
   public synchronized boolean fix(ServerPlayerEntity player) {
     boolean update = false;
     if (plots == null) {
-      CobbleUtils.LOGGER.error(CobbleDaycare.MOD_ID, "UserInformation plots was null for player " + player.getGameProfile().getName() + " fixing...");
+      CobbleDaycare.LOGGER.error("UserInformation plots was null for player " + player.getGameProfile().getName() + " fixing...");
       plots = new ArrayList<>();
       update = true;
     }
@@ -205,7 +207,10 @@ public class User {
     return index + "";
   }
 
-  public void save() {
-    if (dirty.getAndSet(false)) CobbleDaycare.database.saveOrUpdateUser(this);
+  public CompletableFuture<Void> save() {
+    if (getDirty().getAndSet(false)) {
+      return CobbleDaycare.database.saveOrUpdateUser(this);
+    }
+    return CompletableFuture.completedFuture(null);
   }
 }

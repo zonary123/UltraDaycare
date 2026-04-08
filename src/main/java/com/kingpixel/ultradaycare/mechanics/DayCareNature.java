@@ -31,13 +31,11 @@ public class DayCareNature extends Mechanics {
   public void applyEgg(EggBuilder builder) {
     Pokemon egg = builder.getEgg();
     List<Pokemon> parents = builder.getParents();
-    if (hasNature(parents) && Utils.RANDOM.nextFloat() * 100 < percentageEverstone) {
+    if (hasNature(parents) && Utils.getRandom().nextFloat() * 100 < percentageEverstone) {
       for (Pokemon parent : parents) {
-        if (parent.heldItem().getItem() instanceof CobblemonItem item) {
-          if (item.equals(CobblemonItems.EVERSTONE)) {
-            applyNature(parent.getNature(), egg);
-            break;
-          }
+        if (parent.heldItem().getItem() instanceof CobblemonItem item && item.equals(CobblemonItems.EVERSTONE)) {
+          applyNature(parent.getNature(), egg);
+          break;
         }
       }
     } else {

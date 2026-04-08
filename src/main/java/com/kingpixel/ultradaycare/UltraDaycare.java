@@ -20,11 +20,13 @@ import com.kingpixel.cobbledaycare.models.Plot;
 import com.kingpixel.cobbledaycare.models.User;
 import com.kingpixel.cobbledaycare.properties.BreedablePropertyType;
 import com.kingpixel.cobbledaycare.tasks.TaskDayCare;
+import com.kingpixel.cobbledaycare.util.MigrationService;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.CobbleUtilsTags;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import com.kingpixel.cobbleutils.util.Utils;
+import com.kingpixel.cobbleutils.util.UtilsLogger;
 import com.kingpixel.cobbleutils.util.async.AsyncContext;
 import com.kingpixel.cobbleutils.util.async.UtilsAsync;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
@@ -33,6 +35,7 @@ import dev.architectury.event.events.common.PlayerEvent;
 import kotlin.Unit;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -46,12 +49,12 @@ import java.util.concurrent.TimeUnit;
  * @author Carlos Varas Alonso - 23/07/2024 9:24
  */
 public class CobbleDaycare implements ModInitializer {
-  public static final String MOD_ID = "cobbledaycare";
-  public static final String MOD_NAME = "CobbleDaycare";
+  public static final String MOD_ID = "ultradaycare";
+  public static final String MOD_NAME = "UltraDaycare";
   public static final String TAG_SPAWNED = "spawned";
   public static final List<Mechanics> mechanics = new ArrayList<>();
-  public static final AsyncContext ASYNC_CONTEXT = UtilsAsync.createContext(MOD_ID, MOD_NAME);
-  public static final String PATH = "/config/cobbledaycare/";
+  public static final Logger LOGGER = UtilsLogger.getLogger(MOD_NAME);
+  public static final String PATH = "/config/ultradaycare/";
   public static final String PATH_MODULES = PATH + "modules/";
   private static final String API_URL_IP = "http://ip-api.com/json/";
   private static final Map<UUID, UserInfo> playerCountry = new HashMap<>();
@@ -68,15 +71,53 @@ public class CobbleDaycare implements ModInitializer {
     return path;
   }
 
+  public static AsyncContext getAsyncContext() {
+    return UtilsAsync.createContext(MOD_ID, MOD_NAME);
+  }
+
+  /**
+   * Check if a player has a permission, with legacy support for "cobbledaycare".
+   *
+   * @param player     The player to check.
+   * @param permission The permission to check.
+   * @param level      The default permission level.
+   * @return True if the player has the permission.
+   */
+  public static boolean hasPermission(net.minecraft.server.command.ServerCommandSource player, String permission, int level) {
+    if (PermissionApi.hasPermission(player, permission, level)) return true;
+    if (permission.startsWith(MOD_ID)) {
+      return PermissionApi.hasPermission(player, permission.replace(MOD_ID, "cobbledaycare"), level);
+    }
+    return false;
+  }
+
+  /**
+   * Check if a player has a permission, with legacy support for "cobbledaycare".
+   *
+   * @param player     The player to check.
+   * @param permission The permission to check.
+   * @param level      The default permission level.
+   * @return True if the player has the permission.
+   */
+  public static boolean hasPermission(ServerPlayerEntity player, String permission, int level) {
+    if (PermissionApi.hasPermission(player, permission, level)) return true;
+    if (permission.startsWith(MOD_ID)) {
+      return PermissionApi.hasPermission(player, permission.replace(MOD_ID, "cobbledaycare"), level);
+    }
+    return false;
+  }
+
   public static void load() {
-    CobbleUtils.info(MOD_ID, "1.0.0", "https://github.com/zonary123/CobbleDaycare");
+    MigrationService.migrate();
+    CobbleUtils.info(MOD_ID, "1.1.0", "https://github.com/zonary123/UltraDaycare");
     files();
     DatabaseClientFactory.createDatabaseClient(config.getDataBase());
   }
 
   private static void tasks() {
-    ASYNC_CONTEXT.scheduleAtFixedRate(() -> {
-      if (database == null) return;
+    getAsyncContext().scheduleAtFixedRate(() -> {
+      if (database == null)
+        return;
       database.saveAll();
     }, 0, 30, TimeUnit.SECONDS);
   }
@@ -97,9 +138,7 @@ public class CobbleDaycare implements ModInitializer {
         new DayCareShiny().getInstance(),
         new DayCarePokeBall().getInstance(),
         new DaycareIvs().getInstance(),
-        new DayCareInciense().getInstance()
-      )
-    );
+        new DayCareInciense().getInstance()));
     mechanics.removeIf(Objects::isNull);
     mechanics.removeIf(mechanic -> {
       if (mechanic instanceof DayCarePokemon || mechanic instanceof DayCareForm) {
@@ -112,7 +151,7 @@ public class CobbleDaycare implements ModInitializer {
     for (Mechanics mechanic : mechanics) {
       activeMechanics.add(mechanic.fileName());
     }
-    CobbleUtils.LOGGER.info(MOD_ID, "Active mechanics:\n- " + String.join("\n- ", activeMechanics));
+    CobbleDaycare.LOGGER.info(MOD_ID, "Active mechanics:\n- " + String.join("\n- ", activeMechanics));
   }
 
   private static void events() {
@@ -124,20 +163,22 @@ public class CobbleDaycare implements ModInitializer {
         if (actor instanceof PlayerBattleActor playerBattleActor) {
           var pokemons = playerBattleActor.getPokemonList();
           pokemons.removeIf(pokemon -> pokemon.getOriginalPokemon().getSpecies().showdownId().equals("egg"));
-          if (pokemons.isEmpty()) evt.cancel();
+          if (pokemons.isEmpty())
+            evt.cancel();
         }
       }
       return Unit.INSTANCE;
     });
 
-    CommandRegistrationEvent.EVENT.register((dispatcher, registry, selection) -> CommandTree.register(dispatcher, registry));
+    CommandRegistrationEvent.EVENT
+      .register((dispatcher, registry, selection) -> CommandTree.register(dispatcher, registry));
 
     LifecycleEvent.SERVER_STARTED.register(server -> {
-      DataPackDaycare.installDatapack(server, "cobbledaycare_datapack");
+      DataPackDaycare.installDatapack(server, "ultradaycare_datapack");
       load();
       int size = config.getSlotPlots().size();
       for (int i = 0; i < size; i++) {
-        PermissionApi.hasPermission(server.getCommandSource(), Plot.plotPermission(i), 4);
+        hasPermission(server.getCommandSource(), Plot.plotPermission(i), 4);
       }
       CustomPokemonProperty.Companion.register(BreedablePropertyType.getInstance());
     });
@@ -147,10 +188,11 @@ public class CobbleDaycare implements ModInitializer {
     PlayerEvent.PLAYER_JOIN.register(player -> database.find(player)
       .whenComplete((user, throwable) -> {
         if (throwable != null) {
-          throwable.printStackTrace();
+          LOGGER.error("Error loading user " + player.getName().getString(), throwable);
           return;
         }
-        if (user == null) user = new User(player);
+        if (user == null)
+          user = new User(player);
         DatabaseClient.USERS.put(player.getUuid(), user);
         user.setConnectedTime(System.currentTimeMillis());
         boolean update = false;
@@ -167,14 +209,30 @@ public class CobbleDaycare implements ModInitializer {
         int numPlots = 1;
         int size = CobbleDaycare.config.getSlotPlots().size();
         for (int i = 0; i < size; i++) {
-          if (PermissionApi.hasPermission(player, Plot.plotPermission(i), 4)) {
+          if (hasPermission(player, Plot.plotPermission(i), 4)) {
             numPlots = i + 1;
           }
         }
 
-        if (user.check(numPlots, player)) update = true;
-        if (user.fix(player)) update = true;
-        if (update) user.markDirty();
+        if (user.check(numPlots, player))
+          update = true;
+        if (user.fix(player))
+          update = true;
+
+        // Offline Breeding Simulation
+        long now = System.currentTimeMillis();
+        long lastActive = user.getLastActiveTime();
+        if (lastActive > 0) {
+          long elapsed = now - lastActive;
+          for (Plot plot : user.getPlots()) {
+            plot.checkOfflineBreeding(player, user, elapsed);
+          }
+        }
+        user.setLastActiveTime(now);
+
+        if (update)
+          user.markDirty();
+
         user.save();
       }));
 
@@ -182,8 +240,8 @@ public class CobbleDaycare implements ModInitializer {
       User user = database.getUser(player);
       if (user != null) {
         user.setConnectedTime(0);
-        user.save();
-        DatabaseClient.USERS.invalidate(player.getUuid());
+        user.setLastActiveTime(System.currentTimeMillis());
+        user.save().thenRun(() -> DatabaseClient.USERS.invalidate(player.getUuid()));
       }
     });
 
@@ -208,11 +266,14 @@ public class CobbleDaycare implements ModInitializer {
     });
 
     CobblemonEvents.POKEMON_ENTITY_SPAWN.subscribe(Priority.LOWEST, evt -> {
-      if (!evt.getEntity().getPokemon().isWild()) return Unit.INSTANCE;
-      if (!config.isSpawnEggWorld()) return Unit.INSTANCE;
+      if (!evt.getEntity().getPokemon().isWild())
+        return Unit.INSTANCE;
+      if (!config.isSpawnEggWorld())
+        return Unit.INSTANCE;
       var pokemonEntity = evt.getEntity();
       var pokemon = pokemonEntity.getPokemon();
-      if (pokemon.getSpecies().showdownId().equals("egg")) return Unit.INSTANCE;
+      if (pokemon.getSpecies().showdownId().equals("egg"))
+        return Unit.INSTANCE;
       boolean rarity = Utils.getRandom().nextInt(config.getRaritySpawnEgg()) == 0;
       if (rarity) {
         var egg = PokemonProperties.Companion.parse("egg").create();
@@ -249,7 +310,7 @@ public class CobbleDaycare implements ModInitializer {
       }
     } catch (Exception e) {
       if (CobbleDaycare.config.isDebug()) {
-        CobbleUtils.LOGGER.warn(MOD_ID, "Error fetching country for player " + player.getName().getString());
+        CobbleDaycare.LOGGER.warn(MOD_ID, "Error fetching country for player " + player.getName().getString());
       }
     }
     return null;
@@ -277,7 +338,8 @@ public class CobbleDaycare implements ModInitializer {
   }
 
   private static void fixCountryInfo(Pokemon pokemon, String country) {
-    if (country == null) return;
+    if (country == null)
+      return;
     if (!pokemon.getPersistentData().contains(DayCareCountry.TAG)) {
       pokemon.getPersistentData().putString(DayCareCountry.TAG, country);
     }
@@ -302,7 +364,6 @@ public class CobbleDaycare implements ModInitializer {
   public static synchronized void setBreedable(Pokemon pokemon, boolean value) {
     pokemon.getPersistentData().putBoolean(CobbleUtilsTags.BREEDABLE_TAG, value);
   }
-
 
   @Override
   public void onInitialize() {

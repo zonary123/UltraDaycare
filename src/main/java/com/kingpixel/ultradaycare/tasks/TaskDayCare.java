@@ -37,7 +37,7 @@ public class TaskDayCare implements Runnable {
     cobbleDaycare$scheduler.scheduleAtFixedRate(this, 5, 1, TimeUnit.SECONDS);
   }
 
-  private static void cobbleDaycare$sendMessageMultiplierSteps(User user, ServerPlayerEntity player) {
+  private static void sendMessageMultiplierSteps(User user, ServerPlayerEntity player) {
     boolean activeMultiplier = CobbleDaycare.config.isGlobalMultiplierSteps();
     float multiplier = user.getActualMultiplier(player);
     boolean hasMultiplier = multiplier >= CobbleDaycare.config.getMultiplierSteps();
@@ -59,7 +59,7 @@ public class TaskDayCare implements Runnable {
   }
 
   @Unique
-  private static boolean cobbleDaycare$isVehiclePermitted(ServerPlayerEntity player) {
+  private static boolean isVehiclePermitted(ServerPlayerEntity player) {
     String vehicleId = player.getVehicle() == null ? "" : player.getVehicle().getSavedEntityId();
     if (vehicleId == null) vehicleId = "";
     return CobbleDaycare.config.getPermittedVehicles().contains(vehicleId) || vehicleId.isEmpty();
@@ -67,18 +67,18 @@ public class TaskDayCare implements Runnable {
 
   // -------------------- Mismos métodos existentes pero sin CompletableFuture --------------------
 
-  private boolean cobbleDaycare$isPlayerEligibleForStepUpdate(ServerPlayerEntity player) {
+  private boolean isPlayerEligibleForStepUpdate(ServerPlayerEntity player) {
     return (CobbleDaycare.config.isAllowElytra() || !player.isInPose(EntityPose.FALL_FLYING))
       && !player.getAbilities().flying
-      && cobbleDaycare$isVehiclePermitted(player)
+      && isVehiclePermitted(player)
       && (!player.isTouchingWater() || player.isInPose(EntityPose.SWIMMING));
   }
 
-  private Entity cobbleDaycare$getEffectiveEntity(ServerPlayerEntity player) {
+  private Entity getEffectiveEntity(ServerPlayerEntity player) {
     return player.getVehicle() != null ? player.getVehicle() : player;
   }
 
-  private void cobbleDaycare$updateEggSteps(PlayerPartyStore party, double deltaMovement, ServerPlayerEntity player) {
+  private void updateEggSteps(PlayerPartyStore party, double deltaMovement, ServerPlayerEntity player) {
     User user = CobbleDaycare.database.getUser(player);
     if (user == null) return;
     for (Pokemon pokemon : party) {
@@ -88,7 +88,33 @@ public class TaskDayCare implements Runnable {
     }
   }
 
-  private void cobbleDaycare$sendMessage(ServerPlayerEntity player) {
+  private void updatePlotsXp(ServerPlayerEntity player, double deltaMovement) {
+    User user = CobbleDaycare.database.getUser(player);
+    if (user == null || user.getPlots().isEmpty()) return;
+    double xpAccumulated = deltaMovement * CobbleDaycare.config.getXpPerStep();
+    int maxLevel = CobbleDaycare.config.getMaxLevelTraining();
+
+    for (com.kingpixel.cobbledaycare.models.Plot plot : user.getPlots()) {
+      if (plot.getMale() != null && plot.getMale().getLevel() < maxLevel) {
+        plot.setMalePendingXp(plot.getMalePendingXp() + xpAccumulated);
+      }
+      if (plot.getFemale() != null && plot.getFemale().getLevel() < maxLevel) {
+        plot.setFemalePendingXp(plot.getFemalePendingXp() + xpAccumulated);
+      }
+    }
+  }
+
+  private void updatePlotsBreeding(ServerPlayerEntity player, User user) {
+    if (user == null || user.getPlots().isEmpty()) return;
+    for (com.kingpixel.cobbledaycare.models.Plot plot : user.getPlots()) {
+      // Preliminary quick checks before calling the heavier logic in Plot.checkEgg
+      if (plot.hasTwoParents()) {
+        plot.checkEgg(player, user);
+      }
+    }
+  }
+
+  private void sendMessage(ServerPlayerEntity player) {
     User user = CobbleDaycare.database.getUser(player);
     if (user == null) return;
     long timeMultiplierSteps = user.getTimeMultiplierSteps();
@@ -103,25 +129,24 @@ public class TaskDayCare implements Runnable {
       }
 
       if (user.isActionBar()) {
-        cobbleDaycare$sendMessageMultiplierSteps(user, player);
+        sendMessageMultiplierSteps(user, player);
       }
     }
   }
 
-  private void cobbleDaycare$processPlayers() {
+  private void processPlayers() {
     if (CobbleUtils.server == null) return;
     long currentTime = System.currentTimeMillis();
-    if (CobbleUtils.server.getPlayerManager().getPlayerList().isEmpty()) return;
-    var players = Collections.synchronizedList(CobbleUtils.server.getPlayerManager().getPlayerList());
-    for (ServerPlayerEntity player : players) {
-      if (player == null) continue;
+    var playerManager = CobbleUtils.server.getPlayerManager();
+    if (playerManager == null || playerManager.getPlayerList().isEmpty()) return;
+
+    for (ServerPlayerEntity player : Collections.synchronizedList(playerManager.getPlayerList())) {
+      if (player == null || !player.isAlive() || player.isRemoved()) continue;
       try {
         User user = CobbleDaycare.database.getUser(player);
-        if (user == null) continue;
-        if (!player.isAlive() || player.isRemoved()) continue;
-        if (!cobbleDaycare$isPlayerEligibleForStepUpdate(player)) continue;
+        if (user == null || !isPlayerEligibleForStepUpdate(player)) continue;
 
-        Entity entity = cobbleDaycare$getEffectiveEntity(player);
+        Entity entity = getEffectiveEntity(player);
         if (entity == null) continue;
 
         Position pos = cobbleDaycare$playerPositions.computeIfAbsent(player, p -> new Position(entity.getX(), entity.getZ(), currentTime));
@@ -132,8 +157,7 @@ public class TaskDayCare implements Runnable {
 
         int teleportCount = cobbleDaycare$playerTeleport.getOrDefault(player, 0);
         if (deltaMovement <= 0 || teleportCount > 0) {
-          if (teleportCount > 0) teleportCount--;
-          cobbleDaycare$playerTeleport.put(player, teleportCount);
+          if (teleportCount > 0) cobbleDaycare$playerTeleport.put(player, teleportCount - 1);
           pos.setX(entity.getX());
           pos.setZ(entity.getZ());
           pos.setLastUpdate(currentTime);
@@ -141,13 +165,14 @@ public class TaskDayCare implements Runnable {
         }
 
         PlayerPartyStore party = Cobblemon.INSTANCE.getStorage().getParty(player);
-        cobbleDaycare$updateEggSteps(party, deltaMovement, player);
-        cobbleDaycare$sendMessage(player);
+        updateEggSteps(party, deltaMovement, player);
+        updatePlotsXp(player, deltaMovement);
+        updatePlotsBreeding(player, user);
+        sendMessage(player);
 
         pos.setX(entity.getX());
         pos.setZ(entity.getZ());
         pos.setLastUpdate(currentTime);
-        cobbleDaycare$playerPositions.put(player, pos);
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -157,7 +182,7 @@ public class TaskDayCare implements Runnable {
   @Override
   public void run() {
     try {
-      cobbleDaycare$processPlayers();
+      processPlayers();
     } catch (Exception e) {
       e.printStackTrace();
     }

@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.kingpixel.cobbledaycare.models.EggBuilder;
 import com.kingpixel.cobbledaycare.models.HatchBuilder;
+import com.kingpixel.cobbledaycare.CobbleDaycare;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -42,7 +43,7 @@ public class DayCareEggMoves extends Mechanics {
         moveNames.add(element.getAsString());
       }
     } catch (Exception e) {
-      CobbleUtils.LOGGER.error("Error parsing move names from JSON: " + e.getMessage());
+      CobbleDaycare.LOGGER.error("Error parsing move names from JSON: " + e.getMessage());
     }
 
     return moveNames;

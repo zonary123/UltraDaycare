@@ -10,7 +10,6 @@ import com.kingpixel.cobbledaycare.CobbleDaycare;
 import com.kingpixel.cobbledaycare.models.EggBuilder;
 import com.kingpixel.cobbledaycare.models.HatchBuilder;
 import com.kingpixel.cobbledaycare.models.PokemonRareMecanic;
-import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.PokemonChance;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
@@ -113,7 +112,7 @@ public class DayCarePokemon extends Mechanics {
   private String getTypeEgg(Pokemon pokemon) {
     String showdownId = pokemon.showdownId();
     if (CobbleDaycare.config.isDebug()) {
-      CobbleUtils.LOGGER.info(CobbleDaycare.MOD_ID, "type_egg=" + showdownId);
+      CobbleDaycare.LOGGER.info(CobbleDaycare.MOD_ID, "type_egg=" + showdownId);
     }
     return "type_egg=" + showdownId;
   }

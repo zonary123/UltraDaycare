@@ -37,7 +37,7 @@ public abstract class DatabaseClient {
 
   public abstract CompletableFuture<@Nullable User> find(UUID uuid);
 
-  public abstract void saveOrUpdateUser(User user);
+  public abstract CompletableFuture<Void> saveOrUpdateUser(User user);
 
   public CompletableFuture<Void> saveAll() {
     List<CompletableFuture<Void>> futures = USERS.asMap().values().stream()

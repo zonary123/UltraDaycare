@@ -22,7 +22,8 @@ import static com.cobblemon.mod.common.CobblemonItems.*;
 /**
  * @author Carlos Varas Alonso - 31/01/2025 0:25
  */
-@EqualsAndHashCode(callSuper = true) @Data
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class DaycareIvs extends Mechanics {
   public static final List<Stats> stats =
     Arrays.stream(Stats.values()).filter(stats1 -> stats1 != Stats.ACCURACY && stats1 != Stats.EVASION).toList();
@@ -50,7 +51,8 @@ public class DaycareIvs extends Mechanics {
     this.percentageDestinyKnot = 100f;
   }
 
-  @Override public String replace(String text, ServerPlayerEntity player) {
+  @Override
+  public String replace(String text, ServerPlayerEntity player) {
     return text
       .replace("%destinyknot%", String.format("%.2f", percentageDestinyKnot))
       .replace("%poweritem%", String.format("%.2f", percentagePowerItem))
@@ -67,13 +69,13 @@ public class DaycareIvs extends Mechanics {
     List<Stats> cloneStats = new ArrayList<>(stats);
     int numIvsToTransfer = getDefaultIvsTransfer();
 
-    if (hasDestinyKnot(parents) && Utils.RANDOM.nextFloat() * 100 < getPercentageDestinyKnot()) {
+    if (hasDestinyKnot(parents) && Utils.getRandom().nextFloat() * 100 < getPercentageDestinyKnot()) {
       numIvsToTransfer = getDestinyKnotIvsTransfer();
     }
     // Power Items
     for (Pokemon parent : parents) {
-      if (Utils.RANDOM.nextFloat() * 100 < getPercentagePowerItem())
-        if (powerItem(parent, egg, cloneStats)) numIvsToTransfer--;
+      if (Utils.getRandom().nextFloat() * 100 < getPercentagePowerItem() && powerItem(parent, egg, cloneStats))
+        numIvsToTransfer--;
     }
 
     applyLastIvs(parents, egg, cloneStats, numIvsToTransfer);
@@ -92,7 +94,7 @@ public class DaycareIvs extends Mechanics {
       } else if (egg.getPersistentData().contains(stat.getShowdownId())) {
         iv = egg.getPersistentData().getInt(stat.getShowdownId());
       } else {
-        iv = Utils.RANDOM.nextInt(32);
+        iv = Utils.getRandom().nextInt(32);
       }
 
       pokemon.getIvs().set(stat, iv);
@@ -102,14 +104,16 @@ public class DaycareIvs extends Mechanics {
     });
   }
 
-  @Override public void createEgg(ServerPlayerEntity player, Pokemon pokemon, Pokemon egg) {
+  @Override
+  public void createEgg(ServerPlayerEntity player, Pokemon pokemon, Pokemon egg) {
     stats.forEach(stat -> {
       int iv = pokemon.getIvs().getOrDefault(stat);
       applyData(egg, stat, iv);
     });
   }
 
-  @Override public String getEggInfo(String s, NbtCompound nbt) {
+  @Override
+  public String getEggInfo(String s, NbtCompound nbt) {
     for (Stats stat : stats) {
       s = s.replace("%iv_" + stat.getShowdownId() + "%",
         String.valueOf(nbt.getInt(stat.getShowdownId())));
@@ -117,10 +121,12 @@ public class DaycareIvs extends Mechanics {
     return s;
   }
 
-  @Override public void validateData() {
+  @Override
+  public void validateData() {
   }
 
-  @Override public String fileName() {
+  @Override
+  public String fileName() {
     return "ivs";
   }
 
@@ -135,13 +141,13 @@ public class DaycareIvs extends Mechanics {
 
   private void applyLastIvs(List<Pokemon> parents, Pokemon egg, List<Stats> stats, int numIvsToTransfer) {
     for (int i = 0; i < numIvsToTransfer; i++) {
-      Stats stat = stats.get(Utils.RANDOM.nextInt(stats.size()));
-      Pokemon parent = parents.get(Utils.RANDOM.nextInt(parents.size()));
+      Stats stat = stats.get(Utils.getRandom().nextInt(stats.size()));
+      Pokemon parent = parents.get(Utils.getRandom().nextInt(parents.size()));
       applyIvs(parent, egg, stat, stats);
     }
     stats.forEach(stat -> {
-      int random = Math.min(Math.max(getMaxIvsRandom(), 0), 31);
-      int iv = Utils.RANDOM.nextInt(random + 1);
+      int random = Math.clamp(getMaxIvsRandom(), 0, 31);
+      int iv = Utils.getRandom().nextInt(random + 1);
       applyData(egg, stat, iv);
     });
   }

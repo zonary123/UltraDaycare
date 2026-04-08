@@ -13,8 +13,8 @@ public class DatabaseClientFactory {
     if (CobbleDaycare.database != null) CobbleDaycare.database.disconnect();
     CobbleDaycare.database = null;
     switch (database.getType()) {
-      case MONGODB -> CobbleDaycare.database = new MongoDBClient();
-      case JSON -> CobbleDaycare.database = new JSONClient();
+      case MONGODB -> CobbleDaycare.database = new MongoDBService();
+      case JSON -> CobbleDaycare.database = new JSONService();
       default -> throw new IllegalArgumentException("Unsupported database type: " + database.getType());
     }
 

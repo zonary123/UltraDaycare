@@ -36,6 +36,12 @@ public class Plot {
   private CopyOnWriteArrayList<Pokemon> eggs;
   private long timeToHatch;
   private long canOpen;
+  
+  // New economy and training state
+  private double malePendingXp;
+  private double femalePendingXp;
+  private boolean breedingPaid;
+  private boolean eggProducedSincePayment;
 
   public Plot() {
     this.male = null;
@@ -43,6 +49,10 @@ public class Plot {
     this.eggs = new CopyOnWriteArrayList<>();
     this.timeToHatch = 0;
     this.canOpen = 0;
+    this.malePendingXp = 0;
+    this.femalePendingXp = 0;
+    this.breedingPaid = false;
+    this.eggProducedSincePayment = false;
   }
 
   public static boolean isNotBreedable(Pokemon pokemon) {
@@ -50,14 +60,20 @@ public class Plot {
   }
 
   public static String plotPermission(int i) {
-    return "cobbledaycare.plot." + (i + 1);
+    return "ultradaycare.plot." + (i + 1);
   }
 
   public synchronized void setMale(Pokemon male) {
+    if (this.male != male) {
+      this.malePendingXp = 0;
+    }
     this.male = male;
   }
 
   public synchronized void setFemale(Pokemon female) {
+    if (this.female != female) {
+      this.femalePendingXp = 0;
+    }
     this.female = female;
   }
 
@@ -111,16 +127,6 @@ public class Plot {
     }
   }
 
-  public synchronized void addFemale(ServerPlayerEntity player, Pokemon female) {
-    this.female = female;
-    setTime(player);
-  }
-
-  public synchronized void addMale(ServerPlayerEntity player, Pokemon male) {
-    this.male = male;
-    setTime(player);
-  }
-
   public boolean hasEggs() {
     return !eggs.isEmpty();
   }
@@ -135,7 +141,7 @@ public class Plot {
 
   public synchronized boolean giveEggs(ServerPlayerEntity player) {
     if (!hasEggs()) return false;
-    boolean update = false;
+    boolean removeEggs = false;
     List<Pokemon> remove = new ArrayList<>();
     for (Pokemon egg : eggs) {
       if (egg == null) continue;
@@ -144,9 +150,9 @@ public class Plot {
     }
     if (!remove.isEmpty()) {
       eggs.removeAll(remove);
-      update = true;
+      removeEggs = true;
     }
-    return update;
+    return removeEggs;
   }
 
   public boolean check(ServerPlayerEntity player) {
@@ -161,11 +167,67 @@ public class Plot {
     int limit = 1;
     for (Map.Entry<String, Integer> limitEgg : CobbleDaycare.config.getLimitEggs().entrySet()) {
       if (limit > limitEgg.getValue()) continue;
-      if (PermissionApi.hasPermission(player, List.of(limitEgg.getKey(), "cobbleutils.breeding." + limitEgg), 4)) {
+      if (CobbleDaycare.hasPermission(player, limitEgg.getKey(), 4) ||
+        PermissionApi.hasPermission(player, "cobbleutils.breeding." + limitEgg.getValue(), 4)) {
         limit = limitEgg.getValue();
       }
     }
     return limit;
+  }
+
+  public synchronized void checkRefund(ServerPlayerEntity player) {
+    if (CobbleDaycare.config.isEnableBreedingFee() && breedingPaid && !eggProducedSincePayment) {
+      com.kingpixel.cobbleutils.api.EconomyApi.addMoney(
+        player.getUuid(),
+        java.math.BigDecimal.valueOf(CobbleDaycare.config.getBreedingFeePrice()),
+        CobbleDaycare.config.getEconomyUse()
+      );
+      com.kingpixel.cobbleutils.util.PlayerUtils.sendMessage(
+        player,
+        CobbleDaycare.language.getMessageBreedingEntranceRefunded()
+          .replace("%price%", String.valueOf(CobbleDaycare.config.getBreedingFeePrice())),
+        CobbleDaycare.language.getPrefix(),
+        com.kingpixel.cobbleutils.util.TypeMessage.CHAT
+      );
+    }
+    this.breedingPaid = false;
+    this.eggProducedSincePayment = false;
+  }
+
+  public synchronized void addFemale(ServerPlayerEntity player, Pokemon female) {
+    checkRefund(player);
+    setFemale(female);
+    setTime(player);
+  }
+
+  public synchronized void addMale(ServerPlayerEntity player, Pokemon male) {
+    checkRefund(player);
+    setMale(male);
+    setTime(player);
+  }
+
+  public synchronized void checkOfflineBreeding(ServerPlayerEntity player, User user, long elapsedMillis) {
+    if (!CobbleDaycare.config.isEnableOfflineBreeding()) return;
+    if (!hasTwoParents()) return;
+    if (CobbleDaycare.config.isEnableBreedingFee() && !breedingPaid) return;
+
+    long interval = CobbleDaycare.config.getOfflineBreedingInterval().toMillis();
+    if (interval <= 0) return;
+
+    long checks = elapsedMillis / interval;
+    if (checks <= 0) return;
+
+    int maxOffline = CobbleDaycare.config.getMaxOfflineEggsPerPlot();
+    int currentEggs = eggs.size();
+    int limit = limitEggs(player);
+
+    for (int i = 0; i < checks && currentEggs < limit && (i < maxOffline); i++) {
+      Pokemon egg = createEgg(player);
+      eggs.add(egg);
+      currentEggs++;
+      eggProducedSincePayment = true;
+      user.markDirty();
+    }
   }
 
   public synchronized boolean checkEgg(ServerPlayerEntity player, User user) {
@@ -173,6 +235,12 @@ public class Plot {
       boolean update = false;
 
       if (!hasTwoParents()) return update;
+
+      // Check if breeding is paid
+      if (CobbleDaycare.config.isEnableBreedingFee() && !breedingPaid) {
+        return update;
+      }
+
       int index = user.getPlots().indexOf(this) + 1;
       int sizeEggs = eggs.size();
       if (sizeEggs >= limitEggs(player)) return update;
@@ -188,6 +256,7 @@ public class Plot {
           CobbleDaycare.language.getPrefix(),
           TypeMessage.CHAT
         );
+        checkRefund(player);
         Pokemon pokemonFemale = female.clone(false, DynamicRegistryManager.EMPTY);
         CobbleUtils.server.executeSync(() -> party.add(pokemonFemale));
         setFemale(null);
@@ -201,6 +270,7 @@ public class Plot {
           CobbleDaycare.language.getPrefix(),
           TypeMessage.CHAT
         );
+        checkRefund(player);
         Pokemon pokemonMale = male.clone(false, DynamicRegistryManager.EMPTY);
         CobbleUtils.server.executeSync(() -> party.add(pokemonMale));
         setMale(null);
@@ -232,12 +302,13 @@ public class Plot {
               TypeMessage.CHAT
             );
           }
-          if (PermissionApi.hasPermission(player, CobbleDaycare.MOD_ID + ".autoclaim", 4)) {
+          if (CobbleDaycare.hasPermission(player, "ultradaycare.autoclaim", 4)) {
             CobbleUtils.server.executeSync(() -> Cobblemon.INSTANCE.getStorage().getParty(player).add(egg));
           } else {
             eggs.add(egg);
           }
           update = true;
+          eggProducedSincePayment = true;
           setTime(player);
         }
       }
@@ -279,7 +350,6 @@ public class Plot {
     }
     return egg;
   }
-
 
   public synchronized void addPokemon(ServerPlayerEntity player, Pokemon pokemon, SelectGender gender,
                                       User user) {

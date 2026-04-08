@@ -21,21 +21,33 @@ import java.nio.file.Path;
 @Setter
 public class Language {
   private String prefix;
+  private String messageReload;
+  private String messageCooldownOpenMenu;
+
+  // Breeding & Daycare Messages
   private String eggName;
   private String eggInfo;
   private String infoAbility;
-  private String messageReload;
   private String messageCooldownBreed;
   private String messageCooldownHatch;
   private String messageActiveStepsMultiplier;
   private String messageEggCreated;
   private String messageBanPokemon;
-  private String messageCooldownOpenMenu;
   private String messageItNotEgg;
   private String messageBreedable;
   private String messageRemovedFemale;
   private String messageRemovedMale;
   private String messageCannotBreed;
+
+  // Economy & Training Messages
+  private String messageExperiencePaid;
+  private String messageNotEnoughMoney;
+  private String messageMaxLevelReached;
+  private String messageBreedingEntrancePaid;
+  private String messageBreedingEntranceRefunded;
+  private String messageXpClaimed;
+
+  // UI Menus
   private PrincipalMenu principalMenu;
   private PlotMenu plotMenu;
   private SelectPokemonMenu selectPokemonMenu;
@@ -43,7 +55,7 @@ public class Language {
 
   public Language() {
 
-    this.prefix = "&7[&6CobbleDaycare&7] ";
+    this.prefix = "&7[&6UltraDaycare&7] ";
     StringBuilder eggInfoBuilder = new StringBuilder();
     eggInfoBuilder.append("&7[<#de896f>Egginfo&7] &6Pokemon: &f%pokemon% %gender%%shiny% &f(&b%form%&f)\n")
       .append("<#b0eb59>Steps: &f%steps%&7/&f%cycles%\n");
@@ -88,6 +100,12 @@ public class Language {
     this.messageBreedable = "%prefix% &7This pokemon %pokemon% %form% is now breedable: %breedable%";
     this.messageRemovedFemale = "%prefix% &7Removed the female pokemon in the plot %plot%";
     this.messageRemovedMale = "%prefix% &7Removed the male pokemon in the plot %plot%";
+    this.messageExperiencePaid = "%prefix% &aYou have paid &6%price% &afor &6%xp% XP &afor your &6%pokemon%&a!";
+    this.messageNotEnoughMoney = "%prefix% &cYou don't have enough money! Need &6%price%&c.";
+    this.messageMaxLevelReached = "%prefix% &cThis pokemon has already reached the maximum level allowed for training (&6%level%&c).";
+    this.messageBreedingEntrancePaid = "%prefix% &aYou have paid &6%price% &ato start breeding in this plot!";
+    this.messageBreedingEntranceRefunded = "%prefix% &eBreeding fee of &6%price% &ehas been refunded because no eggs were produced.";
+    this.messageXpClaimed = "%prefix% &aYou have claimed &6%xp% XP &afor &6%price%&a!";
     this.infoAbility = "&b%male% &e%maleHA% &7| &d%female% &e%femaleHA%";
     this.principalMenu = new PrincipalMenu();
     this.plotMenu = new PlotMenu();
