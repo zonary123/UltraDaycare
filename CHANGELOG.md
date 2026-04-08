@@ -2,7 +2,7 @@
 
 ## [1.1.0] - UltraDaycare: Automatic Breeding & Dynamic Training
 
-### 🌟 Main Features
+### 🌟 New Features
 - **Automatic Breeding**: Eggs now generate automatically in the background! Even better: notifications for new eggs are **much faster than before**. No more waiting around to know if the stork has arrived!
 - **Step-Based Training System**: Your Pokémon now gain experience while in the Daycare **simply by you walking around the world**. Train your team while you explore!
 - **Experience Claiming**: We've added dedicated buttons above each Pokémon so you can see how much experience they've accumulated and **pay to apply it** instantly.
