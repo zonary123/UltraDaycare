@@ -1,11 +1,11 @@
-package com.kingpixel.cobbledaycare.commands.admin;
+package com.kingpixel.ultradaycare.commands.admin;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.command.argument.PokemonPropertiesArgumentType;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.mechanics.Mechanics;
 import com.kingpixel.cobbleutils.api.PermissionApi;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.mechanics.Mechanics;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -36,7 +36,7 @@ public class CommandEgg {
                         var egg = PokemonProperties.Companion.parse("egg").create();
 
                         for (var player : players) {
-                          for (Mechanics mechanic : CobbleDaycare.mechanics) {
+                          for (Mechanics mechanic : UltraDaycare.mechanics) {
                             mechanic.createEgg(player, pokemon, egg);
                           }
                           Cobblemon.INSTANCE.getStorage().getParty(player).add(egg);

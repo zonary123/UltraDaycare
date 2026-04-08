@@ -1,4 +1,4 @@
-package com.kingpixel.cobbledaycare.ui;
+package com.kingpixel.ultradaycare.ui;
 
 import ca.landonjw.gooeylibs2.api.UIManager;
 import ca.landonjw.gooeylibs2.api.button.Button;
@@ -8,16 +8,16 @@ import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate;
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.item.PokemonItem;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.models.Plot;
-import com.kingpixel.cobbledaycare.models.SelectGender;
-import com.kingpixel.cobbledaycare.models.User;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.ItemModel;
 import com.kingpixel.cobbleutils.Model.PanelsConfig;
 import com.kingpixel.cobbleutils.Model.Rectangle;
 import com.kingpixel.cobbleutils.util.AdventureTranslator;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.models.Plot;
+import com.kingpixel.ultradaycare.models.SelectGender;
+import com.kingpixel.ultradaycare.models.User;
 import lombok.Data;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
@@ -57,15 +57,15 @@ public class SelectPokemonMenu {
   }
 
   public void open(ServerPlayerEntity player, Plot plot, User user, SelectGender gender, int position) {
-    if (CobbleDaycare.config.hasOpenCooldown(player)) return;
-    CobbleDaycare.getAsyncContext().runAsync(() -> {
+    if (UltraDaycare.config.hasOpenCooldown(player)) return;
+    UltraDaycare.getAsyncContext().runAsync(() -> {
       ChestTemplate template = ChestTemplate.builder(rows).build();
       PanelsConfig.applyConfig(template, panels);
       rectangle.apply(template);
 
       List<Button> buttons = getButtons(plot, player, gender, user);
 
-      close.applyTemplate(template, close.getButton(action -> CobbleDaycare.language.getPlotMenu().open(player, plot, user, true)));
+      close.applyTemplate(template, close.getButton(action -> UltraDaycare.language.getPlotMenu().open(player, plot, user, true)));
 
       if (position > 0) {
         previous.applyTemplate(template, previous.getButton(action -> open(player, plot, user, gender, Math.max(0, position - POKEMONS_PER_PAGE))));
@@ -118,9 +118,9 @@ public class SelectPokemonMenu {
       .display(display)
       .with(DataComponentTypes.CUSTOM_NAME, AdventureTranslator.toNative(PokemonUtils.getTranslatedName(pokemon)))
       .with(DataComponentTypes.LORE, new LoreComponent(AdventureTranslator.toNativeL(lore)))
-      .onClick(action -> CobbleDaycare.getAsyncContext().runAsync(() -> {
+      .onClick(action -> UltraDaycare.getAsyncContext().runAsync(() -> {
         plot.addPokemon(player, pokemon, gender, user);
-        CobbleDaycare.language.getPlotMenu().open(player, plot, user, true);
+        UltraDaycare.language.getPlotMenu().open(player, plot, user, true);
       }))
       .build();
 

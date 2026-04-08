@@ -1,14 +1,14 @@
-package com.kingpixel.cobbledaycare.models;
+package com.kingpixel.ultradaycare.models;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.mechanics.DayCarePokemon;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
 import com.kingpixel.cobbleutils.util.UtilsFile;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.mechanics.DayCarePokemon;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -54,7 +54,7 @@ public class User {
     this.cooldownHatch = 0;
     this.cooldownBreed = 0;
     this.lastActiveTime = System.currentTimeMillis();
-    var userInfoOptions = CobbleDaycare.config.getUserInfoOptions();
+    var userInfoOptions = UltraDaycare.config.getUserInfoOptions();
     this.notifyBanPokemon = userInfoOptions.isNotifyBanPokemon();
     this.notifyCreateEgg = userInfoOptions.isNotifyCreateEgg();
     this.actionBar = userInfoOptions.isActionBar();
@@ -86,10 +86,10 @@ public class User {
   }
 
   public float getActualMultiplier(ServerPlayerEntity player) {
-    float multiplier = CobbleDaycare.config.getMultiplierSteps();
-    for (Map.Entry<String, Float> entry : CobbleDaycare.config.getMultiplierStepsPermission().entrySet()) {
+    float multiplier = UltraDaycare.config.getMultiplierSteps();
+    for (Map.Entry<String, Float> entry : UltraDaycare.config.getMultiplierStepsPermission().entrySet()) {
       if (entry.getValue() <= multiplier) continue;
-      if (CobbleDaycare.hasPermission(player, entry.getKey(), 2)) {
+      if (UltraDaycare.hasPermission(player, entry.getKey(), 2)) {
         multiplier = entry.getValue();
       }
     }
@@ -97,25 +97,25 @@ public class User {
   }
 
   public boolean hasCooldownHatch(ServerPlayerEntity player) {
-    if (CobbleDaycare.hasPermission(player, "ultradaycare.hatch.bypass", 4)) return false;
+    if (UltraDaycare.hasPermission(player, "ultradaycare.hatch.bypass", 4)) return false;
     return cooldownHatch > System.currentTimeMillis();
   }
 
   public void setCooldownHatch(ServerPlayerEntity player) {
     this.cooldownHatch = System.currentTimeMillis() +
-      PlayerUtils.getCooldown(CobbleDaycare.config.getCooldownsHatch(),
-        CobbleDaycare.config.getDefaultCooldownHatch(), player);
+      PlayerUtils.getCooldown(UltraDaycare.config.getCooldownsHatch(),
+        UltraDaycare.config.getDefaultCooldownHatch(), player);
   }
 
   public boolean hasCooldownBreed(ServerPlayerEntity player) {
-    if (CobbleDaycare.hasPermission(player, "ultradaycare.breed.bypass", 4)) return false;
+    if (UltraDaycare.hasPermission(player, "ultradaycare.breed.bypass", 4)) return false;
     return cooldownBreed > System.currentTimeMillis();
   }
 
   public void setCooldownBreed(ServerPlayerEntity player) {
     this.cooldownBreed =
-      System.currentTimeMillis() + PlayerUtils.getCooldown(CobbleDaycare.config.getCooldownsBreed(),
-        CobbleDaycare.config.getDefaultCooldownBreed(), player);
+      System.currentTimeMillis() + PlayerUtils.getCooldown(UltraDaycare.config.getCooldownsBreed(),
+        UltraDaycare.config.getDefaultCooldownBreed(), player);
   }
 
   public synchronized boolean check(int numPlots, ServerPlayerEntity player) {
@@ -125,7 +125,7 @@ public class User {
 
 
     if (plots == null) {
-      CobbleDaycare.LOGGER.error("UserInformation plots was null for player " + player.getGameProfile().getName() + " fixing...");
+      UltraDaycare.LOGGER.error("UserInformation plots was null for player " + player.getGameProfile().getName() + " fixing...");
       plots = new ArrayList<>();
       update = true;
     }
@@ -174,7 +174,7 @@ public class User {
     PlayerUtils.sendMessage(
       player,
       "Your " + type + " " + name + " has been returned to your party because the plot has been removed.",
-      CobbleDaycare.language.getPrefix(),
+      UltraDaycare.language.getPrefix(),
       TypeMessage.CHAT
     );
     CobbleUtils.server.execute(() -> party.add(pokemon));
@@ -184,7 +184,7 @@ public class User {
   public synchronized boolean fix(ServerPlayerEntity player) {
     boolean update = false;
     if (plots == null) {
-      CobbleDaycare.LOGGER.error("UserInformation plots was null for player " + player.getGameProfile().getName() + " fixing...");
+      UltraDaycare.LOGGER.error("UserInformation plots was null for player " + player.getGameProfile().getName() + " fixing...");
       plots = new ArrayList<>();
       update = true;
     }
@@ -209,7 +209,7 @@ public class User {
 
   public CompletableFuture<Void> save() {
     if (getDirty().getAndSet(false)) {
-      return CobbleDaycare.database.saveOrUpdateUser(this);
+      return UltraDaycare.database.saveOrUpdateUser(this);
     }
     return CompletableFuture.completedFuture(null);
   }

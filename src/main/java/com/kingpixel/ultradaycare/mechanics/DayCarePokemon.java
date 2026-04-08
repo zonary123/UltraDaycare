@@ -1,4 +1,4 @@
-package com.kingpixel.cobbledaycare.mechanics;
+package com.kingpixel.ultradaycare.mechanics;
 
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies;
@@ -6,14 +6,14 @@ import com.cobblemon.mod.common.api.pokemon.egg.EggGroup;
 import com.cobblemon.mod.common.pokemon.Gender;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.Species;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.models.EggBuilder;
-import com.kingpixel.cobbledaycare.models.HatchBuilder;
-import com.kingpixel.cobbledaycare.models.PokemonRareMecanic;
 import com.kingpixel.cobbleutils.Model.PokemonChance;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.models.EggBuilder;
+import com.kingpixel.ultradaycare.models.HatchBuilder;
+import com.kingpixel.ultradaycare.models.PokemonRareMecanic;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.minecraft.nbt.NbtCompound;
@@ -79,7 +79,7 @@ public class DayCarePokemon extends Mechanics {
     boolean dobbleDitto = maleIsDitto && femaleIsDitto;
 
     if (dobbleDitto) {
-      firstEvolution = CobbleDaycare.config.getDobbleDittoFilter().generateRandomPokemon(CobbleDaycare.MOD_ID, "egg");
+      firstEvolution = UltraDaycare.config.getDobbleDittoFilter().generateRandomPokemon(UltraDaycare.MOD_ID, "egg");
     } else {
       if (femaleIsDitto) {
         // Swap male and female in the builder
@@ -99,7 +99,7 @@ public class DayCarePokemon extends Mechanics {
 
     builder.setFirstEvolution(firstEvolution);
     PokemonProperties.Companion.parse(getTypeEgg(firstEvolution)).apply(egg);
-    double steps = CobbleDaycare.config.getSteps(firstEvolution);
+    double steps = UltraDaycare.config.getSteps(firstEvolution);
     egg.getPersistentData().putString(TAG_POKEMON, firstEvolution.getSpecies().showdownId());
     egg.getPersistentData().putDouble(TAG_STEPS, steps);
     egg.getPersistentData().putDouble(TAG_REFERENCE_STEPS, steps);
@@ -111,8 +111,8 @@ public class DayCarePokemon extends Mechanics {
 
   private String getTypeEgg(Pokemon pokemon) {
     String showdownId = pokemon.showdownId();
-    if (CobbleDaycare.config.isDebug()) {
-      CobbleDaycare.LOGGER.info(CobbleDaycare.MOD_ID, "type_egg=" + showdownId);
+    if (UltraDaycare.config.isDebug()) {
+      UltraDaycare.LOGGER.info(UltraDaycare.MOD_ID, "type_egg=" + showdownId);
     }
     return "type_egg=" + showdownId;
   }
@@ -129,7 +129,7 @@ public class DayCarePokemon extends Mechanics {
       PlayerUtils.sendMessage(
         player,
         "Error: Pokemon not found in egg",
-        CobbleDaycare.language.getPrefix(),
+        UltraDaycare.language.getPrefix(),
         TypeMessage.CHAT
       );
       pokemon = "rattata";
@@ -158,8 +158,8 @@ public class DayCarePokemon extends Mechanics {
     egg.setOriginalTrainer("???");
     PokemonProperties.Companion.parse(getTypeEgg(pokemon)).apply(egg);
     egg.getPersistentData().putString(TAG_POKEMON, pokemon.getSpecies().showdownId());
-    egg.getPersistentData().putDouble(TAG_STEPS, CobbleDaycare.config.getSteps(pokemon));
-    egg.getPersistentData().putDouble(TAG_REFERENCE_STEPS, CobbleDaycare.config.getSteps(pokemon));
+    egg.getPersistentData().putDouble(TAG_STEPS, UltraDaycare.config.getSteps(pokemon));
+    egg.getPersistentData().putDouble(TAG_REFERENCE_STEPS, UltraDaycare.config.getSteps(pokemon));
     egg.getPersistentData().putString(TAG_GENDER, pokemon.getGender().name());
     egg.getPersistentData().putInt(TAG_CYCLES, pokemon.getSpecies().getEggCycles());
     egg.getPersistentData().putInt(TAG_REFERENCE_CYCLES, pokemon.getSpecies().getEggCycles());

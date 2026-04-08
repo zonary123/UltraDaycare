@@ -1,8 +1,8 @@
-package com.kingpixel.cobbledaycare.models;
+package com.kingpixel.ultradaycare.models;
 
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.mechanics.DayCareInciense;
 import com.kingpixel.cobbleutils.Model.ItemModel;
+import com.kingpixel.ultradaycare.mechanics.DayCareInciense;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

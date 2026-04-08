@@ -1,10 +1,10 @@
-package com.kingpixel.cobbledaycare.config;
+package com.kingpixel.ultradaycare.config;
 
-import com.kingpixel.cobbledaycare.models.EggForm;
-import com.kingpixel.cobbledaycare.models.PokemonRareMecanic;
 import com.kingpixel.cobbleutils.Model.FilterPokemons;
 import com.kingpixel.cobbleutils.Model.ItemModel;
 import com.kingpixel.cobbleutils.Model.Sound;
+import com.kingpixel.ultradaycare.models.EggForm;
+import com.kingpixel.ultradaycare.models.PokemonRareMecanic;
 import lombok.Data;
 import lombok.Getter;
 import lombok.ToString;

@@ -1,16 +1,17 @@
-package com.kingpixel.cobbledaycare.config;
+package com.kingpixel.ultradaycare.config;
 
 import com.cobblemon.mod.common.api.pokemon.egg.EggGroup;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.models.UserInfoOptions;
 import com.kingpixel.cobbleutils.Model.*;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
 import com.kingpixel.cobbleutils.util.UtilsFile;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.models.UserInfoOptions;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.server.network.ServerPlayerEntity;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
@@ -21,11 +22,10 @@ import java.util.*;
 @Getter
 @Setter
 public class Config {
-  private static Map<UUID, Long> cooldownsOpenMenus = new HashMap<>();
   private static final String VIP_COOLDOWN = "cooldown.vip";
   private static final String LEGENDARY_COOLDOWN = "cooldown.legendary";
   private static final String MASTER_COOLDOWN = "cooldown.master";
-
+  private static Map<UUID, Long> cooldownsOpenMenus = new HashMap<>();
   // System & Meta
   private boolean debug;
   private String lang;
@@ -73,7 +73,7 @@ public class Config {
 
   // Economy & Paid Features
   private EconomyUse economyUse = new EconomyUse("IMPACTOR", "impactor:dollars");
-  
+
   // -- Paid Experience (Instant) --
   private boolean enablePaidExperience;
   private double payXpPrice;
@@ -181,9 +181,9 @@ public class Config {
     }
     PlayerUtils.sendMessage(
       player,
-      CobbleDaycare.language.getMessageCooldownOpenMenu()
+      UltraDaycare.language.getMessageCooldownOpenMenu()
         .replace("%cooldown%", PlayerUtils.getCooldown(currentCooldown)),
-      CobbleDaycare.language.getPrefix(),
+      UltraDaycare.language.getPrefix(),
       TypeMessage.CHAT
     );
     return true;
@@ -200,16 +200,16 @@ public class Config {
   }
 
   public void init() {
-    Path path = CobbleDaycare.getPath().resolve("config.json");
+    Path path = UltraDaycare.getPath().resolve("config.json");
     try {
       Config config = UtilsFile.read(path, Config.class);
       if (config != null) {
-        CobbleDaycare.config.check();
+        UltraDaycare.config.check();
       } else {
         config = new Config();
       }
       config.check();
-      CobbleDaycare.config = config;
+      UltraDaycare.config = config;
       UtilsFile.write(path, config);
     } catch (IOException e) {
       e.printStackTrace();

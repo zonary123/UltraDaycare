@@ -1,4 +1,4 @@
-package com.kingpixel.cobbledaycare.properties;
+package com.kingpixel.ultradaycare.properties;
 
 import com.cobblemon.mod.common.api.properties.CustomPokemonPropertyType;
 import com.kingpixel.cobbleutils.Model.CobbleUtilsTags;
@@ -22,20 +22,27 @@ public class BreedablePropertyType implements CustomPokemonPropertyType<Breedabl
     return INSTANCE;
   }
 
-  @NotNull @Override public Iterable<String> getKeys() {
+  @NotNull
+  @Override
+  public Iterable<String> getKeys() {
     return Collections.singleton(CobbleUtilsTags.BREEDABLE_TAG);
   }
 
-  @Override public boolean getNeedsKey() {
+  @Override
+  public boolean getNeedsKey() {
     return true;
   }
 
-  @Nullable @Override public BreedableProperty fromString(String s) {
+  @Nullable
+  @Override
+  public BreedableProperty fromString(String s) {
     boolean value = s == null || Boolean.parseBoolean(s);
     return new BreedableProperty(value);
   }
 
-  @NotNull @Override public Collection<String> examples() {
+  @NotNull
+  @Override
+  public Collection<String> examples() {
     return Set.of("true", "false");
   }
 }

@@ -1,19 +1,19 @@
-package com.kingpixel.cobbledaycare.models;
+package com.kingpixel.ultradaycare.models;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.api.pokemon.egg.EggGroup;
 import com.cobblemon.mod.common.pokemon.Gender;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.mechanics.DayCarePokemon;
-import com.kingpixel.cobbledaycare.mechanics.Mechanics;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.CobbleUtilsTags;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.mechanics.DayCarePokemon;
+import com.kingpixel.ultradaycare.mechanics.Mechanics;
 import lombok.Data;
 import lombok.ToString;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -36,7 +36,7 @@ public class Plot {
   private CopyOnWriteArrayList<Pokemon> eggs;
   private long timeToHatch;
   private long canOpen;
-  
+
   // New economy and training state
   private double malePendingXp;
   private double femalePendingXp;
@@ -56,7 +56,7 @@ public class Plot {
   }
 
   public static boolean isNotBreedable(Pokemon pokemon) {
-    return pokemon.getForm().getEggGroups().contains(EggGroup.UNDISCOVERED) || CobbleDaycare.config.getBlackList().isBlackListed(pokemon);
+    return pokemon.getForm().getEggGroups().contains(EggGroup.UNDISCOVERED) || UltraDaycare.config.getBlackList().isBlackListed(pokemon);
   }
 
   public static String plotPermission(int i) {
@@ -84,13 +84,13 @@ public class Plot {
 
   public synchronized boolean canBreed(Pokemon pokemon, SelectGender gender) {
     if (pokemon == null) return false;
-    CobbleDaycare.fixBreedable(pokemon);
+    UltraDaycare.fixBreedable(pokemon);
     if (isNotBreedable(pokemon)) return false;
     Pokemon other = gender == SelectGender.MALE ? female : male;
 
     boolean otherIsDitto = isDitto(other);
     boolean pokemonIsDitto = isDitto(pokemon);
-    if (pokemonIsDitto && otherIsDitto) return CobbleDaycare.config.isDobbleDitto();
+    if (pokemonIsDitto && otherIsDitto) return UltraDaycare.config.isDobbleDitto();
     if (!pokemon.getPersistentData().getBoolean(CobbleUtilsTags.BREEDABLE_TAG)) return false;
     Gender pokemonGender = pokemon.getGender();
     if (gender == SelectGender.MALE) {
@@ -119,7 +119,7 @@ public class Plot {
 
   public synchronized void setTime(ServerPlayerEntity player) {
     if (hasTwoParents()) {
-      long cooldown = PlayerUtils.getCooldown(CobbleDaycare.config.getCooldowns(), CobbleDaycare.config.getCooldown()
+      long cooldown = PlayerUtils.getCooldown(UltraDaycare.config.getCooldowns(), UltraDaycare.config.getCooldown()
         , player);
       timeToHatch = System.currentTimeMillis() + cooldown;
     } else {
@@ -165,9 +165,9 @@ public class Plot {
 
   public int limitEggs(ServerPlayerEntity player) {
     int limit = 1;
-    for (Map.Entry<String, Integer> limitEgg : CobbleDaycare.config.getLimitEggs().entrySet()) {
+    for (Map.Entry<String, Integer> limitEgg : UltraDaycare.config.getLimitEggs().entrySet()) {
       if (limit > limitEgg.getValue()) continue;
-      if (CobbleDaycare.hasPermission(player, limitEgg.getKey(), 4) ||
+      if (UltraDaycare.hasPermission(player, limitEgg.getKey(), 4) ||
         PermissionApi.hasPermission(player, "cobbleutils.breeding." + limitEgg.getValue(), 4)) {
         limit = limitEgg.getValue();
       }
@@ -176,17 +176,17 @@ public class Plot {
   }
 
   public synchronized void checkRefund(ServerPlayerEntity player) {
-    if (CobbleDaycare.config.isEnableBreedingFee() && breedingPaid && !eggProducedSincePayment) {
+    if (UltraDaycare.config.isEnableBreedingFee() && breedingPaid && !eggProducedSincePayment) {
       com.kingpixel.cobbleutils.api.EconomyApi.addMoney(
         player.getUuid(),
-        java.math.BigDecimal.valueOf(CobbleDaycare.config.getBreedingFeePrice()),
-        CobbleDaycare.config.getEconomyUse()
+        java.math.BigDecimal.valueOf(UltraDaycare.config.getBreedingFeePrice()),
+        UltraDaycare.config.getEconomyUse()
       );
       com.kingpixel.cobbleutils.util.PlayerUtils.sendMessage(
         player,
-        CobbleDaycare.language.getMessageBreedingEntranceRefunded()
-          .replace("%price%", String.valueOf(CobbleDaycare.config.getBreedingFeePrice())),
-        CobbleDaycare.language.getPrefix(),
+        UltraDaycare.language.getMessageBreedingEntranceRefunded()
+          .replace("%price%", String.valueOf(UltraDaycare.config.getBreedingFeePrice())),
+        UltraDaycare.language.getPrefix(),
         com.kingpixel.cobbleutils.util.TypeMessage.CHAT
       );
     }
@@ -207,17 +207,17 @@ public class Plot {
   }
 
   public synchronized void checkOfflineBreeding(ServerPlayerEntity player, User user, long elapsedMillis) {
-    if (!CobbleDaycare.config.isEnableOfflineBreeding()) return;
+    if (!UltraDaycare.config.isEnableOfflineBreeding()) return;
     if (!hasTwoParents()) return;
-    if (CobbleDaycare.config.isEnableBreedingFee() && !breedingPaid) return;
+    if (UltraDaycare.config.isEnableBreedingFee() && !breedingPaid) return;
 
-    long interval = CobbleDaycare.config.getOfflineBreedingInterval().toMillis();
+    long interval = UltraDaycare.config.getOfflineBreedingInterval().toMillis();
     if (interval <= 0) return;
 
     long checks = elapsedMillis / interval;
     if (checks <= 0) return;
 
-    int maxOffline = CobbleDaycare.config.getMaxOfflineEggsPerPlot();
+    int maxOffline = UltraDaycare.config.getMaxOfflineEggsPerPlot();
     int currentEggs = eggs.size();
     int limit = limitEggs(player);
 
@@ -237,7 +237,7 @@ public class Plot {
       if (!hasTwoParents()) return update;
 
       // Check if breeding is paid
-      if (CobbleDaycare.config.isEnableBreedingFee() && !breedingPaid) {
+      if (UltraDaycare.config.isEnableBreedingFee() && !breedingPaid) {
         return update;
       }
 
@@ -251,9 +251,9 @@ public class Plot {
       if (!femaleCanBreed) {
         PlayerUtils.sendMessage(
           player,
-          PokemonUtils.replace(CobbleDaycare.language.getMessageRemovedFemale(), female)
+          PokemonUtils.replace(UltraDaycare.language.getMessageRemovedFemale(), female)
             .replace("%plot%", index + ""),
-          CobbleDaycare.language.getPrefix(),
+          UltraDaycare.language.getPrefix(),
           TypeMessage.CHAT
         );
         checkRefund(player);
@@ -265,9 +265,9 @@ public class Plot {
       if (!maleCanBreed) {
         PlayerUtils.sendMessage(
           player,
-          PokemonUtils.replace(CobbleDaycare.language.getMessageRemovedMale(), male)
+          PokemonUtils.replace(UltraDaycare.language.getMessageRemovedMale(), male)
             .replace("%plot%", index + ""),
-          CobbleDaycare.language.getPrefix(),
+          UltraDaycare.language.getPrefix(),
           TypeMessage.CHAT
         );
         checkRefund(player);
@@ -284,7 +284,7 @@ public class Plot {
           PlayerUtils.sendMessage(
             player,
             "You need install the datapacks to use this feature",
-            CobbleDaycare.language.getPrefix(),
+            UltraDaycare.language.getPrefix(),
             TypeMessage.CHAT
           );
         } else {
@@ -295,14 +295,14 @@ public class Plot {
             pokemons.add(egg);
             PlayerUtils.sendMessage(
               player,
-              PokemonUtils.replace(CobbleDaycare.language.getMessageEggCreated()
+              PokemonUtils.replace(UltraDaycare.language.getMessageEggCreated()
                 .replace("%pokemon3%", egg.getPersistentData().getString(DayCarePokemon.TAG_POKEMON)), pokemons)
               ,
-              CobbleDaycare.language.getPrefix(),
+              UltraDaycare.language.getPrefix(),
               TypeMessage.CHAT
             );
           }
-          if (CobbleDaycare.hasPermission(player, "ultradaycare.autoclaim", 4)) {
+          if (UltraDaycare.hasPermission(player, "ultradaycare.autoclaim", 4)) {
             CobbleUtils.server.executeSync(() -> Cobblemon.INSTANCE.getStorage().getParty(player).add(egg));
           } else {
             eggs.add(egg);
@@ -321,7 +321,7 @@ public class Plot {
   }
 
   private synchronized void fixCooldown(ServerPlayerEntity player) {
-    long correctCooldown = PlayerUtils.getCooldown(CobbleDaycare.config.getCooldowns(), CobbleDaycare.config.getCooldown(), player);
+    long correctCooldown = PlayerUtils.getCooldown(UltraDaycare.config.getCooldowns(), UltraDaycare.config.getCooldown(), player);
     long correctTimeToHatch = System.currentTimeMillis() + correctCooldown;
     if (timeToHatch > correctTimeToHatch) timeToHatch = correctTimeToHatch;
   }
@@ -341,7 +341,7 @@ public class Plot {
       .male(male)
       .player(player)
       .build();
-    for (Mechanics mechanic : CobbleDaycare.mechanics) {
+    for (Mechanics mechanic : UltraDaycare.mechanics) {
       try {
         if (mechanic.isActive()) mechanic.applyEgg(eggBuilder);
       } catch (Exception e) {

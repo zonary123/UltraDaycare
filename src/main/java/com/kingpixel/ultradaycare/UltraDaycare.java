@@ -1,4 +1,4 @@
-package com.kingpixel.cobbledaycare;
+package com.kingpixel.ultradaycare;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.Priority;
@@ -10,17 +10,6 @@ import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.kingpixel.cobbledaycare.commands.CommandTree;
-import com.kingpixel.cobbledaycare.config.Config;
-import com.kingpixel.cobbledaycare.config.Language;
-import com.kingpixel.cobbledaycare.database.DatabaseClient;
-import com.kingpixel.cobbledaycare.database.DatabaseClientFactory;
-import com.kingpixel.cobbledaycare.mechanics.*;
-import com.kingpixel.cobbledaycare.models.Plot;
-import com.kingpixel.cobbledaycare.models.User;
-import com.kingpixel.cobbledaycare.properties.BreedablePropertyType;
-import com.kingpixel.cobbledaycare.tasks.TaskDayCare;
-import com.kingpixel.cobbledaycare.util.MigrationService;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.CobbleUtilsTags;
 import com.kingpixel.cobbleutils.api.PermissionApi;
@@ -29,6 +18,17 @@ import com.kingpixel.cobbleutils.util.Utils;
 import com.kingpixel.cobbleutils.util.UtilsLogger;
 import com.kingpixel.cobbleutils.util.async.AsyncContext;
 import com.kingpixel.cobbleutils.util.async.UtilsAsync;
+import com.kingpixel.ultradaycare.commands.CommandTree;
+import com.kingpixel.ultradaycare.config.Config;
+import com.kingpixel.ultradaycare.config.Language;
+import com.kingpixel.ultradaycare.database.DatabaseClient;
+import com.kingpixel.ultradaycare.database.DatabaseClientFactory;
+import com.kingpixel.ultradaycare.mechanics.*;
+import com.kingpixel.ultradaycare.models.Plot;
+import com.kingpixel.ultradaycare.models.User;
+import com.kingpixel.ultradaycare.properties.BreedablePropertyType;
+import com.kingpixel.ultradaycare.tasks.TaskDayCare;
+import com.kingpixel.ultradaycare.util.MigrationService;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Carlos Varas Alonso - 23/07/2024 9:24
  */
-public class CobbleDaycare implements ModInitializer {
+public class UltraDaycare implements ModInitializer {
   public static final String MOD_ID = "ultradaycare";
   public static final String MOD_NAME = "UltraDaycare";
   public static final String TAG_SPAWNED = "spawned";
@@ -151,7 +151,7 @@ public class CobbleDaycare implements ModInitializer {
     for (Mechanics mechanic : mechanics) {
       activeMechanics.add(mechanic.fileName());
     }
-    CobbleDaycare.LOGGER.info(MOD_ID, "Active mechanics:\n- " + String.join("\n- ", activeMechanics));
+    UltraDaycare.LOGGER.info(MOD_ID, "Active mechanics:\n- " + String.join("\n- ", activeMechanics));
   }
 
   private static void events() {
@@ -207,7 +207,7 @@ public class CobbleDaycare implements ModInitializer {
         fixPlayer(player);
 
         int numPlots = 1;
-        int size = CobbleDaycare.config.getSlotPlots().size();
+        int size = UltraDaycare.config.getSlotPlots().size();
         for (int i = 0; i < size; i++) {
           if (hasPermission(player, Plot.plotPermission(i), 4)) {
             numPlots = i + 1;
@@ -309,8 +309,8 @@ public class CobbleDaycare implements ModInitializer {
         }
       }
     } catch (Exception e) {
-      if (CobbleDaycare.config.isDebug()) {
-        CobbleDaycare.LOGGER.warn(MOD_ID, "Error fetching country for player " + player.getName().getString());
+      if (UltraDaycare.config.isDebug()) {
+        UltraDaycare.LOGGER.warn(MOD_ID, "Error fetching country for player " + player.getName().getString());
       }
     }
     return null;

@@ -1,13 +1,13 @@
-package com.kingpixel.cobbledaycare.commands.admin;
+package com.kingpixel.ultradaycare.commands.admin;
 
 import com.cobblemon.mod.common.command.argument.PartySlotArgumentType;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
 import com.kingpixel.cobbleutils.Model.CobbleUtilsTags;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
+import com.kingpixel.ultradaycare.UltraDaycare;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -66,20 +66,20 @@ public class CommandBreedable {
                             CommandContext<ServerCommandSource> context) {
     for (ServerPlayerEntity player : players) {
       Pokemon pokemon = PartySlotArgumentType.Companion.getPokemonOf(context, "slot", player);
-      CobbleDaycare.setBreedable(pokemon, breedable);
+      UltraDaycare.setBreedable(pokemon, breedable);
       pokemon.getPersistentData().putBoolean(CobbleUtilsTags.BREEDABLE_BUILDER_TAG, !breedable);
       PlayerUtils.sendMessage(
         player,
-        PokemonUtils.replace(CobbleDaycare.language.getMessageBreedable(), pokemon),
-        CobbleDaycare.language.getPrefix(),
+        PokemonUtils.replace(UltraDaycare.language.getMessageBreedable(), pokemon),
+        UltraDaycare.language.getPrefix(),
         TypeMessage.CHAT
       );
       if (staff != null) {
         if (staff.equals(player)) continue;
         PlayerUtils.sendMessage(
           staff,
-          PokemonUtils.replace(CobbleDaycare.language.getMessageBreedable(), pokemon),
-          CobbleDaycare.language.getPrefix(),
+          PokemonUtils.replace(UltraDaycare.language.getMessageBreedable(), pokemon),
+          UltraDaycare.language.getPrefix(),
           TypeMessage.CHAT
         );
       }

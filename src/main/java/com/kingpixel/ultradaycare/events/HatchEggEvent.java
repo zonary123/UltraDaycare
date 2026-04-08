@@ -1,4 +1,4 @@
-package com.kingpixel.cobbledaycare.events;
+package com.kingpixel.ultradaycare.events;
 
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.kingpixel.cobbledaycare.ui;
+package com.kingpixel.ultradaycare.ui;
 
 import ca.landonjw.gooeylibs2.api.UIManager;
 import ca.landonjw.gooeylibs2.api.button.GooeyButton;
@@ -8,10 +8,6 @@ import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.pokemon.experience.SidemodExperienceSource;
 import com.cobblemon.mod.common.item.PokemonItem;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.models.Plot;
-import com.kingpixel.cobbledaycare.models.SelectGender;
-import com.kingpixel.cobbledaycare.models.User;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.ItemModel;
 import com.kingpixel.cobbleutils.api.EconomyApi;
@@ -19,6 +15,10 @@ import com.kingpixel.cobbleutils.util.AdventureTranslator;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.models.Plot;
+import com.kingpixel.ultradaycare.models.SelectGender;
+import com.kingpixel.ultradaycare.models.User;
 import lombok.Data;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
@@ -62,9 +62,9 @@ public class PlotMenu {
   }
 
   public void open(ServerPlayerEntity player, Plot plot, User user, boolean force) {
-    if (!force && CobbleDaycare.config.hasOpenCooldown(player))
+    if (!force && UltraDaycare.config.hasOpenCooldown(player))
       return;
-    CobbleDaycare.getAsyncContext().runAsync(() -> {
+    UltraDaycare.getAsyncContext().runAsync(() -> {
       ChestTemplate template = ChestTemplate.builder(rows).build();
 
       if (plot.checkEgg(player, user))
@@ -106,9 +106,9 @@ public class PlotMenu {
     Pokemon slotPokemon = gender == SelectGender.MALE ? plot.getMale() : plot.getFemale();
 
     if (slotPokemon != null) {
-      String msg = gender == SelectGender.MALE ? CobbleDaycare.language.getMessageRemovedMale() : CobbleDaycare.language.getMessageRemovedFemale();
+      String msg = gender == SelectGender.MALE ? UltraDaycare.language.getMessageRemovedMale() : UltraDaycare.language.getMessageRemovedFemale();
       PlayerUtils.sendMessage(player, PokemonUtils.replace(msg, slotPokemon).replace("%plot%", user.getIndexPlot(plot) + ""),
-        CobbleDaycare.language.getPrefix(), TypeMessage.CHAT);
+        UltraDaycare.language.getPrefix(), TypeMessage.CHAT);
 
       Pokemon toAdd = slotPokemon.clone(false, CobbleUtils.server.getRegistryManager());
       if (gender == SelectGender.MALE) plot.setMale(null);
@@ -119,13 +119,13 @@ public class PlotMenu {
       user.markDirty();
       open(player, plot, user, true);
     } else {
-      CobbleDaycare.language.getSelectPokemonMenu().open(player, plot, user, gender, 0);
+      UltraDaycare.language.getSelectPokemonMenu().open(player, plot, user, gender, 0);
     }
   }
 
   private void addEggButton(ChestTemplate template, ServerPlayerEntity player, Plot plot, User user) {
-    if (CobbleDaycare.config.isEnableBreedingFee() && !plot.isBreedingPaid() && plot.hasTwoParents()) {
-      double price = CobbleDaycare.config.getBreedingFeePrice();
+    if (UltraDaycare.config.isEnableBreedingFee() && !plot.isBreedingPaid() && plot.hasTwoParents()) {
+      double price = UltraDaycare.config.getBreedingFeePrice();
       List<String> lore = breedingEntrance.getLore().stream()
         .map(line -> line.replace("%price%", String.format("%.2f", price)))
         .toList();
@@ -134,12 +134,12 @@ public class PlotMenu {
         .display(breedingEntrance.getItemStack())
         .with(DataComponentTypes.LORE, new LoreComponent(AdventureTranslator.toNativeL(lore)))
         .onClick(action -> {
-          if (EconomyApi.hasEnoughMoney(player.getUuid(), BigDecimal.valueOf(price), CobbleDaycare.config.getEconomyUse(), true)) {
-            EconomyApi.removeMoney(player.getUuid(), BigDecimal.valueOf(price), CobbleDaycare.config.getEconomyUse());
+          if (EconomyApi.hasEnoughMoney(player.getUuid(), BigDecimal.valueOf(price), UltraDaycare.config.getEconomyUse(), true)) {
+            EconomyApi.removeMoney(player.getUuid(), BigDecimal.valueOf(price), UltraDaycare.config.getEconomyUse());
             plot.setBreedingPaid(true);
             user.markDirty();
-            PlayerUtils.sendMessage(player, CobbleDaycare.language.getMessageBreedingEntrancePaid().replace("%price%", String.valueOf(price)),
-              CobbleDaycare.language.getPrefix(), TypeMessage.CHAT);
+            PlayerUtils.sendMessage(player, UltraDaycare.language.getMessageBreedingEntrancePaid().replace("%price%", String.valueOf(price)),
+              UltraDaycare.language.getPrefix(), TypeMessage.CHAT);
             open(player, plot, user, true);
           }
         }).build();
@@ -163,17 +163,17 @@ public class PlotMenu {
 
   private void addClaimXpButtons(ChestTemplate template, ServerPlayerEntity player, Plot plot, User user) {
     // Progressive XP Buttons
-    if (plot.getMale() != null && plot.getMalePendingXp() > 0 && plot.getMale().getLevel() < CobbleDaycare.config.getMaxLevelTraining()) {
+    if (plot.getMale() != null && plot.getMalePendingXp() > 0 && plot.getMale().getLevel() < UltraDaycare.config.getMaxLevelTraining()) {
       template.set(male.getSlot() - 9, getClaimXpButton(player, plot, user, SelectGender.MALE));
     }
-    if (plot.getFemale() != null && plot.getFemalePendingXp() > 0 && plot.getFemale().getLevel() < CobbleDaycare.config.getMaxLevelTraining()) {
+    if (plot.getFemale() != null && plot.getFemalePendingXp() > 0 && plot.getFemale().getLevel() < UltraDaycare.config.getMaxLevelTraining()) {
       template.set(female.getSlot() - 9, getClaimXpButton(player, plot, user, SelectGender.FEMALE));
     }
   }
 
   private GooeyButton getClaimXpButton(ServerPlayerEntity player, Plot plot, User user, SelectGender gender) {
     double pendingXp = gender == SelectGender.MALE ? plot.getMalePendingXp() : plot.getFemalePendingXp();
-    double cost = pendingXp * CobbleDaycare.config.getPricePerXp();
+    double cost = pendingXp * UltraDaycare.config.getPricePerXp();
 
     List<String> lore = claimXp.getLore().stream()
       .map(line -> line.replace("%xp%", String.format("%.0f", pendingXp)).replace("%price%", String.format("%.2f", cost)))
@@ -185,30 +185,30 @@ public class PlotMenu {
       .onClick(action -> {
         Pokemon p = gender == SelectGender.MALE ? plot.getMale() : plot.getFemale();
         if (p == null) return;
-        if (p.getLevel() >= CobbleDaycare.config.getMaxLevelTraining()) {
-          PlayerUtils.sendMessage(player, CobbleDaycare.language.getMessageMaxLevelReached()
-              .replace("%level%", String.valueOf(CobbleDaycare.config.getMaxLevelTraining())),
-            CobbleDaycare.language.getPrefix(), TypeMessage.CHAT);
+        if (p.getLevel() >= UltraDaycare.config.getMaxLevelTraining()) {
+          PlayerUtils.sendMessage(player, UltraDaycare.language.getMessageMaxLevelReached()
+              .replace("%level%", String.valueOf(UltraDaycare.config.getMaxLevelTraining())),
+            UltraDaycare.language.getPrefix(), TypeMessage.CHAT);
           return;
         }
 
-        if (EconomyApi.hasEnoughMoney(player.getUuid(), BigDecimal.valueOf(cost), CobbleDaycare.config.getEconomyUse(), true)) {
-          EconomyApi.removeMoney(player.getUuid(), BigDecimal.valueOf(cost), CobbleDaycare.config.getEconomyUse());
-          p.addExperience(new SidemodExperienceSource(CobbleDaycare.MOD_ID), (int) pendingXp);
+        if (EconomyApi.hasEnoughMoney(player.getUuid(), BigDecimal.valueOf(cost), UltraDaycare.config.getEconomyUse(), true)) {
+          EconomyApi.removeMoney(player.getUuid(), BigDecimal.valueOf(cost), UltraDaycare.config.getEconomyUse());
+          p.addExperience(new SidemodExperienceSource(UltraDaycare.MOD_ID), (int) pendingXp);
           if (gender == SelectGender.MALE) plot.setMalePendingXp(0);
           else plot.setFemalePendingXp(0);
           user.markDirty();
-          PlayerUtils.sendMessage(player, CobbleDaycare.language.getMessageXpClaimed()
+          PlayerUtils.sendMessage(player, UltraDaycare.language.getMessageXpClaimed()
               .replace("%xp%", String.format("%.0f", pendingXp))
               .replace("%price%", String.format("%.2f", cost)),
-            CobbleDaycare.language.getPrefix(), TypeMessage.CHAT);
+            UltraDaycare.language.getPrefix(), TypeMessage.CHAT);
           open(player, plot, user, true);
         }
       }).build();
   }
 
   private void addCloseButton(ChestTemplate template, ServerPlayerEntity player) {
-    template.set(close.getSlot(), close.getButton(action -> CobbleDaycare.language.getPrincipalMenu().open(player), 1, TimeUnit.SECONDS, 1));
+    template.set(close.getSlot(), close.getButton(action -> UltraDaycare.language.getPrincipalMenu().open(player), 1, TimeUnit.SECONDS, 1));
   }
 
 }

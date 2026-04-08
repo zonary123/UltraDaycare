@@ -1,13 +1,13 @@
-package com.kingpixel.cobbledaycare.commands.admin;
+package com.kingpixel.ultradaycare.commands.admin;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.command.argument.PartySlotArgumentType;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.models.EggData;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.models.EggData;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -113,14 +113,14 @@ public class CommandHatch {
       .stream()
       .anyMatch(pokemon -> pokemon.getSpecies().showdownId().equals("egg"));
     if (!hasEgg) return;
-    var user = CobbleDaycare.database.getUser(player);
+    var user = UltraDaycare.database.getUser(player);
     if (user == null) return;
     if (!byPassCooldown && user.hasCooldownHatch(player)) {
       PlayerUtils.sendMessage(
         player,
-        CobbleDaycare.language.getMessageCooldownHatch()
+        UltraDaycare.language.getMessageCooldownHatch()
           .replace("%cooldown%", PlayerUtils.getCooldown(user.getCooldownHatch())),
-        CobbleDaycare.language.getPrefix(),
+        UltraDaycare.language.getPrefix(),
         TypeMessage.CHAT
       );
       return;

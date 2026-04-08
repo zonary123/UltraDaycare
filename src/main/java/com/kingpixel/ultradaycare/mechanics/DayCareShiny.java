@@ -1,11 +1,11 @@
-package com.kingpixel.cobbledaycare.mechanics;
+package com.kingpixel.ultradaycare.mechanics;
 
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.models.EggBuilder;
-import com.kingpixel.cobbledaycare.models.HatchBuilder;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.Utils;
+import com.kingpixel.ultradaycare.models.EggBuilder;
+import com.kingpixel.ultradaycare.models.HatchBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.minecraft.nbt.NbtCompound;

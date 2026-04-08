@@ -1,14 +1,14 @@
-package com.kingpixel.cobbledaycare.ui;
+package com.kingpixel.ultradaycare.ui;
 
 import ca.landonjw.gooeylibs2.api.UIManager;
 import ca.landonjw.gooeylibs2.api.page.GooeyPage;
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.models.User;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.ItemModel;
 import com.kingpixel.cobbleutils.Model.PanelsConfig;
 import com.kingpixel.cobbleutils.util.AdventureTranslator;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.models.User;
 import lombok.Data;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -47,8 +47,8 @@ public class ProfileMenu {
   }
 
   public void open(ServerPlayerEntity player, User user) {
-    if (CobbleDaycare.config.hasOpenCooldown(player)) return;
-    CobbleDaycare.getAsyncContext().runAsync(() -> {
+    if (UltraDaycare.config.hasOpenCooldown(player)) return;
+    UltraDaycare.getAsyncContext().runAsync(() -> {
       ChestTemplate template = ChestTemplate
         .builder(rows)
         .build();
@@ -79,7 +79,7 @@ public class ProfileMenu {
         }, 1, TimeUnit.SECONDS, 1));
 
       close.applyTemplate(template, close.getButton(action -> {
-        CobbleDaycare.language.getPrincipalMenu().open(player);
+        UltraDaycare.language.getPrincipalMenu().open(player);
       }, 1, TimeUnit.SECONDS, 1));
 
       GooeyPage page = GooeyPage.builder()

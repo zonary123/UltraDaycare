@@ -1,15 +1,15 @@
-package com.kingpixel.cobbledaycare.mechanics;
+package com.kingpixel.ultradaycare.mechanics;
 
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.models.EggBuilder;
-import com.kingpixel.cobbledaycare.models.HatchBuilder;
-import com.kingpixel.cobbledaycare.models.Incense;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.api.ItemsMod;
-import com.kingpixel.cobbleutils.util.UtilsFile;
 import com.kingpixel.cobbleutils.util.Utils;
+import com.kingpixel.cobbleutils.util.UtilsFile;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.models.EggBuilder;
+import com.kingpixel.ultradaycare.models.HatchBuilder;
+import com.kingpixel.ultradaycare.models.Incense;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.minecraft.nbt.NbtCompound;
@@ -23,11 +23,12 @@ import java.util.List;
 /**
  * @author Carlos Varas Alonso - 15/03/2025 20:23
  */
-@EqualsAndHashCode(callSuper = true) @Data
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class DayCareInciense extends Mechanics {
   public static String TAG_INCENSE = "incense";
   public static List<Incense> incenses = new ArrayList<>();
-  private static String path = CobbleDaycare.PATH_MODULES + "incense/";
+  private static String path = UltraDaycare.PATH_MODULES + "incense/";
   private static DayCareInciense instance;
 
   public DayCareInciense() {
@@ -41,11 +42,12 @@ public class DayCareInciense extends Mechanics {
     return instance;
   }
 
-  @Override public DayCareInciense getInstance() {
+  @Override
+  public DayCareInciense getInstance() {
     instance = this.readFromFile(getClass());
     instance.init();
     for (Incense incense : DayCareInciense.incenses) {
-      ItemsMod.addItem(CobbleDaycare.MOD_ID, incense.getId(), incense.getItemStackIncense(1));
+      ItemsMod.addItem(UltraDaycare.MOD_ID, incense.getId(), incense.getItemStackIncense(1));
     }
     return instance;
   }
@@ -106,14 +108,17 @@ public class DayCareInciense extends Mechanics {
     return null;
   }
 
-  @Override public void validateData() {
+  @Override
+  public void validateData() {
   }
 
-  @Override public String fileName() {
+  @Override
+  public String fileName() {
     return "incense";
   }
 
-  @Override public String replace(String text, ServerPlayerEntity player) {
+  @Override
+  public String replace(String text, ServerPlayerEntity player) {
     return text
       .replace("%incense%", isActive() ? CobbleUtils.language.getYes() : CobbleUtils.language.getNo());
   }
@@ -122,13 +127,16 @@ public class DayCareInciense extends Mechanics {
   public void applyEgg(EggBuilder builder) {
   }
 
-  @Override public void applyHatch(HatchBuilder builder) {
+  @Override
+  public void applyHatch(HatchBuilder builder) {
   }
 
-  @Override public void createEgg(ServerPlayerEntity player, Pokemon pokemon, Pokemon egg) {
+  @Override
+  public void createEgg(ServerPlayerEntity player, Pokemon pokemon, Pokemon egg) {
   }
 
-  @Override public String getEggInfo(String s, NbtCompound nbt) {
+  @Override
+  public String getEggInfo(String s, NbtCompound nbt) {
     return s;
   }
 }

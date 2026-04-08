@@ -1,9 +1,9 @@
-package com.kingpixel.cobbledaycare.database;
+package com.kingpixel.ultradaycare.database;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.kingpixel.cobbledaycare.models.User;
 import com.kingpixel.cobbleutils.Model.DataBaseConfig;
+import com.kingpixel.ultradaycare.models.User;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jspecify.annotations.Nullable;
 

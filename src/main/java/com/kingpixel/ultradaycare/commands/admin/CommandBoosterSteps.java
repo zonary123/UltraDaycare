@@ -1,8 +1,8 @@
-package com.kingpixel.cobbledaycare.commands.admin;
+package com.kingpixel.ultradaycare.commands.admin;
 
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.models.User;
 import com.kingpixel.cobbleutils.api.PermissionApi;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.models.User;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -36,7 +36,7 @@ public class CommandBoosterSteps {
                           float multiplier = FloatArgumentType.getFloat(context, "multiplier");
                           int seconds = IntegerArgumentType.getInteger(context, "seconds");
                           for (ServerPlayerEntity player : players) {
-                            User user = CobbleDaycare.database.getUser(player);
+                            User user = UltraDaycare.database.getUser(player);
                             if (user == null) continue;
                             user.setTimeMultiplierSteps(seconds * 20L);
                             user.setMultiplierSteps(multiplier);

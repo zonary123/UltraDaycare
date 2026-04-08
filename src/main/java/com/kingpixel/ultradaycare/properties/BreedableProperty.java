@@ -1,10 +1,10 @@
-package com.kingpixel.cobbledaycare.properties;
+package com.kingpixel.ultradaycare.properties;
 
 import com.cobblemon.mod.common.api.properties.CustomPokemonProperty;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
 import com.kingpixel.cobbleutils.Model.CobbleUtilsTags;
+import com.kingpixel.ultradaycare.UltraDaycare;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,7 +18,9 @@ public class BreedableProperty implements CustomPokemonProperty {
   }
 
 
-  @NotNull @Override public String asString() {
+  @NotNull
+  @Override
+  public String asString() {
     if (this.value) {
       return "true";
     } else {
@@ -26,23 +28,27 @@ public class BreedableProperty implements CustomPokemonProperty {
     }
   }
 
-  @Override public void apply(@NotNull PokemonEntity pokemonEntity) {
+  @Override
+  public void apply(@NotNull PokemonEntity pokemonEntity) {
     var pokemon = pokemonEntity.getPokemon();
-    CobbleDaycare.setBreedable(pokemon, this.value);
+    UltraDaycare.setBreedable(pokemon, this.value);
     pokemon.getPersistentData().putBoolean(CobbleUtilsTags.BREEDABLE_BUILDER_TAG, !this.value);
   }
 
-  @Override public void apply(@NotNull Pokemon pokemon) {
-    CobbleDaycare.setBreedable(pokemon, this.value);
+  @Override
+  public void apply(@NotNull Pokemon pokemon) {
+    UltraDaycare.setBreedable(pokemon, this.value);
     pokemon.getPersistentData().putBoolean(CobbleUtilsTags.BREEDABLE_BUILDER_TAG, !this.value);
   }
 
 
-  @Override public boolean matches(@NotNull Pokemon pokemon) {
+  @Override
+  public boolean matches(@NotNull Pokemon pokemon) {
     return true;
   }
 
-  @Override public boolean matches(@NotNull PokemonEntity pokemonEntity) {
+  @Override
+  public boolean matches(@NotNull PokemonEntity pokemonEntity) {
     return true;
   }
 }

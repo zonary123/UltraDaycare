@@ -1,6 +1,6 @@
-package com.kingpixel.cobbledaycare.mixins;
+package com.kingpixel.ultradaycare.mixins;
 
-import com.kingpixel.cobbledaycare.tasks.TaskDayCare;
+import com.kingpixel.ultradaycare.tasks.TaskDayCare;
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -13,8 +13,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = ServerPlayNetworkHandler.class, priority = 9999)
 public abstract class WalkBreedingMixin {
-  @Unique private static final int MAX_TELEPORT = 2;
-  @Unique private ServerPlayerEntity cobbleDaycare$player;
+  @Unique
+  private static final int MAX_TELEPORT = 2;
+  @Unique
+  private ServerPlayerEntity cobbleDaycare$player;
 
   @Inject(method = "onTeleportConfirm", at = @At("HEAD"))
   public void onTeleportConfirm(TeleportConfirmC2SPacket packet, CallbackInfo ci) {

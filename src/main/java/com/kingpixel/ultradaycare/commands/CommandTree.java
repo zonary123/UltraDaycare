@@ -1,9 +1,9 @@
-package com.kingpixel.cobbledaycare.commands;
+package com.kingpixel.ultradaycare.commands;
 
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.commands.admin.*;
-import com.kingpixel.cobbledaycare.commands.base.CommandEggInfo;
 import com.kingpixel.cobbleutils.api.PermissionApi;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.commands.admin.*;
+import com.kingpixel.ultradaycare.commands.base.CommandEggInfo;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -19,13 +19,13 @@ import java.util.List;
 public class CommandTree {
   public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registry) {
     try {
-      for (String command : CobbleDaycare.config.getCommands()) {
+      for (String command : UltraDaycare.config.getCommands()) {
         var base = CommandManager.literal(command)
           .requires(source -> PermissionApi.hasPermission(source, List.of("cobbledaycare.user",
               "cobbledaycare.admin"),
             4));
-        if (!CobbleDaycare.config.getCommandEggInfo().isEmpty()) {
-          CommandEggInfo.register(dispatcher, CommandManager.literal(CobbleDaycare.config.getCommandEggInfo()));
+        if (!UltraDaycare.config.getCommandEggInfo().isEmpty()) {
+          CommandEggInfo.register(dispatcher, CommandManager.literal(UltraDaycare.config.getCommandEggInfo()));
         }
 
         CommandHatch.register(dispatcher, CommandManager.literal("hatch"));
@@ -42,7 +42,7 @@ public class CommandTree {
           .executes(context -> {
             if (context.getSource().isExecutedByPlayer()) {
               ServerPlayerEntity player = context.getSource().getPlayer();
-              CobbleDaycare.language.getPrincipalMenu().open(player);
+              UltraDaycare.language.getPrincipalMenu().open(player);
             }
             return 1;
           }).then(
@@ -52,7 +52,7 @@ public class CommandTree {
                 CommandManager.argument("player", EntityArgumentType.player())
                   .executes(context -> {
                     ServerPlayerEntity player = EntityArgumentType.getPlayer(context, "player");
-                    CobbleDaycare.language.getPrincipalMenu().open(player);
+                    UltraDaycare.language.getPrincipalMenu().open(player);
                     return 1;
                   })
               )

@@ -1,8 +1,8 @@
-package com.kingpixel.cobbledaycare.commands.admin;
+package com.kingpixel.ultradaycare.commands.admin;
 
-import com.kingpixel.cobbledaycare.mechanics.DayCareInciense;
-import com.kingpixel.cobbledaycare.models.Incense;
 import com.kingpixel.cobbleutils.api.PermissionApi;
+import com.kingpixel.ultradaycare.mechanics.DayCareInciense;
+import com.kingpixel.ultradaycare.models.Incense;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;

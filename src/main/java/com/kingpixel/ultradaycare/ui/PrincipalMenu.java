@@ -1,4 +1,4 @@
-package com.kingpixel.cobbledaycare.ui;
+package com.kingpixel.ultradaycare.ui;
 
 import ca.landonjw.gooeylibs2.api.UIManager;
 import ca.landonjw.gooeylibs2.api.button.RateLimitedButton;
@@ -6,15 +6,15 @@ import ca.landonjw.gooeylibs2.api.page.GooeyPage;
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate;
 import com.cobblemon.mod.common.battles.BattleRegistry;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.mechanics.Mechanics;
-import com.kingpixel.cobbledaycare.models.Plot;
-import com.kingpixel.cobbledaycare.models.User;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.Model.ItemModel;
 import com.kingpixel.cobbleutils.util.AdventureTranslator;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.mechanics.Mechanics;
+import com.kingpixel.ultradaycare.models.Plot;
+import com.kingpixel.ultradaycare.models.User;
 import lombok.Data;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
@@ -95,18 +95,18 @@ public class PrincipalMenu {
   }
 
   public void open(ServerPlayerEntity player) {
-    if (isBattle(player) || CobbleDaycare.config.hasOpenCooldown(player)) return;
-    CobbleDaycare.getAsyncContext().runAsync(() -> {
+    if (isBattle(player) || UltraDaycare.config.hasOpenCooldown(player)) return;
+    UltraDaycare.getAsyncContext().runAsync(() -> {
       ChestTemplate template = ChestTemplate.builder(rows).build();
-      User user = CobbleDaycare.database.getUser(player);
+      User user = UltraDaycare.database.getUser(player);
       if (user == null) return;
-      int slotSize = CobbleDaycare.config.getSlotPlots().size();
+      int slotSize = UltraDaycare.config.getSlotPlots().size();
       int plotSize = user.getPlots().size();
 
       for (int i = 0; i < slotSize; i++) {
-        int slot = CobbleDaycare.config.getSlotPlots().get(i);
+        int slot = UltraDaycare.config.getSlotPlots().get(i);
 
-        if (!CobbleDaycare.hasPermission(player, Plot.plotPermission(i), 2) || i >= plotSize) {
+        if (!UltraDaycare.hasPermission(player, Plot.plotPermission(i), 2) || i >= plotSize) {
           template.set(slot, blockedPlot.getButton(1, null, null, action -> {
           }, 1, TimeUnit.SECONDS, 1));
           continue;
@@ -132,16 +132,16 @@ public class PrincipalMenu {
           plot.getEggs().size(),
           null,
           replacePlotLore(plot, player),
-          action -> CobbleDaycare.language.getPlotMenu().open(player, plot, user)
+          action -> UltraDaycare.language.getPlotMenu().open(player, plot, user)
           , 1, TimeUnit.SECONDS, 1));
       }
 
 
       List<String> loreInfo = new ArrayList<>(info.getLore());
-      long cooldown = System.currentTimeMillis() + PlayerUtils.getCooldown(CobbleDaycare.config.getCooldowns(), CobbleDaycare.config.getCooldown()
+      long cooldown = System.currentTimeMillis() + PlayerUtils.getCooldown(UltraDaycare.config.getCooldowns(), UltraDaycare.config.getCooldown()
         , player);
       loreInfo.replaceAll(s -> {
-        for (Mechanics mechanic : CobbleDaycare.mechanics) {
+        for (Mechanics mechanic : UltraDaycare.mechanics) {
           s = mechanic.replace(s, player);
         }
         s = s.replace("%cooldown%", PlayerUtils.getCooldown(cooldown));
@@ -154,7 +154,7 @@ public class PrincipalMenu {
       close.applyTemplate(template, close.getButton(action -> UIManager.closeUI(player), 1, TimeUnit.SECONDS, 1));
 
 
-      RateLimitedButton profileButton = profileOptions.getButton(action -> CobbleDaycare.language.getProfileMenu().open(player, user), 1, TimeUnit.SECONDS, 1);
+      RateLimitedButton profileButton = profileOptions.getButton(action -> UltraDaycare.language.getProfileMenu().open(player, user), 1, TimeUnit.SECONDS, 1);
 
       if (profileOptions.getItem().contains("minecraft:player_head")) {
         ItemStack headItem = PlayerUtils.getHeadItem(player);

@@ -1,12 +1,12 @@
-package com.kingpixel.cobbledaycare.mechanics;
+package com.kingpixel.ultradaycare.mechanics;
 
 import com.cobblemon.mod.common.api.pokemon.stats.Stats;
 import com.cobblemon.mod.common.item.CobblemonItem;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.models.EggBuilder;
-import com.kingpixel.cobbledaycare.models.HatchBuilder;
 import com.kingpixel.cobbleutils.util.Utils;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.models.EggBuilder;
+import com.kingpixel.ultradaycare.models.HatchBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.minecraft.nbt.NbtCompound;
@@ -153,7 +153,7 @@ public class DaycareIvs extends Mechanics {
   }
 
   private void applyData(Pokemon egg, Stats stat, int iv) {
-    if (CobbleDaycare.config.isShowIvs()) {
+    if (UltraDaycare.config.isShowIvs()) {
       egg.getIvs().set(stat, iv);
     } else {
       egg.getIvs().set(stat, 0);

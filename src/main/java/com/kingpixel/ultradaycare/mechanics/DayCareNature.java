@@ -1,16 +1,16 @@
-package com.kingpixel.cobbledaycare.mechanics;
+package com.kingpixel.ultradaycare.mechanics;
 
 import com.cobblemon.mod.common.CobblemonItems;
 import com.cobblemon.mod.common.api.pokemon.Natures;
 import com.cobblemon.mod.common.item.CobblemonItem;
 import com.cobblemon.mod.common.pokemon.Nature;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.models.EggBuilder;
-import com.kingpixel.cobbledaycare.models.HatchBuilder;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import com.kingpixel.cobbleutils.util.Utils;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.models.EggBuilder;
+import com.kingpixel.ultradaycare.models.HatchBuilder;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -51,7 +51,7 @@ public class DayCareNature extends Mechanics {
     if (!s.isEmpty()) {
       Nature nature = Natures.getNature(s);
       if (nature == null) {
-        CobbleUtils.LOGGER.error(CobbleDaycare.MOD_ID, "Invalid nature: " + s);
+        CobbleUtils.LOGGER.error(UltraDaycare.MOD_ID, "Invalid nature: " + s);
         nature = Natures.getRandomNature();
       }
       pokemon.setNature(nature);

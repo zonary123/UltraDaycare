@@ -13,7 +13,7 @@
   "environment": "server",
   "entrypoints": {
     "main": [
-      "com.kingpixel.cobbledaycare.CobbleDaycare"
+      "com.kingpixel.ultradaycare.UltraDaycare"
     ]
   },
   "mixins": [

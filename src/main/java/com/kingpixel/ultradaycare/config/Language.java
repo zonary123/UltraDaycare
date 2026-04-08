@@ -1,13 +1,13 @@
-package com.kingpixel.cobbledaycare.config;
+package com.kingpixel.ultradaycare.config;
 
 import com.cobblemon.mod.common.api.pokemon.stats.Stats;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.mechanics.DaycareIvs;
-import com.kingpixel.cobbledaycare.ui.PlotMenu;
-import com.kingpixel.cobbledaycare.ui.PrincipalMenu;
-import com.kingpixel.cobbledaycare.ui.ProfileMenu;
-import com.kingpixel.cobbledaycare.ui.SelectPokemonMenu;
 import com.kingpixel.cobbleutils.util.UtilsFile;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.mechanics.DaycareIvs;
+import com.kingpixel.ultradaycare.ui.PlotMenu;
+import com.kingpixel.ultradaycare.ui.PrincipalMenu;
+import com.kingpixel.ultradaycare.ui.ProfileMenu;
+import com.kingpixel.ultradaycare.ui.SelectPokemonMenu;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -114,11 +114,11 @@ public class Language {
   }
 
   public void init() {
-    Path path = CobbleDaycare.getPath().resolve("lang").resolve(CobbleDaycare.config.getLang() + ".json");
+    Path path = UltraDaycare.getPath().resolve("lang").resolve(UltraDaycare.config.getLang() + ".json");
     try {
       Language language = UtilsFile.read(path, Language.class);
       if (language == null) language = new Language();
-      CobbleDaycare.language = language;
+      UltraDaycare.language = language;
       UtilsFile.write(path, language);
     } catch (IOException e) {
       e.printStackTrace();

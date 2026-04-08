@@ -1,8 +1,8 @@
-package com.kingpixel.cobbledaycare.commands.admin;
+package com.kingpixel.ultradaycare.commands.admin;
 
-import com.kingpixel.cobbledaycare.CobbleDaycare;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.AdventureTranslator;
+import com.kingpixel.ultradaycare.UltraDaycare;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.server.command.CommandManager;
@@ -23,9 +23,9 @@ public class CommandReload {
               ".reload"), 4))
             .executes(context -> {
               context.getSource().sendMessage(
-                AdventureTranslator.toNative(CobbleDaycare.language.getMessageReload(), CobbleDaycare.language.getPrefix())
+                AdventureTranslator.toNative(UltraDaycare.language.getMessageReload(), UltraDaycare.language.getPrefix())
               );
-              CobbleDaycare.load();
+              UltraDaycare.load();
               return 1;
             })
         )

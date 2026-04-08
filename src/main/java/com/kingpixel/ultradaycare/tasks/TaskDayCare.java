@@ -1,16 +1,16 @@
-package com.kingpixel.cobbledaycare.tasks;
+package com.kingpixel.ultradaycare.tasks;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.models.EggData;
-import com.kingpixel.cobbledaycare.models.Position;
-import com.kingpixel.cobbledaycare.models.User;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.models.EggData;
+import com.kingpixel.ultradaycare.models.Position;
+import com.kingpixel.ultradaycare.models.User;
 import lombok.Data;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
@@ -38,9 +38,9 @@ public class TaskDayCare implements Runnable {
   }
 
   private static void sendMessageMultiplierSteps(User user, ServerPlayerEntity player) {
-    boolean activeMultiplier = CobbleDaycare.config.isGlobalMultiplierSteps();
+    boolean activeMultiplier = UltraDaycare.config.isGlobalMultiplierSteps();
     float multiplier = user.getActualMultiplier(player);
-    boolean hasMultiplier = multiplier >= CobbleDaycare.config.getMultiplierSteps();
+    boolean hasMultiplier = multiplier >= UltraDaycare.config.getMultiplierSteps();
 
     if (activeMultiplier || hasMultiplier) {
       long cooldown = user.getTimeMultiplierSteps() * TICKS_TO_MILLISECONDS;
@@ -48,11 +48,11 @@ public class TaskDayCare implements Runnable {
 
       PlayerUtils.sendMessage(
         player,
-        CobbleDaycare.language.getMessageActiveStepsMultiplier()
+        UltraDaycare.language.getMessageActiveStepsMultiplier()
           .replace("%multiplier%", String.format("%.2f", multiplier))
           .replace("%cooldown%", cooldownMessage)
           .replace("%time%", cooldownMessage),
-        CobbleDaycare.language.getPrefix(),
+        UltraDaycare.language.getPrefix(),
         TypeMessage.ACTIONBAR
       );
     }
@@ -62,13 +62,13 @@ public class TaskDayCare implements Runnable {
   private static boolean isVehiclePermitted(ServerPlayerEntity player) {
     String vehicleId = player.getVehicle() == null ? "" : player.getVehicle().getSavedEntityId();
     if (vehicleId == null) vehicleId = "";
-    return CobbleDaycare.config.getPermittedVehicles().contains(vehicleId) || vehicleId.isEmpty();
+    return UltraDaycare.config.getPermittedVehicles().contains(vehicleId) || vehicleId.isEmpty();
   }
 
   // -------------------- Mismos métodos existentes pero sin CompletableFuture --------------------
 
   private boolean isPlayerEligibleForStepUpdate(ServerPlayerEntity player) {
-    return (CobbleDaycare.config.isAllowElytra() || !player.isInPose(EntityPose.FALL_FLYING))
+    return (UltraDaycare.config.isAllowElytra() || !player.isInPose(EntityPose.FALL_FLYING))
       && !player.getAbilities().flying
       && isVehiclePermitted(player)
       && (!player.isTouchingWater() || player.isInPose(EntityPose.SWIMMING));
@@ -79,7 +79,7 @@ public class TaskDayCare implements Runnable {
   }
 
   private void updateEggSteps(PlayerPartyStore party, double deltaMovement, ServerPlayerEntity player) {
-    User user = CobbleDaycare.database.getUser(player);
+    User user = UltraDaycare.database.getUser(player);
     if (user == null) return;
     for (Pokemon pokemon : party) {
       if (pokemon != null && "egg".equals(pokemon.showdownId())) {
@@ -89,12 +89,12 @@ public class TaskDayCare implements Runnable {
   }
 
   private void updatePlotsXp(ServerPlayerEntity player, double deltaMovement) {
-    User user = CobbleDaycare.database.getUser(player);
+    User user = UltraDaycare.database.getUser(player);
     if (user == null || user.getPlots().isEmpty()) return;
-    double xpAccumulated = deltaMovement * CobbleDaycare.config.getXpPerStep();
-    int maxLevel = CobbleDaycare.config.getMaxLevelTraining();
+    double xpAccumulated = deltaMovement * UltraDaycare.config.getXpPerStep();
+    int maxLevel = UltraDaycare.config.getMaxLevelTraining();
 
-    for (com.kingpixel.cobbledaycare.models.Plot plot : user.getPlots()) {
+    for (com.kingpixel.ultradaycare.models.Plot plot : user.getPlots()) {
       if (plot.getMale() != null && plot.getMale().getLevel() < maxLevel) {
         plot.setMalePendingXp(plot.getMalePendingXp() + xpAccumulated);
       }
@@ -106,7 +106,7 @@ public class TaskDayCare implements Runnable {
 
   private void updatePlotsBreeding(ServerPlayerEntity player, User user) {
     if (user == null || user.getPlots().isEmpty()) return;
-    for (com.kingpixel.cobbledaycare.models.Plot plot : user.getPlots()) {
+    for (com.kingpixel.ultradaycare.models.Plot plot : user.getPlots()) {
       // Preliminary quick checks before calling the heavier logic in Plot.checkEgg
       if (plot.hasTwoParents()) {
         plot.checkEgg(player, user);
@@ -115,16 +115,16 @@ public class TaskDayCare implements Runnable {
   }
 
   private void sendMessage(ServerPlayerEntity player) {
-    User user = CobbleDaycare.database.getUser(player);
+    User user = UltraDaycare.database.getUser(player);
     if (user == null) return;
     long timeMultiplierSteps = user.getTimeMultiplierSteps();
 
     if (timeMultiplierSteps > 0) {
-      timeMultiplierSteps -= CobbleDaycare.config.getTicksToWalking();
+      timeMultiplierSteps -= UltraDaycare.config.getTicksToWalking();
       user.setTimeMultiplierSteps(timeMultiplierSteps);
 
       if (timeMultiplierSteps <= 0) {
-        user.setMultiplierSteps(CobbleDaycare.config.getMultiplierSteps());
+        user.setMultiplierSteps(UltraDaycare.config.getMultiplierSteps());
         user.setTimeMultiplierSteps(0);
       }
 
@@ -143,7 +143,7 @@ public class TaskDayCare implements Runnable {
     for (ServerPlayerEntity player : Collections.synchronizedList(playerManager.getPlayerList())) {
       if (player == null || !player.isAlive() || player.isRemoved()) continue;
       try {
-        User user = CobbleDaycare.database.getUser(player);
+        User user = UltraDaycare.database.getUser(player);
         if (user == null || !isPlayerEligibleForStepUpdate(player)) continue;
 
         Entity entity = getEffectiveEntity(player);

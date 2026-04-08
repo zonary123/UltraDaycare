@@ -1,4 +1,4 @@
-package com.kingpixel.cobbledaycare.mechanics;
+package com.kingpixel.ultradaycare.mechanics;
 
 import com.cobblemon.mod.common.CobblemonItems;
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
@@ -6,10 +6,10 @@ import com.cobblemon.mod.common.api.pokemon.feature.ChoiceSpeciesFeatureProvider
 import com.cobblemon.mod.common.api.pokemon.feature.SpeciesFeatureProvider;
 import com.cobblemon.mod.common.api.pokemon.feature.SpeciesFeatures;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.models.EggBuilder;
-import com.kingpixel.cobbledaycare.models.EggForm;
-import com.kingpixel.cobbledaycare.models.HatchBuilder;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.models.EggBuilder;
+import com.kingpixel.ultradaycare.models.EggForm;
+import com.kingpixel.ultradaycare.models.HatchBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.minecraft.nbt.NbtCompound;
@@ -24,7 +24,7 @@ import java.util.*;
 public class DayCareForm extends Mechanics {
 
   public static final String TAG = "form";
-  private static final Logger LOGGER = LogManager.getLogger(CobbleDaycare.MOD_ID);
+  private static final Logger LOGGER = LogManager.getLogger(UltraDaycare.MOD_ID);
 
   private final Map<String, String> forms = new HashMap<>();
   private final List<EggForm> eggForms = new ArrayList<>();
@@ -49,7 +49,7 @@ public class DayCareForm extends Mechanics {
   /* ------------------------------------------------------------ */
 
   private void debug(String msg, Object... args) {
-    if (CobbleDaycare.config.isDebug()) {
+    if (UltraDaycare.config.isDebug()) {
       LOGGER.info(msg, args);
     }
   }
@@ -239,7 +239,7 @@ public class DayCareForm extends Mechanics {
     debug("[DayCareForm] applyHatch '{}'", form);
 
     PokemonProperties.Companion.parse(form).apply(builder.getPokemon());
-    CobbleDaycare.fixBreedable(builder.getPokemon());
+    UltraDaycare.fixBreedable(builder.getPokemon());
     builder.getEgg().getPersistentData().remove(TAG);
   }
 

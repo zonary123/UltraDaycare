@@ -1,7 +1,7 @@
-package com.kingpixel.cobbledaycare.mixins;
+package com.kingpixel.ultradaycare.mixins;
 
 import com.cobblemon.mod.common.block.PastureBlock;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
+import com.kingpixel.ultradaycare.UltraDaycare;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,8 +24,8 @@ public abstract class PastureBlockMixin {
   public void onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
     try {
       if (player == null) return;
-      if (CobbleDaycare.config.isCanUseNativeGUI() && player.isInPose(EntityPose.CROUCHING)) return;
-      CobbleDaycare.language.getPrincipalMenu().open((ServerPlayerEntity) player);
+      if (UltraDaycare.config.isCanUseNativeGUI() && player.isInPose(EntityPose.CROUCHING)) return;
+      UltraDaycare.language.getPrincipalMenu().open((ServerPlayerEntity) player);
       cir.setReturnValue(ActionResult.FAIL);
     } catch (Exception e) {
       e.printStackTrace();

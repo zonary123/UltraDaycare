@@ -1,4 +1,4 @@
-package com.kingpixel.cobbledaycare.models;
+package com.kingpixel.ultradaycare.models;
 
 
 import com.cobblemon.mod.common.Cobblemon;
@@ -7,13 +7,13 @@ import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.api.pokemon.feature.IntSpeciesFeature;
 import com.cobblemon.mod.common.net.messages.client.pokemon.update.SpeciesFeatureUpdatePacket;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.events.HatchEggEvent;
-import com.kingpixel.cobbledaycare.mechanics.DayCarePokemon;
-import com.kingpixel.cobbledaycare.mechanics.Mechanics;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.events.HatchEggEvent;
+import com.kingpixel.ultradaycare.mechanics.DayCarePokemon;
+import com.kingpixel.ultradaycare.mechanics.Mechanics;
 import kotlin.jvm.functions.Function0;
 import lombok.Getter;
 import lombok.Setter;
@@ -134,7 +134,7 @@ public class EggData {
 
   private static void updateName(Pokemon egg, int cycles, double steps) {
     var nickname = egg.getNickname();
-    String result = CobbleDaycare.language.getEggName()
+    String result = UltraDaycare.language.getEggName()
       .replace("%steps%", String.format("%.2f", steps))
       .replace("%cycles%", String.valueOf(cycles))
       .replace("%pokemon%", egg.getPersistentData().getString(DayCarePokemon.TAG_POKEMON));
@@ -155,7 +155,7 @@ public class EggData {
         .build();
 
       int level = egg.getLevel();
-      for (Mechanics mechanic : CobbleDaycare.mechanics) {
+      for (Mechanics mechanic : UltraDaycare.mechanics) {
         try {
           mechanic.applyHatch(builder);
         } catch (Exception e) {
@@ -166,7 +166,7 @@ public class EggData {
       var party = Cobblemon.INSTANCE.getStorage().getParty(player);
       if (builder.getPokemon() != null && builder.getEgg() != null) {
         builder.getPokemon().setLevel(level);
-        CobbleDaycare.fixBreedable(builder.getPokemon());
+        UltraDaycare.fixBreedable(builder.getPokemon());
         CobbleUtils.server.execute(() -> {
           party.remove(egg);
           party.add(builder.getPokemon());
@@ -184,7 +184,7 @@ public class EggData {
       PlayerUtils.sendMessage(
         player,
         "Error hatching egg corrupted data or invalid egg talk to the admins for help",
-        CobbleDaycare.language.getPrefix(),
+        UltraDaycare.language.getPrefix(),
         TypeMessage.CHAT
       );
     }

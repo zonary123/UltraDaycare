@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.kingpixel.cobbledaycare.mixins",
+  "package": "com.kingpixel.ultradaycare.mixins",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "PastureBlockMixin",

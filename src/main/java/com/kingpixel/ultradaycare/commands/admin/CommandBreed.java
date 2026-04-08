@@ -1,16 +1,16 @@
-package com.kingpixel.cobbledaycare.commands.admin;
+package com.kingpixel.ultradaycare.commands.admin;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.command.argument.PartySlotArgumentType;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
-import com.kingpixel.cobbledaycare.models.Plot;
-import com.kingpixel.cobbledaycare.models.SelectGender;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
+import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.models.Plot;
+import com.kingpixel.ultradaycare.models.SelectGender;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -65,29 +65,29 @@ public class CommandBreed {
 
   private static int breed(CommandContext<ServerCommandSource> context, ServerPlayerEntity player) {
     if (player == null) return 0;
-    var user = CobbleDaycare.database.getUser(player);
+    var user = UltraDaycare.database.getUser(player);
     if (user == null) return 0;
     if (user.hasCooldownBreed(player)) {
       PlayerUtils.sendMessage(
         player,
-        CobbleDaycare.language.getMessageCooldownBreed()
+        UltraDaycare.language.getMessageCooldownBreed()
           .replace("%cooldown%", PlayerUtils.getCooldown(user.getCooldownBreed())),
-        CobbleDaycare.language.getPrefix(),
+        UltraDaycare.language.getPrefix(),
         TypeMessage.CHAT
       );
       return 0;
     }
     Plot plot = new Plot();
     Pokemon male = PartySlotArgumentType.Companion.getPokemon(context, "male");
-    CobbleDaycare.fixBreedable(male);
+    UltraDaycare.fixBreedable(male);
     boolean maleCanBreed = plot.canBreed(male, SelectGender.MALE);
     plot.setMale(male);
     Pokemon female = PartySlotArgumentType.Companion.getPokemon(context, "female");
-    CobbleDaycare.fixBreedable(female);
+    UltraDaycare.fixBreedable(female);
     boolean femaleCanBreed = plot.canBreed(female, SelectGender.FEMALE);
     plot.setFemale(female);
 
-    if (CobbleDaycare.config.isDebug()) {
+    if (UltraDaycare.config.isDebug()) {
       CobbleUtils.LOGGER.info("maleCanBreed: " + maleCanBreed);
       CobbleUtils.LOGGER.info("femaleCanBreed: " + femaleCanBreed);
     }
@@ -98,8 +98,8 @@ public class CommandBreed {
     } else {
       PlayerUtils.sendMessage(
         player,
-        PokemonUtils.replace(CobbleDaycare.language.getMessageCannotBreed(), List.of(male, female)),
-        CobbleDaycare.language.getPrefix(),
+        PokemonUtils.replace(UltraDaycare.language.getMessageCannotBreed(), List.of(male, female)),
+        UltraDaycare.language.getPrefix(),
         TypeMessage.CHAT
       );
     }

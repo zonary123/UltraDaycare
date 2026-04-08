@@ -1,4 +1,4 @@
-package com.kingpixel.cobbledaycare.models;
+package com.kingpixel.ultradaycare.models;
 
 import lombok.Data;
 

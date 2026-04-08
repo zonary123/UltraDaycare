@@ -1,10 +1,10 @@
-package com.kingpixel.cobbledaycare.mixins;
+package com.kingpixel.ultradaycare.mixins;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbledaycare.CobbleDaycare;
 import com.kingpixel.cobbleutils.CobbleUtils;
+import com.kingpixel.ultradaycare.UltraDaycare;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -77,17 +77,17 @@ public abstract class PreventDamage {
 
   @Unique
   private void cobbleDaycare$givePokemon(ServerPlayerEntity player, Pokemon pokemon, PokemonEntity pokemonEntity) {
-    if (CobbleDaycare.config.isDebug()) {
-      CobbleUtils.LOGGER.info(CobbleDaycare.MOD_ID,
-        " Persistent data: " + pokemon.getPersistentData().getBoolean(CobbleDaycare.TAG_SPAWNED) + " " +
+    if (UltraDaycare.config.isDebug()) {
+      CobbleUtils.LOGGER.info(UltraDaycare.MOD_ID,
+        " Persistent data: " + pokemon.getPersistentData().getBoolean(UltraDaycare.TAG_SPAWNED) + " " +
           " Owner: " + pokemon.isPlayerOwned());
     }
-    if (pokemon.getPersistentData().getBoolean(CobbleDaycare.TAG_SPAWNED) && !pokemon.isPlayerOwned()) {
-      pokemon.getPersistentData().remove(CobbleDaycare.TAG_SPAWNED);
+    if (pokemon.getPersistentData().getBoolean(UltraDaycare.TAG_SPAWNED) && !pokemon.isPlayerOwned()) {
+      pokemon.getPersistentData().remove(UltraDaycare.TAG_SPAWNED);
       var party = Cobblemon.INSTANCE.getStorage().getParty(player);
       party.add(pokemon);
       for (Pokemon p : party) {
-        p.getPersistentData().remove(CobbleDaycare.TAG_SPAWNED);
+        p.getPersistentData().remove(UltraDaycare.TAG_SPAWNED);
       }
       pokemonEntity.remove(Entity.RemovalReason.DISCARDED);
     }

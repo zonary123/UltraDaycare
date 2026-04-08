@@ -1,28 +1,18 @@
 # Changelog
 
-## [1.0.6] - 2026-03-29
+## [1.1.0] - UltraDaycare: Automatic Breeding & Dynamic Training
 
-### Optimizations
+### 🌟 Main Features
+- **Automatic Breeding**: Eggs now generate automatically in the background! Even better: notifications for new eggs are **much faster than before**. No more waiting around to know if the stork has arrived!
+- **Step-Based Training System**: Your Pokémon now gain experience while in the Daycare **simply by you walking around the world**. Train your team while you explore!
+- **Experience Claiming**: We've added dedicated buttons above each Pokémon so you can see how much experience they've accumulated and **pay to apply it** instantly.
+- **Breeding Costs**: Administrators can now enable a breeding fee, making the server economy more dynamic.
 
-- Improved the save system to reduce memory usage and avoid unnecessary data being saved repeatedly.
+### 🛠️ Improvements & Fixes
+- **Max Level Detection**: The menu is now smarter and automatically hides training info once your Pokémon reaches the training level cap.
+- **Pokemon Selection Fix**: We've fixed the selection menu so you can navigate through all pages of your PC and Party without any issues.
+- **Better Performance**: Optimized the internal engine so data saving and menu opening are instantaneous and don't affect gameplay fluidity.
 
-### Bug Fixes
+---
 
-## [1.0.5] - 2025-12-03
-
-### Features
-
-- Added `EVERSTONE` logic with male forms.
-- Fixed forms not being inherited correctly. Added a config option to add more forms if needed.
-- Automatic installation of datapack.
-- Locked plots you own will now be visible
-- Forms should now work better. Please test to ensure everything works correctly
-
-### Optimizations
-
-- Now only check 1 time if the pokemon is blacklisted instead of checking 2 times.
-
-### Bug Fixes
-
-- Fixed a bug that caused the breeding time to reset if you had more than one egg slot and picked up an egg before the
-  second egg from the daycare was ready to be collected.
+_UltraDaycare - The definitive breeding solution for Cobblemon._

@@ -1,8 +1,8 @@
-package com.kingpixel.cobbledaycare.database;
+package com.kingpixel.ultradaycare.database;
 
 
-import com.kingpixel.cobbledaycare.CobbleDaycare;
 import com.kingpixel.cobbleutils.Model.DataBaseConfig;
+import com.kingpixel.ultradaycare.UltraDaycare;
 
 /**
  * @author Carlos Varas Alonso - 24/07/2024 21:03
@@ -10,16 +10,16 @@ import com.kingpixel.cobbleutils.Model.DataBaseConfig;
 public class DatabaseClientFactory {
 
   public synchronized static DatabaseClient createDatabaseClient(DataBaseConfig database) {
-    if (CobbleDaycare.database != null) CobbleDaycare.database.disconnect();
-    CobbleDaycare.database = null;
+    if (UltraDaycare.database != null) UltraDaycare.database.disconnect();
+    UltraDaycare.database = null;
     switch (database.getType()) {
-      case MONGODB -> CobbleDaycare.database = new MongoDBService();
-      case JSON -> CobbleDaycare.database = new JSONService();
+      case MONGODB -> UltraDaycare.database = new MongoDBService();
+      case JSON -> UltraDaycare.database = new JSONService();
       default -> throw new IllegalArgumentException("Unsupported database type: " + database.getType());
     }
 
-    CobbleDaycare.database.connect(database);
-    return CobbleDaycare.database;
+    UltraDaycare.database.connect(database);
+    return UltraDaycare.database;
   }
 
 }

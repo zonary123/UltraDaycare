@@ -1,4 +1,4 @@
-package com.kingpixel.cobbledaycare;
+package com.kingpixel.ultradaycare;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.WorldSavePath;
@@ -58,7 +58,7 @@ public final class DataPackDaycare {
   private static void copyDatapackFromJar(String datapackName, Path targetPath, boolean exceptions) {
     try {
       // Obtain the URL of the resource inside the mod
-      URL url = CobbleDaycare.class.getResource("/" + datapackName);
+      URL url = UltraDaycare.class.getResource("/" + datapackName);
       if (url == null) {
         System.err.println("[CobbleDaycare] Datapack resources not found inside JAR.");
         return;
