@@ -166,11 +166,17 @@ public class TaskDayCare implements Runnable {
           continue;
         }
 
-        PlayerPartyStore party = Cobblemon.INSTANCE.getStorage().getParty(player);
-        updateEggSteps(party, deltaMovement, player);
-        updatePlotsXp(player, deltaMovement);
-        updatePlotsBreeding(player, user);
-        sendMessage(player);
+        CobbleUtils.server.execute(() -> {
+          try {
+            PlayerPartyStore party = Cobblemon.INSTANCE.getStorage().getParty(player);
+            updateEggSteps(party, deltaMovement, player);
+            updatePlotsXp(player, deltaMovement);
+            updatePlotsBreeding(player, user);
+            sendMessage(player);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        });
 
         pos.setX(entity.getX());
         pos.setZ(entity.getZ());

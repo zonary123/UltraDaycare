@@ -2,6 +2,7 @@ package com.kingpixel.ultradaycare.mechanics;
 
 import com.cobblemon.mod.common.CobblemonItems;
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
+import com.cobblemon.mod.common.api.pokemon.PokemonPropertyExtractor;
 import com.cobblemon.mod.common.api.pokemon.feature.ChoiceSpeciesFeatureProvider;
 import com.cobblemon.mod.common.api.pokemon.feature.SpeciesFeatureProvider;
 import com.cobblemon.mod.common.api.pokemon.feature.SpeciesFeatures;
@@ -68,21 +69,36 @@ public class DayCareForm extends Mechanics {
     Pokemon source = male.heldItem().getItem().equals(CobblemonItems.EVERSTONE) ? male : female;
     debug("[DayCareForm] applyEgg source={}", source.showdownId());
 
-    LinkedHashSet<String> parts = new LinkedHashSet<>();
-
-    add(parts, getRegionalForm(source), "Regional", source);
-    add(parts, processAspects(female), "Aspects", female);
-
-    for (String feature : processFeatures(female)) {
-      add(parts, feature, "Feature", female);
-    }
-
     String configForm = getConfigForm(source);
     if (configForm != null) {
-      add(parts, configForm, "ConfigForm", source);
+      if (!isBlacklisted(configForm)) {
+        applyForm(egg, configForm, evo);
+      } else {
+        applyForm(egg, "", evo);
+      }
+      return;
     }
 
-    finalizeForm(parts, egg, evo);
+    var props = source.createPokemonProperties(
+        PokemonPropertyExtractor.FORM, 
+        PokemonPropertyExtractor.ASPECTS
+    );
+
+    if (props.getForm() != null && blacklistForm.contains(props.getForm())) {
+      props.setForm("");
+    }
+    Set<String> aspects = new HashSet<>(props.getAspects());
+    aspects.removeIf(aspect -> {
+      if (aspect.startsWith("gender=") || aspect.startsWith("shiny=")) return true;
+      for (String blacklisted : blacklistFeatures) {
+        if (aspect.contains(blacklisted)) return true;
+      }
+      return false;
+    });
+    props.setAspects(aspects);
+
+    String formStr = props.asString(" ");
+    applyForm(egg, formStr, evo);
   }
 
   /* ------------------------------------------------------------ */
@@ -97,57 +113,33 @@ public class DayCareForm extends Mechanics {
     String configForm = getConfigForm(female);
     if (configForm != null) {
       if (!isBlacklisted(configForm)) {
-        debug("[DayCareForm][DIRECT APPLY] '{}'", configForm);
         applyForm(egg, configForm, evo);
       } else {
-        debug("[DayCareForm][REMOVE] ConfigForm '{}' Pokémon={}", configForm, female.showdownId());
         applyForm(egg, "", evo);
       }
       return;
     }
 
-    LinkedHashSet<String> parts = new LinkedHashSet<>();
+    var props = female.createPokemonProperties(
+        PokemonPropertyExtractor.FORM, 
+        PokemonPropertyExtractor.ASPECTS
+    );
 
-    add(parts, getRegionalForm(female), "Regional", female);
-    add(parts, processAspects(female), "Aspects", female);
-
-    for (String feature : processFeatures(female)) {
-      add(parts, feature, "Feature", female);
+    if (props.getForm() != null && blacklistForm.contains(props.getForm())) {
+      props.setForm("");
     }
+    Set<String> aspects = new HashSet<>(props.getAspects());
+    aspects.removeIf(aspect -> {
+      if (aspect.startsWith("gender=") || aspect.startsWith("shiny=")) return true;
+      for (String blacklisted : blacklistFeatures) {
+        if (aspect.contains(blacklisted)) return true;
+      }
+      return false;
+    });
+    props.setAspects(aspects);
 
-    finalizeForm(parts, egg, evo);
-  }
-
-  /* ------------------------------------------------------------ */
-  /* FINALIZE                                                     */
-  /* ------------------------------------------------------------ */
-
-  private void finalizeForm(Set<String> parts, Pokemon egg, Pokemon evo) {
-    String form = String.join(" ", parts);
-    debug("[DayCareForm] FINAL FORM='{}'", form);
-    applyForm(egg, form, evo);
-  }
-
-  /* ------------------------------------------------------------ */
-  /* ADD HELPER (DEDUP + BLACKLIST)                                */
-  /* ------------------------------------------------------------ */
-
-  private void add(Set<String> set, String value, String source, Pokemon pokemon) {
-    if (value == null || value.isBlank()) return;
-
-    String v = value.trim();
-
-    if (isBlacklisted(v)) {
-      debug("[DayCareForm][REMOVE] {} '{}' Pokémon={}", source, v, pokemon.showdownId());
-      return;
-    }
-
-    if (!set.add(v)) {
-      debug("[DayCareForm][SKIP] DUPLICATE {} '{}' Pokémon={}", source, v, pokemon.showdownId());
-      return;
-    }
-
-    debug("[DayCareForm][ADD] {} '{}' Pokémon={}", source, v, pokemon.showdownId());
+    String formStr = props.asString(" ");
+    applyForm(egg, formStr, evo);
   }
 
   /* ------------------------------------------------------------ */
@@ -161,54 +153,6 @@ public class DayCareForm extends Mechanics {
       }
     }
     return forms.get(pokemon.getForm().formOnlyShowdownId());
-  }
-
-  private String getRegionalForm(Pokemon pokemon) {
-    return switch (pokemon.getSpecies().showdownId()) {
-      case "perrserker", "sirfetchd", "mrrime", "cursola", "obstagoon", "runerigus" -> "galarian";
-      case "clodsire" -> "paldean";
-      case "overqwil", "sneasler" -> "hisuian";
-      default -> "";
-    };
-  }
-
-  private String processAspects(Pokemon pokemon) {
-    if (pokemon.getForm().getAspects().isEmpty()) return "";
-
-    List<String> parts = new ArrayList<>();
-
-    for (String s : pokemon.getForm().getAspects()) {
-      if (s.contains("male") || s.contains("female")) continue;
-      parts.add(s.replace("-", "_").replace("_", "="));
-    }
-
-    for (String label : pokemon.getForm().getLabels()) {
-      if (label.contains("regional") || label.contains("gen8a")) {
-        parts.add("region_bias=" + pokemon.getForm().formOnlyShowdownId());
-      }
-    }
-
-    return String.join(" ", parts);
-  }
-
-  private List<String> processFeatures(Pokemon pokemon) {
-    List<String> features = new ArrayList<>();
-
-    for (SpeciesFeatureProvider<?> provider : SpeciesFeatures.getFeaturesFor(pokemon.getSpecies())) {
-      if (provider instanceof ChoiceSpeciesFeatureProvider choice) {
-        var feature = choice.get(pokemon);
-        if (feature == null) continue;
-
-        String entry = feature.getName() + "=" + feature.getValue();
-        if (isBlacklisted(feature.getName(), feature.getValue())) {
-          debug("[DayCareForm][REMOVE] Feature '{}' Pokémon={}", entry, pokemon.showdownId());
-          continue;
-        }
-
-        features.add(entry);
-      }
-    }
-    return features;
   }
 
   /* ------------------------------------------------------------ */

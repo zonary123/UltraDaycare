@@ -1,8 +1,7 @@
 package com.kingpixel.ultradaycare.mechanics;
 
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.google.gson.Gson;
-import com.kingpixel.cobbleutils.util.Utils;
+import com.kingpixel.cobbleutils.util.UtilsFile;
 import com.kingpixel.ultradaycare.UltraDaycare;
 import com.kingpixel.ultradaycare.models.EggBuilder;
 import com.kingpixel.ultradaycare.models.HatchBuilder;
@@ -10,10 +9,6 @@ import lombok.Data;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Path;
 
 /**
@@ -76,48 +71,16 @@ public abstract class Mechanics {
   public <T> T readFromFile(Class<T> clazz) {
     try {
       Path path = UltraDaycare.getPath().resolve("modules").resolve(fileName() + ".json");
-      Gson gson = Utils.newGson();
-      File file = path.toFile();
-      String filePath = file.getAbsolutePath();
-
-
-      if (!file.exists()) {
-        file.getParentFile().mkdirs();
-        T instance = clazz.getDeclaredConstructor().newInstance();
-        ((Mechanics) instance).validateData();
-        writeToFile(instance, filePath);
-
-        return instance;
+      T instance = UtilsFile.read(path, clazz);
+      if (instance == null) {
+        instance = clazz.getDeclaredConstructor().newInstance();
       }
-
-      try (FileReader reader = new FileReader(filePath)) {
-        T instance = gson.fromJson(reader, clazz);
-        ((Mechanics) instance).validateData();
-        writeToFile(instance, filePath);
-        return instance;
-      } catch (IOException e) {
-        e.printStackTrace();
-        return null;
-      }
+      ((Mechanics) instance).validateData();
+      UtilsFile.write(path, instance);
+      return instance;
     } catch (Exception e) {
       e.printStackTrace();
       return null;
-    }
-  }
-
-  public <T> void writeToFile(T object, String filePath) {
-    Gson gson = Utils.newGson();
-    try {
-      File file = new File(filePath);
-      File parentDir = file.getParentFile();
-      if (parentDir != null && !parentDir.exists()) {
-        parentDir.mkdirs();
-      }
-      try (FileWriter writer = new FileWriter(file)) {
-        gson.toJson(object, writer);
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
     }
   }
 

@@ -53,6 +53,14 @@ public class UltraDaycare implements ModInitializer {
   public static final String MOD_NAME = "UltraDaycare";
   public static final String TAG_SPAWNED = "spawned";
   public static final List<Mechanics> mechanics = new ArrayList<>();
+  public static final List<Mechanics> registeredMechanics = new ArrayList<>();
+
+  public static void registerMechanic(Mechanics mechanic) {
+    if (mechanic != null && !registeredMechanics.contains(mechanic)) {
+      registeredMechanics.add(mechanic);
+    }
+  }
+
   public static final Logger LOGGER = UtilsLogger.getLogger(MOD_NAME);
   public static final String PATH = "/config/ultradaycare/";
   public static final String PATH_MODULES = PATH + "modules/";
@@ -109,6 +117,7 @@ public class UltraDaycare implements ModInitializer {
 
   public static void load() {
     MigrationService.migrate();
+    registerDefaultMechanics();
     CobbleUtils.info(MOD_ID, "1.1.0", "https://github.com/zonary123/UltraDaycare");
     files();
     DatabaseClientFactory.createDatabaseClient(config.getDataBase());
@@ -122,23 +131,31 @@ public class UltraDaycare implements ModInitializer {
     }, 0, 30, TimeUnit.SECONDS);
   }
 
+  private static void registerDefaultMechanics() {
+    if (!registeredMechanics.isEmpty()) return;
+    registerMechanic(new DayCarePokemon());
+    registerMechanic(new DayCareForm());
+    registerMechanic(new DayCareAbility());
+    registerMechanic(new DayCareEggMoves());
+    registerMechanic(new DayCareMirrorHerb());
+    registerMechanic(new DayCareNature());
+    registerMechanic(new DayCareCountry());
+    registerMechanic(new DayCareShiny());
+    registerMechanic(new DayCarePokeBall());
+    registerMechanic(new DaycareIvs());
+    registerMechanic(new DayCareInciense());
+  }
+
   private static void files() {
     config.init();
     language.init();
     mechanics.clear();
-    mechanics.addAll(
-      List.of(
-        new DayCarePokemon().getInstance(),
-        new DayCareForm().getInstance(),
-        new DayCareAbility().getInstance(),
-        new DayCareEggMoves().getInstance(),
-        new DayCareMirrorHerb().getInstance(),
-        new DayCareNature().getInstance(),
-        new DayCareCountry().getInstance(),
-        new DayCareShiny().getInstance(),
-        new DayCarePokeBall().getInstance(),
-        new DaycareIvs().getInstance(),
-        new DayCareInciense().getInstance()));
+    for (Mechanics mechanic : registeredMechanics) {
+      Mechanics instance = mechanic.getInstance();
+      if (instance != null) {
+        mechanics.add(instance);
+      }
+    }
     mechanics.removeIf(Objects::isNull);
     mechanics.removeIf(mechanic -> {
       if (mechanic instanceof DayCarePokemon || mechanic instanceof DayCareForm) {
