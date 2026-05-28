@@ -258,7 +258,7 @@ public class Plot {
         );
         checkRefund(player);
         Pokemon pokemonFemale = female.clone(false, DynamicRegistryManager.EMPTY);
-        CobbleUtils.server.executeSync(() -> party.add(pokemonFemale));
+        CobbleUtils.server.execute(() -> party.add(pokemonFemale));
         setFemale(null);
         user.markDirty();
       }
@@ -272,7 +272,7 @@ public class Plot {
         );
         checkRefund(player);
         Pokemon pokemonMale = male.clone(false, DynamicRegistryManager.EMPTY);
-        CobbleUtils.server.executeSync(() -> party.add(pokemonMale));
+        CobbleUtils.server.execute(() -> party.add(pokemonMale));
         setMale(null);
         user.markDirty();
       }
@@ -303,7 +303,7 @@ public class Plot {
             );
           }
           if (UltraDaycare.hasPermission(player, "ultradaycare.autoclaim", 4)) {
-            CobbleUtils.server.executeSync(() -> Cobblemon.INSTANCE.getStorage().getParty(player).add(egg));
+            CobbleUtils.server.execute(() -> Cobblemon.INSTANCE.getStorage().getParty(player).add(egg));
           } else {
             eggs.add(egg);
           }

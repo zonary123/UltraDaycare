@@ -9,6 +9,7 @@ import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
 import com.kingpixel.ultradaycare.UltraDaycare;
 import com.kingpixel.ultradaycare.models.EggData;
+import com.kingpixel.ultradaycare.models.Plot;
 import com.kingpixel.ultradaycare.models.Position;
 import com.kingpixel.ultradaycare.models.User;
 import lombok.Data;
@@ -31,6 +32,7 @@ public class TaskDayCare implements Runnable {
     new ConcurrentHashMap<>();
   private static final ScheduledExecutorService cobbleDaycare$scheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder()
     .setNameFormat("CobbleDaycare-walk-breeding-%d")
+    .setDaemon(true)
     .build());
 
   public TaskDayCare() {
@@ -94,7 +96,7 @@ public class TaskDayCare implements Runnable {
     double xpAccumulated = deltaMovement * UltraDaycare.config.getXpPerStep();
     int maxLevel = UltraDaycare.config.getMaxLevelTraining();
 
-    for (com.kingpixel.ultradaycare.models.Plot plot : user.getPlots()) {
+    for (Plot plot : user.getPlots()) {
       if (plot.getMale() != null && plot.getMale().getLevel() < maxLevel) {
         plot.setMalePendingXp(plot.getMalePendingXp() + xpAccumulated);
       }
@@ -106,7 +108,7 @@ public class TaskDayCare implements Runnable {
 
   private void updatePlotsBreeding(ServerPlayerEntity player, User user) {
     if (user == null || user.getPlots().isEmpty()) return;
-    for (com.kingpixel.ultradaycare.models.Plot plot : user.getPlots()) {
+    for (Plot plot : user.getPlots()) {
       // Preliminary quick checks before calling the heavier logic in Plot.checkEgg
       if (plot.hasTwoParents()) {
         plot.checkEgg(player, user);
