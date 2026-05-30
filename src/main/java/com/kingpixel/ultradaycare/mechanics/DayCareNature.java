@@ -5,7 +5,6 @@ import com.cobblemon.mod.common.api.pokemon.Natures;
 import com.cobblemon.mod.common.item.CobblemonItem;
 import com.cobblemon.mod.common.pokemon.Nature;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import com.kingpixel.cobbleutils.util.Utils;
 import com.kingpixel.ultradaycare.UltraDaycare;
@@ -51,7 +50,7 @@ public class DayCareNature extends Mechanics {
     if (!s.isEmpty()) {
       Nature nature = Natures.getNature(s);
       if (nature == null) {
-        CobbleUtils.LOGGER.error(UltraDaycare.MOD_ID, "Invalid nature: " + s);
+        UltraDaycare.LOGGER.error("Invalid nature: " + s);
         nature = Natures.getRandomNature();
       }
       pokemon.setNature(nature);

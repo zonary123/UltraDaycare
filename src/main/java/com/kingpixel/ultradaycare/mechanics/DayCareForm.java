@@ -3,9 +3,6 @@ package com.kingpixel.ultradaycare.mechanics;
 import com.cobblemon.mod.common.CobblemonItems;
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.api.pokemon.PokemonPropertyExtractor;
-import com.cobblemon.mod.common.api.pokemon.feature.ChoiceSpeciesFeatureProvider;
-import com.cobblemon.mod.common.api.pokemon.feature.SpeciesFeatureProvider;
-import com.cobblemon.mod.common.api.pokemon.feature.SpeciesFeatures;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.ultradaycare.UltraDaycare;
 import com.kingpixel.ultradaycare.models.EggBuilder;
@@ -15,8 +12,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -25,7 +20,6 @@ import java.util.*;
 public class DayCareForm extends Mechanics {
 
   public static final String TAG = "form";
-  private static final Logger LOGGER = LogManager.getLogger(UltraDaycare.MOD_ID);
 
   private final Map<String, String> forms = new HashMap<>();
   private final List<EggForm> eggForms = new ArrayList<>();
@@ -51,7 +45,7 @@ public class DayCareForm extends Mechanics {
 
   private void debug(String msg, Object... args) {
     if (UltraDaycare.config.isDebug()) {
-      LOGGER.info(msg, args);
+      UltraDaycare.LOGGER.info(msg, args);
     }
   }
 
@@ -80,8 +74,8 @@ public class DayCareForm extends Mechanics {
     }
 
     var props = source.createPokemonProperties(
-        PokemonPropertyExtractor.FORM, 
-        PokemonPropertyExtractor.ASPECTS
+      PokemonPropertyExtractor.FORM,
+      PokemonPropertyExtractor.ASPECTS
     );
 
     if (props.getForm() != null && blacklistForm.contains(props.getForm())) {
@@ -121,8 +115,8 @@ public class DayCareForm extends Mechanics {
     }
 
     var props = female.createPokemonProperties(
-        PokemonPropertyExtractor.FORM, 
-        PokemonPropertyExtractor.ASPECTS
+      PokemonPropertyExtractor.FORM,
+      PokemonPropertyExtractor.ASPECTS
     );
 
     if (props.getForm() != null && blacklistForm.contains(props.getForm())) {

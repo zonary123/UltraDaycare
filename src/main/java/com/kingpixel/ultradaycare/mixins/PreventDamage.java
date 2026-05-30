@@ -3,7 +3,6 @@ package com.kingpixel.ultradaycare.mixins;
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.ultradaycare.UltraDaycare;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
@@ -78,7 +77,7 @@ public abstract class PreventDamage {
   @Unique
   private void cobbleDaycare$givePokemon(ServerPlayerEntity player, Pokemon pokemon, PokemonEntity pokemonEntity) {
     if (UltraDaycare.config.isDebug()) {
-      CobbleUtils.LOGGER.info(UltraDaycare.MOD_ID,
+      UltraDaycare.LOGGER.info(
         " Persistent data: " + pokemon.getPersistentData().getBoolean(UltraDaycare.TAG_SPAWNED) + " " +
           " Owner: " + pokemon.isPlayerOwned());
     }

@@ -3,7 +3,6 @@ package com.kingpixel.ultradaycare.commands.admin;
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.command.argument.PartySlotArgumentType;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
@@ -88,8 +87,8 @@ public class CommandBreed {
     plot.setFemale(female);
 
     if (UltraDaycare.config.isDebug()) {
-      CobbleUtils.LOGGER.info("maleCanBreed: " + maleCanBreed);
-      CobbleUtils.LOGGER.info("femaleCanBreed: " + femaleCanBreed);
+      UltraDaycare.LOGGER.info("maleCanBreed: " + maleCanBreed);
+      UltraDaycare.LOGGER.info("femaleCanBreed: " + femaleCanBreed);
     }
     if (maleCanBreed && femaleCanBreed) {
       Cobblemon.INSTANCE.getStorage().getParty(player).add(plot.createEgg(player));

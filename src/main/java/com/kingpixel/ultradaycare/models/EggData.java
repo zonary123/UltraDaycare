@@ -77,7 +77,7 @@ public class EggData {
       );
       packet.sendToPlayer(player);
     } catch (Exception e) {
-      CobbleUtils.LOGGER.error("Error actualizando el feature del huevo: " + e.getMessage());
+      UltraDaycare.LOGGER.error("Error actualizando el feature del huevo: " + e.getMessage());
       e.printStackTrace();
     }
 
@@ -159,7 +159,7 @@ public class EggData {
         try {
           mechanic.applyHatch(builder);
         } catch (Exception e) {
-          CobbleUtils.LOGGER.info("Error applying hatch mechanic: " + mechanic.fileName() + " - " + e.getClass().getName());
+          UltraDaycare.LOGGER.info("Error applying hatch mechanic: " + mechanic.fileName() + " - " + e.getClass().getName());
           e.printStackTrace();
         }
       }
@@ -178,7 +178,7 @@ public class EggData {
         });
       }
     } catch (Exception e) {
-      CobbleUtils.LOGGER.error("Error hatching egg");
+      UltraDaycare.LOGGER.error("Error hatching egg");
       e.printStackTrace();
       CobbleUtils.server.execute(() -> Cobblemon.INSTANCE.getStorage().getParty(player).remove(egg));
       PlayerUtils.sendMessage(

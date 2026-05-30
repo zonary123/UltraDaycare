@@ -2,7 +2,6 @@ package com.kingpixel.ultradaycare.commands.base;
 
 import com.cobblemon.mod.common.command.argument.PartySlotArgumentType;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
@@ -41,7 +40,7 @@ public class CommandEggInfo {
                     try {
                       message = mechanic.getEggInfo(message, nbt);
                     } catch (Exception e) {
-                      CobbleUtils.LOGGER.error(UltraDaycare.MOD_ID,
+                      UltraDaycare.LOGGER.error(
                         "Error in egg info: " + mechanic.getClass().getSimpleName());
                       e.printStackTrace();
                     }

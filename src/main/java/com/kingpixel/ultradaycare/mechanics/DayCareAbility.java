@@ -77,7 +77,7 @@ public class DayCareAbility extends Mechanics {
 
     if (hasHA) {
       if (male.getSpecies().equals(female.getSpecies())) {
-        if (UltraDaycare.config.isDebug()) CobbleUtils.LOGGER.info("Same Species");
+        if (UltraDaycare.config.isDebug()) UltraDaycare.LOGGER.info("Same Species");
         giveHA = true;
       } else if (maleIsDitto ^ femaleIsDitto) {
         boolean nonDittoHA = maleIsDitto ? femaleHA : maleHA;
@@ -85,7 +85,7 @@ public class DayCareAbility extends Mechanics {
       } else if (eggGroupTransmitHA) {
         giveHA = true;
       } else if (femaleHA) {
-        if (UltraDaycare.config.isDebug()) CobbleUtils.LOGGER.info("Female HA");
+        if (UltraDaycare.config.isDebug()) UltraDaycare.LOGGER.info("Female HA");
         giveHA = true;
       }
     }
