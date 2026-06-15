@@ -129,8 +129,8 @@ public class CommandHatch {
     for (Pokemon pokemon : pokemons) {
       if (!pokemon.getSpecies().showdownId().equals("egg")) continue;
       EggData.hatch(player, pokemon);
-      user.setCooldownHatch(player);
-      user.save();
     }
+    user.setCooldownHatch(player);
+    user.save();
   }
 }
