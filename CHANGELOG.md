@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.1] - Optimizations & Bug Fixes
+
+### 🔧 Fixes
+- **Hatch All Command Fixed**: The command to hatch all eggs now works correctly.
+- **Improved Hatch Event**: The hatch event now sends information about the resulting Pokémon. This allows mods like UltraQuests and UltraEvents to filter and detect when your Pokémon are born, opening up new possibilities for custom quests and events.
+
+### ⚡ Performance Improvements
+- **Save System Optimization**: The system for saving egg and training data is now even faster and more efficient. Changes are applied instantly without slowing down the server.
+- **Overall Stability Improvement**: Internal code has been optimized to reduce resource consumption and improve overall game fluidity.
+
+---
+
 ## [1.1.0] - UltraDaycare: Automatic Breeding & Dynamic Training
 
 ### 🌟 New Features
