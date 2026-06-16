@@ -173,7 +173,7 @@ public class EggData {
           UUID uuid = player.getUuid();
           builder.getPokemon().setOriginalTrainer(uuid);
           CobblemonEvents.HATCH_EGG_POST.emit(new com.cobblemon.mod.common.api.events.pokemon.HatchEggEvent.Post(
-            player, builder.getEgg()));
+            player, builder.getPokemon()));
           HatchEggEvent.HATCH_EGG_EVENT.emit(player, builder.getPokemon());
         });
       }
