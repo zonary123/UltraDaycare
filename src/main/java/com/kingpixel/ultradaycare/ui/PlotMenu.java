@@ -140,15 +140,6 @@ public class PlotMenu {
         })
         .build();
       egg.applyTemplate(template, eggButton);
-    } else if (UltraDaycare.getActiveMode().consumeParents() && plot.hasTwoParents()) {
-      GooeyButton breedBtn = GooeyButton.builder()
-        .display(breedButton.getItemStack())
-        .onClick(action -> {
-          UltraDaycare.getActiveMode().onBreed(player, plot, user);
-          open(player, plot, user, true);
-        })
-        .build();
-      breedButton.applyTemplate(template, breedBtn);
     } else if (UltraDaycare.config.isEnableBreedingFee() && !plot.isBreedingPaid() && plot.hasTwoParents()) {
       double price = UltraDaycare.config.getBreedingFeePrice();
       List<String> lore = breedingEntrance.getLore().stream()
@@ -169,6 +160,15 @@ public class PlotMenu {
           }
         }).build();
       breedingEntrance.applyTemplate(template, feeButton);
+    } else if (UltraDaycare.getActiveMode().consumeParents() && plot.hasTwoParents()) {
+      GooeyButton breedBtn = GooeyButton.builder()
+        .display(breedButton.getItemStack())
+        .onClick(action -> {
+          UltraDaycare.getActiveMode().onBreed(player, plot, user);
+          open(player, plot, user, true);
+        })
+        .build();
+      breedButton.applyTemplate(template, breedBtn);
     } else {
       GooeyButton eggButton = GooeyButton.builder()
         .display(egg.getItemStack())
@@ -182,6 +182,7 @@ public class PlotMenu {
 
 
   private void addClaimXpButtons(ChestTemplate template, ServerPlayerEntity player, Plot plot, User user) {
+    if (!UltraDaycare.config.isEnablePaidExperience()) return;
     // Progressive XP Buttons
     if (plot.getMale() != null && plot.getMalePendingXp() > 0 && plot.getMale().getLevel() < UltraDaycare.config.getMaxLevelTraining()) {
       template.set(male.getSlot() - 9, getClaimXpButton(player, plot, user, SelectGender.MALE));
@@ -193,6 +194,8 @@ public class PlotMenu {
 
   private GooeyButton getClaimXpButton(ServerPlayerEntity player, Plot plot, User user, SelectGender gender) {
     double pendingXp = gender == SelectGender.MALE ? plot.getMalePendingXp() : plot.getFemalePendingXp();
+
+    // Paid XP claim
     double cost = pendingXp * UltraDaycare.config.getPricePerXp();
 
     List<String> lore = claimXp.getLore().stream()

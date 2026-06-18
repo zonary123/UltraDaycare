@@ -153,6 +153,9 @@ public class Config {
     this.whitelist = new ArrayList<>();
     this.dobbleDittoFilter = new FilterPokemons();
     this.maxLevelTraining = 100;
+    this.enablePaidExperience = false;
+    this.payXpPrice = 100.0;
+    this.payXpAmount = 1;
     this.enableBreedingFee = false;
     this.breedingFeePrice = 1000.0;
     this.enableOfflineBreeding = true;

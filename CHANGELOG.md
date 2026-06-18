@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.1]
+
+### 🔧 Fixes
+
+- **Breeding Fee in PokeMMO Mode**: Fixed the breed button showing without checking the breeding fee in PokeMMO mode. The fee gate now correctly takes priority when `enableBreedingFee` is enabled.
+- **Paid Experience Config Ignored**: Fixed claim XP buttons always charging money regardless of the `enablePaidExperience` config value. When set to `false`, the claim XP buttons are now hidden entirely.
+- **Config Initialization**: Added missing default values for `enablePaidExperience`, `payXpPrice`, and `payXpAmount` in the config constructor.
+
+---
+
 ## [1.2.0] - Modular Daycare & PokeMMO Mode
 
 ### 🌟 Added
