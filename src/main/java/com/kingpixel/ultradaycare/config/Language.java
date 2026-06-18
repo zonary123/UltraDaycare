@@ -3,7 +3,7 @@ package com.kingpixel.ultradaycare.config;
 import com.cobblemon.mod.common.api.pokemon.stats.Stats;
 import com.kingpixel.cobbleutils.util.UtilsFile;
 import com.kingpixel.ultradaycare.UltraDaycare;
-import com.kingpixel.ultradaycare.mechanics.DaycareIvs;
+import com.kingpixel.ultradaycare.mechanics.pokemon.DaycareIvs;
 import com.kingpixel.ultradaycare.ui.PlotMenu;
 import com.kingpixel.ultradaycare.ui.PrincipalMenu;
 import com.kingpixel.ultradaycare.ui.ProfileMenu;

@@ -1,8 +1,29 @@
 # Changelog
 
+## [1.2.0] - Modular Daycare & PokeMMO Mode
+
+### 🌟 Added
+- **Modular Daycare Modes**: Added full support for switching between standard Pokémon passive daycare and active PokeMMO-style daycare (where parents are consumed instantly to produce an egg) via `daycareMode` in `config.json`.
+- **Extensibility API**: Created `DaycareRegistry` and `DaycareMode` interface so third-party developers can easily add and register new gameplay modes.
+- **PokeMMO IV Inheritance**: Implemented a specialized PokeMMO IV inheritance formula with stats-locking using braces (Power items) and a configurable success percentage (`percentagePowerItem`).
+- **Subpackage Mechanics Isolation**: Refactored the codebase to place mode-specific mechanics under `mechanics/pokemon` and `mechanics/pokemmo` subpackages, maximizing readability and allowing easy extensibility.
+
+### 🛠️ Improvements & Refactoring
+- **Code Reuse Optimization**: Reused identical Pokémon subpackage mechanics within PokeMMO mode to avoid class duplication and reduce maintenance overhead.
+- **Dynamic Instance Helper**: Introduced `UltraDaycare.getActiveMechanic(Class)` to dynamically query the active mode's mechanic instances.
+- **Instance-Based Incense Refactor**: Rewrote `DayCareInciense` to hold instance-based incense lists, preventing static-field configuration pollution when multiple modes are initialized at startup.
+- **Standardized File Reading**: Migrated manual JSON text parsing in `DayCareInciense` to use `UtilsFile`.
+
+### 🔧 Fixes
+- **DayCareNature Everstone & Java 21 Fixes**: Removed `final` modifiers from GSON-serializable nature percentages to prevent Java 21 reflection issues, and improved Everstone detection using safe item equals checks.
+
+---
+
 ## [1.1.1] - Optimizations & Bug Fixes
 
 ### 🔧 Fixes
+- **Everstone Nature Inheritance**: Refactored Everstone detection during breeding to avoid fragile `instanceof CobblemonItem` checks, ensuring reliable nature inheritance.
+- **Hatch Null Safety**: Added safety checks in `getEggInfo` to prevent `NullPointerException` crashes when hatching eggs with empty nature metadata.
 - **Hatch All Command Fixed**: The command to hatch all eggs now works correctly.
 - **Improved Hatch Event**: The hatch event now sends information about the resulting Pokémon. This allows mods like UltraQuests and UltraEvents to filter and detect when your Pokémon are born, opening up new possibilities for custom quests and events.
 

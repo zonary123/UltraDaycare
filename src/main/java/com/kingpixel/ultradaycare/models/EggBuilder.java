@@ -17,16 +17,19 @@ public class EggBuilder {
   private Pokemon male;
   private Pokemon female;
   private Pokemon egg;
-  private List<Pokemon> parents;
   private Pokemon firstEvolution;
 
-  public EggBuilder(ServerPlayerEntity player, Pokemon male, Pokemon female, Pokemon egg, List<Pokemon> parents, Pokemon firstEvolution) {
+  public EggBuilder(ServerPlayerEntity player, Pokemon male, Pokemon female, Pokemon egg,
+      Pokemon firstEvolution) {
     this.player = player;
     this.male = male;
     this.female = female;
     this.egg = egg;
-    this.parents = parents;
     this.firstEvolution = firstEvolution;
+  }
+
+  public List<Pokemon> getParents() {
+    return List.of(male, female);
   }
 
 }

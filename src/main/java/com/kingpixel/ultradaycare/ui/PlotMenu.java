@@ -43,6 +43,7 @@ public class PlotMenu {
   private ItemModel close;
   private ItemModel claimXp;
   private ItemModel breedingEntrance;
+  private ItemModel breedButton;
 
   public PlotMenu() {
     this.rows = 3;
@@ -55,6 +56,8 @@ public class PlotMenu {
       List.of("&7Pending XP: &6%xp%", PRICE_LORE, "", "&eClick to claim!"), 1);
     this.breedingEntrance = new ItemModel(13, "minecraft:gold_ingot", "&6Breeding Entrance Fee",
       List.of("&7You must pay to start breeding", PRICE_LORE, "", "&eClick to pay and start!"), 1);
+    this.breedButton = new ItemModel(13, "minecraft:blaze_powder", "&e&lBreed Parents!",
+      List.of("&7Click to breed the parents.", "&7Both parents will be &c&lCONSUMED &7permanently!", "", "&aClick to breed!"), 1);
   }
 
   public void open(ServerPlayerEntity player, Plot plot, User user) {
@@ -124,7 +127,29 @@ public class PlotMenu {
   }
 
   private void addEggButton(ChestTemplate template, ServerPlayerEntity player, Plot plot, User user) {
-    if (UltraDaycare.config.isEnableBreedingFee() && !plot.isBreedingPaid() && plot.hasTwoParents()) {
+    if (plot.hasEggs()) {
+      ItemStack displayEgg = PokemonItem.from(plot.getEggs().getFirst());
+      GooeyButton eggButton = GooeyButton.builder()
+        .display(displayEgg)
+        .onClick(action -> {
+          if (plot.giveEggs(player)) {
+            if (plot.getEggs().size() >= plot.limitEggs(player)) plot.setTime(player);
+            user.markDirty();
+            open(player, plot, user, true);
+          }
+        })
+        .build();
+      egg.applyTemplate(template, eggButton);
+    } else if (UltraDaycare.getActiveMode().consumeParents() && plot.hasTwoParents()) {
+      GooeyButton breedBtn = GooeyButton.builder()
+        .display(breedButton.getItemStack())
+        .onClick(action -> {
+          UltraDaycare.getActiveMode().onBreed(player, plot, user);
+          open(player, plot, user, true);
+        })
+        .build();
+      breedButton.applyTemplate(template, breedBtn);
+    } else if (UltraDaycare.config.isEnableBreedingFee() && !plot.isBreedingPaid() && plot.hasTwoParents()) {
       double price = UltraDaycare.config.getBreedingFeePrice();
       List<String> lore = breedingEntrance.getLore().stream()
         .map(line -> line.replace("%price%", String.format("%.2f", price)))
@@ -145,15 +170,10 @@ public class PlotMenu {
         }).build();
       breedingEntrance.applyTemplate(template, feeButton);
     } else {
-      ItemStack displayEgg = plot.getEggs().isEmpty() ? egg.getItemStack() : PokemonItem.from(plot.getEggs().getFirst());
       GooeyButton eggButton = GooeyButton.builder()
-        .display(displayEgg)
+        .display(egg.getItemStack())
         .onClick(action -> {
-          if (plot.giveEggs(player)) {
-            if (plot.getEggs().size() >= plot.limitEggs(player)) plot.setTime(player);
-            user.markDirty();
-            open(player, plot, user, true);
-          }
+          // Do nothing or default passive plot display
         })
         .build();
       egg.applyTemplate(template, eggButton);

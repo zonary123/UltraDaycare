@@ -8,7 +8,7 @@ import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
 import com.kingpixel.cobbleutils.util.UtilsFile;
 import com.kingpixel.ultradaycare.UltraDaycare;
-import com.kingpixel.ultradaycare.mechanics.DayCarePokemon;
+import com.kingpixel.ultradaycare.mechanics.pokemon.DayCarePokemon;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;

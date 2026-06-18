@@ -1,4 +1,6 @@
-package com.kingpixel.ultradaycare.mechanics;
+package com.kingpixel.ultradaycare.mechanics.pokemon;
+
+import com.kingpixel.ultradaycare.mechanics.Mechanics;
 
 import com.cobblemon.mod.common.api.moves.BenchedMove;
 import com.cobblemon.mod.common.api.moves.Move;

@@ -1,7 +1,7 @@
 package com.kingpixel.ultradaycare.commands.admin;
 
 import com.kingpixel.cobbleutils.api.PermissionApi;
-import com.kingpixel.ultradaycare.mechanics.DayCareInciense;
+import com.kingpixel.ultradaycare.mechanics.pokemon.DayCareInciense;
 import com.kingpixel.ultradaycare.models.Incense;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -28,7 +28,7 @@ public class CommandIncense {
               .then(
                 CommandManager.argument("incense", StringArgumentType.string())
                   .suggests((context, builder) -> {
-                    for (Incense incense : DayCareInciense.incenses) {
+                    for (Incense incense : DayCareInciense.INSTANCE().getIncenses()) {
                       builder.suggest(incense.getId());
                     }
                     return builder.buildFuture();

@@ -1,4 +1,6 @@
-package com.kingpixel.ultradaycare.mechanics;
+package com.kingpixel.ultradaycare.mechanics.pokemon;
+
+import com.kingpixel.ultradaycare.mechanics.Mechanics;
 
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.pokemon.Pokemon;
@@ -27,15 +29,17 @@ import java.util.List;
 @Data
 public class DayCareInciense extends Mechanics {
   public static String TAG_INCENSE = "incense";
-  public static List<Incense> incenses = new ArrayList<>();
+  private List<Incense> incenses = new ArrayList<>();
   private static String path = UltraDaycare.PATH_MODULES + "incense/";
   private static DayCareInciense instance;
 
   public DayCareInciense() {
-    setActive(true);
+    setEnabled(true);
   }
 
   public static DayCareInciense INSTANCE() {
+    DayCareInciense active = UltraDaycare.getActiveMechanic(DayCareInciense.class);
+    if (active != null) return active;
     if (instance == null) {
       instance = new DayCareInciense();
     }
@@ -44,17 +48,25 @@ public class DayCareInciense extends Mechanics {
 
   @Override
   public DayCareInciense getInstance() {
-    instance = this.readFromFile(getClass());
-    instance.init();
-    for (Incense incense : DayCareInciense.incenses) {
-      ItemsMod.addItem(UltraDaycare.MOD_ID, incense.getId(), incense.getItemStackIncense(1));
+    return getInstance("pokemon");
+  }
+
+  @Override
+  public DayCareInciense getInstance(String modeId) {
+    DayCareInciense loaded = this.readFromFile(getClass(), modeId);
+    if (loaded != null) {
+      loaded.init(modeId);
+      for (Incense incense : loaded.getIncenses()) {
+        ItemsMod.addItem(UltraDaycare.MOD_ID, incense.getId(), incense.getItemStackIncense(1));
+      }
+      return loaded;
     }
-    return instance;
+    return null;
   }
 
 
   public Incense getIncense(String id) {
-    for (Incense incense : DayCareInciense.incenses) {
+    for (Incense incense : incenses) {
       if (incense.getId().equals(id)) {
         return incense;
       }
@@ -62,8 +74,8 @@ public class DayCareInciense extends Mechanics {
     return null;
   }
 
-  public void init() {
-    File folder = Utils.getAbsolutePath(path);
+  public void init(String modeId) {
+    File folder = Utils.getAbsolutePath(UltraDaycare.PATH_MODULES + modeId + "/incense/");
     if (!folder.exists()) {
       folder.mkdirs();
     }
@@ -77,14 +89,13 @@ public class DayCareInciense extends Mechanics {
     for (File file : files) {
       if (file.getName().endsWith(".json")) {
         try {
-          String data = Utils.readFileSync(file); // Read the file content
-          Incense incense = UtilsFile.getGson().fromJson(data, Incense.class);
+          Incense incense = UtilsFile.read(file.toPath(), Incense.class);
           if (incense != null) {
             incense.setId(file.getName().replace(".json", ""));
             incenses.add(incense);
             UtilsFile.writeAsync(file.toPath(), incense);
           }
-        } catch (IOException e) {
+        } catch (Exception e) {
           e.printStackTrace();
         }
       }

@@ -1,4 +1,6 @@
-package com.kingpixel.ultradaycare.mechanics;
+package com.kingpixel.ultradaycare.mechanics.pokemon;
+
+import com.kingpixel.ultradaycare.mechanics.Mechanics;
 
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobbleutils.CobbleUtils;

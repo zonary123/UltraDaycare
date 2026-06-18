@@ -24,6 +24,7 @@ import com.kingpixel.ultradaycare.config.Language;
 import com.kingpixel.ultradaycare.database.DatabaseClient;
 import com.kingpixel.ultradaycare.database.DatabaseClientFactory;
 import com.kingpixel.ultradaycare.mechanics.*;
+import com.kingpixel.ultradaycare.api.*;
 import com.kingpixel.ultradaycare.models.Plot;
 import com.kingpixel.ultradaycare.models.User;
 import com.kingpixel.ultradaycare.properties.BreedablePropertyType;
@@ -53,12 +54,30 @@ public class UltraDaycare implements ModInitializer {
   public static final String MOD_NAME = "UltraDaycare";
   public static final String TAG_SPAWNED = "spawned";
   public static final List<Mechanics> mechanics = new ArrayList<>();
-  public static final List<Mechanics> registeredMechanics = new ArrayList<>();
+  public static final Map<String, List<Mechanics>> modeMechanics = new HashMap<>();
+  public static final Map<String, List<Mechanics>> registeredModeMechanics = new HashMap<>();
+
+  public static void registerMechanic(String modeId, Mechanics mechanic) {
+    if (mechanic != null) {
+      List<Mechanics> list = registeredModeMechanics.computeIfAbsent(modeId.toLowerCase(), k -> new ArrayList<>());
+      if (!list.contains(mechanic)) {
+        list.add(mechanic);
+      }
+    }
+  }
 
   public static void registerMechanic(Mechanics mechanic) {
-    if (mechanic != null && !registeredMechanics.contains(mechanic)) {
-      registeredMechanics.add(mechanic);
+    registerMechanic("pokemon", mechanic);
+    registerMechanic("pokemmo", mechanic);
+  }
+
+  public static <T extends Mechanics> T getActiveMechanic(Class<T> clazz) {
+    for (Mechanics mechanic : mechanics) {
+      if (clazz.isInstance(mechanic)) {
+        return clazz.cast(mechanic);
+      }
     }
+    return null;
   }
 
   public static final Logger LOGGER = UtilsLogger.getLogger(MOD_NAME);
@@ -117,10 +136,21 @@ public class UltraDaycare implements ModInitializer {
 
   public static void load() {
     MigrationService.migrate();
+    DaycareRegistry.registerMode(new PokemonDaycareMode());
+    DaycareRegistry.registerMode(new PokeMMODaycareMode());
     registerDefaultMechanics();
-    CobbleUtils.info(MOD_ID, "1.1.0", "https://github.com/zonary123/UltraDaycare");
+    CobbleUtils.info(MOD_ID, "1.2.0", "https://github.com/zonary123/UltraDaycare");
     files();
     DatabaseClientFactory.createDatabaseClient(config.getDataBase());
+  }
+
+  public static DaycareMode getActiveMode() {
+    String modeId = config.getDaycareMode();
+    DaycareMode mode = DaycareRegistry.getMode(modeId);
+    if (mode == null) {
+      mode = DaycareRegistry.getMode("pokemon");
+    }
+    return mode;
   }
 
   private static void tasks() {
@@ -132,43 +162,72 @@ public class UltraDaycare implements ModInitializer {
   }
 
   private static void registerDefaultMechanics() {
-    if (!registeredMechanics.isEmpty()) return;
-    registerMechanic(new DayCarePokemon());
-    registerMechanic(new DayCareForm());
-    registerMechanic(new DayCareAbility());
-    registerMechanic(new DayCareEggMoves());
-    registerMechanic(new DayCareMirrorHerb());
-    registerMechanic(new DayCareNature());
-    registerMechanic(new DayCareCountry());
-    registerMechanic(new DayCareShiny());
-    registerMechanic(new DayCarePokeBall());
-    registerMechanic(new DaycareIvs());
-    registerMechanic(new DayCareInciense());
+    if (!registeredModeMechanics.isEmpty()) return;
+
+    // Register Pokémon Mode Mechanics
+    registerMechanic("pokemon", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCarePokemon());
+    registerMechanic("pokemon", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareForm());
+    registerMechanic("pokemon", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareAbility());
+    registerMechanic("pokemon", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareEggMoves());
+    registerMechanic("pokemon", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareMirrorHerb());
+    registerMechanic("pokemon", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareNature());
+    registerMechanic("pokemon", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareCountry());
+    registerMechanic("pokemon", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareShiny());
+    registerMechanic("pokemon", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCarePokeBall());
+    registerMechanic("pokemon", new com.kingpixel.ultradaycare.mechanics.pokemon.DaycareIvs());
+    registerMechanic("pokemon", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareInciense());
+
+    // Register PokeMMO Mode Mechanics
+    // Reusing the identical ones from the pokemon package, and registering custom PokeMMO ones where needed
+    registerMechanic("pokemmo", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCarePokemon());
+    registerMechanic("pokemmo", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareForm());
+    registerMechanic("pokemmo", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareAbility());
+    registerMechanic("pokemmo", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareEggMoves());
+    registerMechanic("pokemmo", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareMirrorHerb());
+    registerMechanic("pokemmo", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareNature());
+    registerMechanic("pokemmo", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareCountry());
+    registerMechanic("pokemmo", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareShiny());
+    registerMechanic("pokemmo", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCarePokeBall());
+    registerMechanic("pokemmo", new com.kingpixel.ultradaycare.mechanics.pokemmo.DaycareIvs()); // Custom PokeMMO IVs
+    registerMechanic("pokemmo", new com.kingpixel.ultradaycare.mechanics.pokemon.DayCareInciense());
   }
 
   private static void files() {
     config.init();
     language.init();
-    mechanics.clear();
-    for (Mechanics mechanic : registeredMechanics) {
-      Mechanics instance = mechanic.getInstance();
-      if (instance != null) {
-        mechanics.add(instance);
+    modeMechanics.clear();
+
+    registeredModeMechanics.forEach((modeId, templates) -> {
+      List<Mechanics> activeList = new ArrayList<>();
+      for (Mechanics mechanic : templates) {
+        Mechanics instance = mechanic.getInstance(modeId);
+        if (instance != null) {
+          activeList.add(instance);
+        }
       }
-    }
-    mechanics.removeIf(Objects::isNull);
-    mechanics.removeIf(mechanic -> {
-      if (mechanic instanceof DayCarePokemon || mechanic instanceof DayCareForm) {
-        return false;
-      }
-      return !mechanic.isActive();
+      activeList.removeIf(Objects::isNull);
+      activeList.removeIf(mechanic -> {
+        if (mechanic instanceof com.kingpixel.ultradaycare.mechanics.pokemon.DayCarePokemon || mechanic instanceof com.kingpixel.ultradaycare.mechanics.pokemon.DayCareForm) {
+          return false;
+        }
+        return !mechanic.isActive();
+      });
+      modeMechanics.put(modeId, activeList);
     });
+
+    mechanics.clear();
+    mechanics.addAll(getActiveMechanics());
 
     List<String> activeMechanics = new ArrayList<>();
     for (Mechanics mechanic : mechanics) {
       activeMechanics.add(mechanic.fileName());
     }
     UltraDaycare.LOGGER.info(MOD_ID, "Active mechanics:\n- " + String.join("\n- ", activeMechanics));
+  }
+
+  public static List<Mechanics> getActiveMechanics() {
+    String activeModeId = getActiveMode().getId().toLowerCase();
+    return modeMechanics.getOrDefault(activeModeId, Collections.emptyList());
   }
 
   private static void events() {
@@ -357,8 +416,8 @@ public class UltraDaycare implements ModInitializer {
   private static void fixCountryInfo(Pokemon pokemon, String country) {
     if (country == null)
       return;
-    if (!pokemon.getPersistentData().contains(DayCareCountry.TAG)) {
-      pokemon.getPersistentData().putString(DayCareCountry.TAG, country);
+    if (!pokemon.getPersistentData().contains(com.kingpixel.ultradaycare.mechanics.pokemon.DayCareCountry.TAG)) {
+      pokemon.getPersistentData().putString(com.kingpixel.ultradaycare.mechanics.pokemon.DayCareCountry.TAG, country);
     }
   }
 

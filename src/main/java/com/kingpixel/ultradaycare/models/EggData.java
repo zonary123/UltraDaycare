@@ -12,7 +12,7 @@ import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
 import com.kingpixel.ultradaycare.UltraDaycare;
 import com.kingpixel.ultradaycare.events.HatchEggEvent;
-import com.kingpixel.ultradaycare.mechanics.DayCarePokemon;
+import com.kingpixel.ultradaycare.mechanics.pokemon.DayCarePokemon;
 import com.kingpixel.ultradaycare.mechanics.Mechanics;
 import kotlin.jvm.functions.Function0;
 import lombok.Getter;

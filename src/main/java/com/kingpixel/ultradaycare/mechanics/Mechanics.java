@@ -5,7 +5,6 @@ import com.kingpixel.cobbleutils.util.UtilsFile;
 import com.kingpixel.ultradaycare.UltraDaycare;
 import com.kingpixel.ultradaycare.models.EggBuilder;
 import com.kingpixel.ultradaycare.models.HatchBuilder;
-import lombok.Data;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -14,16 +13,23 @@ import java.nio.file.Path;
 /**
  * Author: Carlos Varas Alonso - 31/01/2025 0:25
  */
-@Data
+@lombok.Data
 public abstract class Mechanics {
-  private boolean active = true;
+  private Boolean enabled = true;
 
-  /*
-   * This method is used to get the instance of the class that extends Mechanics.
-   * It reads the JSON file and returns the instance.
-   */
+  public boolean isActive() {
+    return enabled == null || enabled;
+  }
+
+  private String modeId;
+
   public Mechanics getInstance() {
-    return readFromFile(this.getClass());
+    return getInstance("pokemon");
+  }
+
+  public Mechanics getInstance(String modeId) {
+    this.modeId = modeId;
+    return readFromFile(this.getClass(), modeId);
   }
 
   /*
@@ -69,12 +75,17 @@ public abstract class Mechanics {
   public abstract String getEggInfo(String s, NbtCompound nbt);
 
   public <T> T readFromFile(Class<T> clazz) {
+    return readFromFile(clazz, "pokemon");
+  }
+
+  public <T> T readFromFile(Class<T> clazz, String modeId) {
     try {
-      Path path = UltraDaycare.getPath().resolve("modules").resolve(fileName() + ".json");
+      Path path = UltraDaycare.getPath().resolve("modules").resolve(modeId).resolve(fileName() + ".json");
       T instance = UtilsFile.read(path, clazz);
       if (instance == null) {
         instance = clazz.getDeclaredConstructor().newInstance();
       }
+      ((Mechanics) instance).modeId = modeId;
       ((Mechanics) instance).validateData();
       UtilsFile.write(path, instance);
       return instance;

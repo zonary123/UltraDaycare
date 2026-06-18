@@ -33,6 +33,7 @@ public class Config {
   private UserInfoOptions userInfoOptions;
   private String commandEggInfo;
   private List<String> commands;
+  private String daycareMode;
 
   // Mechanics General
   private boolean fixIlegalAbilities;
@@ -103,9 +104,9 @@ public class Config {
     this.showIvs = false;
     this.dobbleDitto = false;
     this.spawnEggWorld = true;
-    this.allowElytra = true;
     this.commands = List.of("daycare");
     this.commandEggInfo = "egginfo";
+    this.daycareMode = "pokemon";
     this.globalMultiplierSteps = false;
     this.multiplierAbilityAcceleration = 1.0;
     this.dataBase.setDatabase("ultradaycare");
@@ -170,6 +171,9 @@ public class Config {
     }
     if (cooldownToOpenMenus.toMillis() <= 100 || cooldownToOpenMenus.toSeconds() >= 5) {
       cooldownToOpenMenus = DurationValue.parse("0.5s");
+    }
+    if (daycareMode == null || daycareMode.isEmpty()) {
+      daycareMode = "pokemon";
     }
   }
 
