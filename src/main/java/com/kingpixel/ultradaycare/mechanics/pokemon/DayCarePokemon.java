@@ -1,11 +1,10 @@
 package com.kingpixel.ultradaycare.mechanics.pokemon;
 
-import com.kingpixel.ultradaycare.mechanics.Mechanics;
-
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies;
 import com.cobblemon.mod.common.api.pokemon.egg.EggGroup;
 import com.cobblemon.mod.common.pokemon.Gender;
+import com.cobblemon.mod.common.pokemon.OriginalTrainerType;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.Species;
 import com.kingpixel.cobbleutils.Model.PokemonChance;
@@ -13,6 +12,7 @@ import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
 import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.mechanics.Mechanics;
 import com.kingpixel.ultradaycare.models.EggBuilder;
 import com.kingpixel.ultradaycare.models.HatchBuilder;
 import com.kingpixel.ultradaycare.models.PokemonRareMecanic;
@@ -25,6 +25,7 @@ import net.minecraft.util.Identifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author Carlos Varas Alonso - 11/03/2025 7:38
@@ -45,20 +46,16 @@ public class DayCarePokemon extends Mechanics {
     this.pokemonRareMechanics = List.of(
       new PokemonRareMecanic(List.of(
         new PokemonChance("nidoranf", 50),
-        new PokemonChance("nidoranm", 50)
-      )),
+        new PokemonChance("nidoranm", 50))),
       new PokemonRareMecanic(List.of(
         new PokemonChance("illumise", 50),
-        new PokemonChance("volbeat", 50)
-      ))
-    );
+        new PokemonChance("volbeat", 50))));
   }
 
   private static Species getFirstPreEvolution(Species species) {
     while (species.getPreEvolution() != null) {
       Species preEvolution = species.getPreEvolution().getSpecies();
 
-      // Si encontramos un bucle en la cadena evolutiva, rompemos el ciclo
       if (preEvolution.showdownId().equalsIgnoreCase(species.showdownId())) {
         break;
       }
@@ -75,7 +72,8 @@ public class DayCarePokemon extends Mechanics {
     Pokemon female = builder.getFemale();
     Pokemon egg = builder.getEgg();
     Pokemon firstEvolution;
-    egg.setOriginalTrainer("???");
+    egg.setOriginalTrainerType$common(OriginalTrainerType.PLAYER);
+    egg.setOriginalTrainer(builder.getPlayer() != null ? builder.getPlayer().getUuid() : new UUID(0L, 0L));
     boolean maleIsDitto = male.getForm().getEggGroups().contains(EggGroup.DITTO);
     boolean femaleIsDitto = female.getForm().getEggGroups().contains(EggGroup.DITTO);
     boolean dobbleDitto = maleIsDitto && femaleIsDitto;
@@ -123,17 +121,16 @@ public class DayCarePokemon extends Mechanics {
   public void applyHatch(HatchBuilder builder) {
     Pokemon egg = builder.getEgg();
     egg.setOriginalTrainer(builder.getPlayer().getUuid());
-    egg.setOriginalTrainer(builder.getPlayer().getGameProfile().getName());
     ServerPlayerEntity player = builder.getPlayer();
     String pokemon = egg.getPersistentData().getString(TAG_POKEMON);
-    if (pokemon.isEmpty()) pokemon = egg.getPersistentData().getString(TAG_OLD_POKEMON);
+    if (pokemon.isEmpty())
+      pokemon = egg.getPersistentData().getString(TAG_OLD_POKEMON);
     if (pokemon.isEmpty()) {
       PlayerUtils.sendMessage(
         player,
         "Error: Pokemon not found in egg",
         UltraDaycare.language.getPrefix(),
-        TypeMessage.CHAT
-      );
+        TypeMessage.CHAT);
       pokemon = "rattata";
     }
     builder.setPokemon(PokemonProperties.Companion.parse(pokemon).create());
@@ -144,7 +141,6 @@ public class DayCarePokemon extends Mechanics {
       }
     } catch (IllegalArgumentException ignored) {
     }
-
 
     egg.getPersistentData().remove(TAG_POKEMON);
     egg.getPersistentData().remove(TAG_OLD_POKEMON);
@@ -157,7 +153,8 @@ public class DayCarePokemon extends Mechanics {
 
   @Override
   public void createEgg(ServerPlayerEntity player, Pokemon pokemon, Pokemon egg) {
-    egg.setOriginalTrainer("???");
+    egg.setOriginalTrainerType$common(OriginalTrainerType.PLAYER);
+    egg.setOriginalTrainer(player != null ? player.getUuid() : new UUID(0L, 0L));
     PokemonProperties.Companion.parse(getTypeEgg(pokemon)).apply(egg);
     egg.getPersistentData().putString(TAG_POKEMON, pokemon.getSpecies().showdownId());
     egg.getPersistentData().putDouble(TAG_STEPS, UltraDaycare.config.getSteps(pokemon));
@@ -202,7 +199,8 @@ public class DayCarePokemon extends Mechanics {
 
     Pokemon specialPokemon = findSpecialPokemon(firstEvolution);
 
-    // Usamos Objects.requireNonNullElseGet para devolver el Pokémon especial si existe, o crear uno nuevo si no
+    // Usamos Objects.requireNonNullElseGet para devolver el Pokémon especial si
+    // existe, o crear uno nuevo si no
     return Objects.requireNonNullElseGet(specialPokemon, () -> firstEvolution.create(1));
   }
 
@@ -217,7 +215,6 @@ public class DayCarePokemon extends Mechanics {
         }
       }
     }
-
 
     return PokemonChance.getPokemonCreate(specialPokemons);
   }

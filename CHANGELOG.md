@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.2]
+
+### 🔧 Fixes
+
+- **Invalid UUID Exception**: Fixed a server crash (`java.lang.IllegalArgumentException: Invalid UUID string: ???`) that occurred when deserializing Pokémon eggs or hatched Pokémon. The system now correctly assigns the player's UUID or a fallback nil UUID to the original trainer field instead of a placeholder `"???"` or username string, which are not valid UUID format.
+
+---
+
 ## [1.2.1]
 
 ### 🔧 Fixes
