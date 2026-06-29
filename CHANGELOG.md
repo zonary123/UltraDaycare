@@ -4,17 +4,22 @@
 
 ### 🔧 Fixes
 
-- **Invalid UUID Exception**: Fixed a server crash (`java.lang.IllegalArgumentException: Invalid UUID string: ???`) that occurred when deserializing Pokémon eggs or hatched Pokémon. The system now correctly assigns the player's UUID or a fallback nil UUID to the original trainer field instead of a placeholder `"???"` or username string, which are not valid UUID format.
-
----
+- **Invalid UUID Exception**: Fixed a server crash (`java.lang.IllegalArgumentException: Invalid UUID string: ???`) that
+  occurred when deserializing Pokémon eggs or hatched Pokémon. The system now correctly assigns the player's UUID or a
+  fallback nil UUID to the original trainer field instead of a placeholder `"???"` or username string, which are not
+  valid UUID format.
+- **Menu Cooldowns**: Removed the minimum and maximum limits for cooldown settings when opening menus.
 
 ## [1.2.1]
 
 ### 🔧 Fixes
 
-- **Breeding Fee in PokeMMO Mode**: Fixed the breed button showing without checking the breeding fee in PokeMMO mode. The fee gate now correctly takes priority when `enableBreedingFee` is enabled.
-- **Paid Experience Config Ignored**: Fixed claim XP buttons always charging money regardless of the `enablePaidExperience` config value. When set to `false`, the claim XP buttons are now hidden entirely.
-- **Config Initialization**: Added missing default values for `enablePaidExperience`, `payXpPrice`, and `payXpAmount` in the config constructor.
+- **Breeding Fee in PokeMMO Mode**: Fixed the breed button showing without checking the breeding fee in PokeMMO mode.
+  The fee gate now correctly takes priority when `enableBreedingFee` is enabled.
+- **Paid Experience Config Ignored**: Fixed claim XP buttons always charging money regardless of the
+  `enablePaidExperience` config value. When set to `false`, the claim XP buttons are now hidden entirely.
+- **Config Initialization**: Added missing default values for `enablePaidExperience`, `payXpPrice`, and `payXpAmount` in
+  the config constructor.
 
 ---
 

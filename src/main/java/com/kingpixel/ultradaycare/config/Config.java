@@ -172,9 +172,6 @@ public class Config {
     if (multiplierSteps < 1.0f) {
       multiplierSteps = 1.0f;
     }
-    if (cooldownToOpenMenus.toMillis() <= 100 || cooldownToOpenMenus.toSeconds() >= 5) {
-      cooldownToOpenMenus = DurationValue.parse("0.5s");
-    }
     if (daycareMode == null || daycareMode.isEmpty()) {
       daycareMode = "pokemon";
     }
