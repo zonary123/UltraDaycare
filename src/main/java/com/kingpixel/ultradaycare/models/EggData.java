@@ -11,6 +11,7 @@ import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.util.PlayerUtils;
 import com.kingpixel.cobbleutils.util.TypeMessage;
 import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.api.PokeMMODaycareMode;
 import com.kingpixel.ultradaycare.events.HatchEggEvent;
 import com.kingpixel.ultradaycare.mechanics.pokemon.DayCarePokemon;
 import com.kingpixel.ultradaycare.mechanics.Mechanics;
@@ -123,22 +124,50 @@ public class EggData {
       );
       hatch(player, egg);
       return;
-    } else {
-      egg.getPersistentData().putDouble(DayCarePokemon.TAG_STEPS, steps);
-      egg.getPersistentData().putInt(DayCarePokemon.TAG_CYCLES, cycles);
     }
 
-    updateName(egg, cycles, steps);
+    egg.getPersistentData().putDouble(DayCarePokemon.TAG_STEPS, steps);
+    egg.getPersistentData().putInt(DayCarePokemon.TAG_CYCLES, cycles);
+
+    updateName(egg, cycles, steps, PokeMMODaycareMode.ID.equalsIgnoreCase(UltraDaycare.config.getDaycareMode()) ? totalSteps : 0);
   }
 
-
-  private static void updateName(Pokemon egg, int cycles, double steps) {
+  /**
+   * Updates the display name of the egg.
+   *
+   * @param egg             the egg Pokémon
+   * @param cycles          remaining cycles
+   * @param steps           remaining steps in current cycle
+   * @param stepsPerSecond  calculated steps per second (only in PokeMMO mode; 0 otherwise)
+   */
+  private static void updateName(Pokemon egg, int cycles, double steps, double stepsPerSecond) {
     var nickname = egg.getNickname();
-    String result = UltraDaycare.language.getEggName()
-      .replace("%steps%", String.format("%.2f", steps))
-      .replace("%cycles%", String.valueOf(cycles))
-      .replace("%pokemon%", egg.getPersistentData().getString(DayCarePokemon.TAG_POKEMON));
-    if (nickname != null && nickname.getString().equals(result)) return;
+    String result;
+    if (stepsPerSecond > 0) {
+      int stepsPerCycle = (int) egg.getPersistentData().getDouble(DayCarePokemon.TAG_REFERENCE_STEPS);
+      if (stepsPerCycle <= 0)
+        stepsPerCycle = 128;
+      double remainingSteps = (cycles * stepsPerCycle) + steps;
+      double remainingSeconds = remainingSteps / stepsPerSecond;
+
+      int totalSecs = (int) Math.max(0, remainingSeconds);
+      int mins = totalSecs / 60;
+      int secs = totalSecs % 60;
+      String timeStr = String.format("%02d:%02d", mins, secs);
+
+      result = UltraDaycare.language.getEggName()
+          .replace("%steps%/%cycles%", timeStr)
+          .replace("%steps%", String.format("%.2f", steps))
+          .replace("%cycles%", String.valueOf(cycles))
+          .replace("%pokemon%", egg.getPersistentData().getString(DayCarePokemon.TAG_POKEMON));
+    } else {
+      result = UltraDaycare.language.getEggName()
+          .replace("%steps%", String.format("%.2f", steps))
+          .replace("%cycles%", String.valueOf(cycles))
+          .replace("%pokemon%", egg.getPersistentData().getString(DayCarePokemon.TAG_POKEMON));
+    }
+    if (nickname != null && nickname.getString().equals(result))
+      return;
     egg.setNickname(Text.literal(result));
   }
 

@@ -32,7 +32,6 @@ public class Language {
   private String messageCooldownHatch;
   private String messageActiveStepsMultiplier;
   private String messageEggCreated;
-  private String messageBanPokemon;
   private String messageItNotEgg;
   private String messageBreedable;
   private String messageRemovedFemale;
@@ -46,6 +45,11 @@ public class Language {
   private String messageBreedingEntrancePaid;
   private String messageBreedingEntranceRefunded;
   private String messageXpClaimed;
+  private String eggIvPreviewHeader;
+  private String eggIvPreviewLockedFormat;
+  private String eggIvPreviewLockedRangeFormat;
+  private String eggIvPreviewEqualFormat;
+  private String eggIvPreviewRangeFormat;
 
   // UI Menus
   private PrincipalMenu principalMenu;
@@ -94,7 +98,6 @@ public class Language {
     this.messageCooldownHatch = "%prefix% &7Cooldown to hatch %cooldown%";
     this.messageActiveStepsMultiplier = "&7Active Steps multiplier x%multiplier% - &6%cooldown%";
     this.messageEggCreated = "%prefix% &6%pokemon1% %form1% &7and &6%pokemon2% %form2% &7have created &6%pokemon3% %form3%";
-    this.messageBanPokemon = "%prefix% &cThis pokemon %pokemon% %form% %item% is banned in the plot %plot%";
     this.messageCooldownOpenMenu = "%prefix% &7You must wait %cooldown% to open the menu again";
     this.messageItNotEgg = "%prefix% &cThis is not an egg";
     this.messageBreedable = "%prefix% &7This pokemon %pokemon% %form% is now breedable: %breedable%";
@@ -107,10 +110,33 @@ public class Language {
     this.messageBreedingEntranceRefunded = "%prefix% &eBreeding fee of &6%price% &ehas been refunded because no eggs were produced.";
     this.messageXpClaimed = "%prefix% &aYou have claimed &6%xp% XP &afor &6%price%&a!";
     this.infoAbility = "&b%male% &e%maleHA% &7| &d%female% &e%femaleHA%";
+    this.eggIvPreviewHeader = "&d&lEgg IV Preview:";
+    this.eggIvPreviewLockedFormat = "&7- %stat%: &e%value% &a(Locked)";
+    this.eggIvPreviewLockedRangeFormat = "&7- %stat%: &e%min% / %max% &a(Locked)";
+    this.eggIvPreviewEqualFormat = "&7- %stat%: &e%value%";
+    this.eggIvPreviewRangeFormat = "&7- %stat%: &e%min% - %max% &8(min: %min%, avg: %avg%, max: %max%)";
     this.principalMenu = new PrincipalMenu();
     this.plotMenu = new PlotMenu();
     this.selectPokemonMenu = new SelectPokemonMenu();
     this.profileMenu = new ProfileMenu();
+  }
+
+  public void check() {
+    if (eggIvPreviewHeader == null) {
+      eggIvPreviewHeader = "&d&lEgg IV Preview:";
+    }
+    if (eggIvPreviewLockedFormat == null) {
+      eggIvPreviewLockedFormat = "&7- %stat%: &e%value% &a(Locked)";
+    }
+    if (eggIvPreviewLockedRangeFormat == null) {
+      eggIvPreviewLockedRangeFormat = "&7- %stat%: &e%min% / %max% &a(Locked)";
+    }
+    if (eggIvPreviewEqualFormat == null) {
+      eggIvPreviewEqualFormat = "&7- %stat%: &e%value%";
+    }
+    if (eggIvPreviewRangeFormat == null) {
+      eggIvPreviewRangeFormat = "&7- %stat%: &e%min% - %max% &8(min: %min%, avg: %avg%, max: %max%)";
+    }
   }
 
   public void init() {
@@ -118,6 +144,7 @@ public class Language {
     try {
       Language language = UtilsFile.read(path, Language.class);
       if (language == null) language = new Language();
+      language.check();
       UltraDaycare.language = language;
       UtilsFile.write(path, language);
     } catch (IOException e) {

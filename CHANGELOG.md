@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.2.3]
+
+### Added
+
+- **PokeMMO Time-based Hatching**: Added time-based egg hatching to PokeMMO daycare mode. The hatching speed is configurable globally and supports permission-based durations for VIPs.
+- **Egg IV Preview**: Added a visual preview of expected IV ranges/locked stats directly on the breeding button in the Plot Menu when in PokeMMO mode.
+- **Egg Hatching Methods**: Added a new configuration option `pokemmoEggHatchMethod` supporting `STEPS`, `TIME`, and `ALL`.
+- **Hatching Ability Acceleration**: Supported ability speedups (Flame Body, Magma Armor, Steam Engine) for both steps-based and time-based egg hatching.
+
+### Changed
+
+- **Config Defaults**: Configured `multiplierAbilityAcceleration` to default to `2.0` to speed up hatching times by half.
+- **License Update**: Updated project license from "All Rights Reserved" to GPL-3.0-only.
+
+### Fixed
+
+- **Optimized Ticking & Performance**: Avoided duplicate database/LuckPerms permission lookups during the active 1-second ticking task loop.
+
 ## [1.2.2]
 
 ### 🔧 Fixes

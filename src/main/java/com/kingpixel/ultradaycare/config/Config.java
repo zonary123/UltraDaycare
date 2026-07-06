@@ -26,154 +26,183 @@ public class Config {
   private static final String LEGENDARY_COOLDOWN = "cooldown.legendary";
   private static final String MASTER_COOLDOWN = "cooldown.master";
   private static Map<UUID, Long> cooldownsOpenMenus = new HashMap<>();
-  // System & Meta
+  // ==========================================
+  // 1. System & Database Configuration
+  // ==========================================
   private boolean debug;
   private String lang;
+  private List<String> commands;
+  private String commandEggInfo;
+  private String daycareMode;
   private DataBaseConfig dataBase;
   private UserInfoOptions userInfoOptions;
-  private String commandEggInfo;
-  private List<String> commands;
-  private String daycareMode;
 
-  // Mechanics General
+  // ==========================================
+  // 2. General Daycare & Breeding Settings
+  // ==========================================
   private boolean fixIlegalAbilities;
   private boolean canUseNativeGUI;
   private boolean showIvs;
   private boolean spawnEggWorld;
   private int raritySpawnEgg;
   private boolean allowElytra;
-
-  // Breeding Core
   private boolean dobbleDitto;
   private FilterPokemons dobbleDittoFilter;
   private PokemonBlackList blackList;
   private List<String> whitelist;
   private Map<String, Integer> limitEggs;
 
-  // Movement & Progress
+  // ==========================================
+  // 3. Step & Time Hatching Progress
+  // ==========================================
   private long ticksToWalking;
   private boolean globalMultiplierSteps;
   private float multiplierSteps;
   private Map<String, Float> multiplierStepsPermission;
   private double defaultSteps;
   private Map<EggGroup, Double> steps;
-  private double multiplierAbilityAcceleration;
   private List<String> abilityAcceleration;
+  private double multiplierAbilityAcceleration;
   private double reduceEggStepsVehicle;
   private List<String> permittedVehicles;
+  private EggHatchMethod pokemmoEggHatchMethod;
+  private DurationValue pokemmoEggHatchTime;
+  private Map<String, DurationValue> pokemmoEggHatchTimePermissions;
 
-  // Cooldowns
+  // ==========================================
+  // 4. Cooldowns & Slots
+  // ==========================================
+  private DurationValue cooldownToOpenMenus;
   private DurationValue cooldown;
   private Map<String, DurationValue> cooldowns;
   private DurationValue defaultCooldownBreed;
   private Map<String, DurationValue> cooldownsBreed;
   private DurationValue defaultCooldownHatch;
   private Map<String, DurationValue> cooldownsHatch;
-  private DurationValue cooldownToOpenMenus;
   private List<Integer> slotPlots;
 
-  // Economy & Paid Features
+  // ==========================================
+  // 5. Economy & Paid Features
+  // ==========================================
   private EconomyUse economyUse = new EconomyUse("IMPACTOR", "impactor:dollars");
-
-  // -- Paid Experience (Instant) --
+  private boolean enableBreedingFee;
+  private double breedingFeePrice;
   private boolean enablePaidExperience;
   private double payXpPrice;
   private int payXpAmount;
   private int maxLevelTraining;
-
-  // -- NEW: Progressive Experience (Pending) --
   private double xpPerStep;
   private double pricePerXp;
 
-  // -- NEW: Breeding Access Fee --
-  private boolean enableBreedingFee;
-  private double breedingFeePrice;
-
-  // -- NEW: Offline Breeding --
+  // ==========================================
+  // 6. Offline Breeding
+  // ==========================================
   private boolean enableOfflineBreeding;
   private DurationValue offlineBreedingInterval;
   private int maxOfflineEggsPerPlot;
 
   public Config() {
+    // 1. System & Database Configuration
     this.debug = false;
-    this.fixIlegalAbilities = true;
-    this.canUseNativeGUI = false;
     this.lang = "en";
-    this.userInfoOptions = new UserInfoOptions();
-    this.dataBase = new DataBaseConfig();
-    this.showIvs = false;
-    this.dobbleDitto = false;
-    this.spawnEggWorld = true;
     this.commands = List.of("daycare");
     this.commandEggInfo = "egginfo";
     this.daycareMode = "pokemon";
-    this.globalMultiplierSteps = false;
-    this.multiplierAbilityAcceleration = 1.0;
+    this.dataBase = new DataBaseConfig();
     this.dataBase.setDatabase("ultradaycare");
+    this.userInfoOptions = new UserInfoOptions();
+
+    // 2. General Daycare & Breeding Settings
+    this.fixIlegalAbilities = true;
+    this.canUseNativeGUI = false;
+    this.showIvs = false;
+    this.spawnEggWorld = true;
+    this.raritySpawnEgg = 2048;
+    this.allowElytra = false; // default if not specified
+    this.dobbleDitto = false;
+    this.dobbleDittoFilter = new FilterPokemons();
+    this.blackList = PokemonBlackList.createBlackList();
+    this.blackList.getPokemons().add("egg");
+    this.blackList.getLabels().add("basculegion");
+    this.blackList.getLabels().add("legendary");
+    this.whitelist = new ArrayList<>();
+    this.limitEggs = new HashMap<>();
+    this.limitEggs.put("", 1);
+    this.limitEggs.put("group.vip", 2);
+
+    // 3. Step & Time Hatching Progress
+    this.ticksToWalking = 20;
+    this.globalMultiplierSteps = false;
+    this.multiplierSteps = 1.0f;
+    this.multiplierStepsPermission = new HashMap<>();
+    this.multiplierStepsPermission.put("multipliersteps.vip", 2.0f);
     this.defaultSteps = 128D;
     this.steps = new EnumMap<>(EggGroup.class);
     for (EggGroup value : EggGroup.values()) {
       this.steps.put(value, defaultSteps);
     }
-    this.blackList = new PokemonBlackList();
-    this.blackList.getPokemons().add("egg");
-    this.blackList.getLabels().add("basculegion");
-    this.blackList.getLabels().add("legendary");
-    this.limitEggs = new HashMap<>();
-    this.limitEggs.put("", 1);
-    this.limitEggs.put("group.vip", 2);
-    this.abilityAcceleration = List.of("magmaarmor",
-      "flamebody",
-      "steamengine");
-    this.reduceEggStepsVehicle = 2f;
-    this.multiplierSteps = 1.0f;
-    this.multiplierStepsPermission = new HashMap<>();
-    this.multiplierStepsPermission.put("multipliersteps.vip", 2.0f);
+    this.abilityAcceleration = List.of("magmaarmor", "flamebody", "steamengine");
+    this.multiplierAbilityAcceleration = 2.0;
+    this.reduceEggStepsVehicle = 2.0;
     this.permittedVehicles = List.of("minecraft:boat", "minecraft:horse", "cobblemon:pokemon");
+    this.pokemmoEggHatchMethod = EggHatchMethod.TIME;
+    this.pokemmoEggHatchTime = DurationValue.parse("10m");
+    this.pokemmoEggHatchTimePermissions = new HashMap<>();
+    this.pokemmoEggHatchTimePermissions.put("ultradaycare.hatch.vip", DurationValue.parse("5m"));
+
+    // 4. Cooldowns & Slots
     this.cooldownToOpenMenus = DurationValue.parse("0.5s");
     this.cooldown = DurationValue.parse("3m");
     this.cooldowns = Map.of(
-      VIP_COOLDOWN, DurationValue.parse("15m"),
-      LEGENDARY_COOLDOWN, DurationValue.parse("10m"),
-      MASTER_COOLDOWN, DurationValue.parse("5m")
-    );
-    this.ticksToWalking = 20;
-    this.slotPlots = new ArrayList<>();
-    this.slotPlots.add(10);
-    this.slotPlots.add(12);
-    this.slotPlots.add(14);
-    this.slotPlots.add(16);
-    this.raritySpawnEgg = 2048;
+        VIP_COOLDOWN, DurationValue.parse("15m"),
+        LEGENDARY_COOLDOWN, DurationValue.parse("10m"),
+        MASTER_COOLDOWN, DurationValue.parse("5m"));
     this.defaultCooldownBreed = DurationValue.parse("60s");
     this.cooldownsBreed = new HashMap<>();
     this.cooldownsBreed.put(VIP_COOLDOWN, DurationValue.parse("30s"));
     this.defaultCooldownHatch = DurationValue.parse("60s");
     this.cooldownsHatch = new HashMap<>();
     this.cooldownsHatch.put(VIP_COOLDOWN, DurationValue.parse("30s"));
-    this.whitelist = new ArrayList<>();
-    this.dobbleDittoFilter = new FilterPokemons();
-    this.maxLevelTraining = 100;
+    this.slotPlots = new ArrayList<>();
+    this.slotPlots.add(10);
+    this.slotPlots.add(12);
+    this.slotPlots.add(14);
+    this.slotPlots.add(16);
+
+    // 5. Economy & Paid Features
+    this.enableBreedingFee = false;
+    this.breedingFeePrice = 1000.0;
     this.enablePaidExperience = false;
     this.payXpPrice = 100.0;
     this.payXpAmount = 1;
-    this.enableBreedingFee = false;
-    this.breedingFeePrice = 1000.0;
+    this.maxLevelTraining = 100;
+    this.xpPerStep = 1.0;
+    this.pricePerXp = 5.0;
+
+    // 6. Offline Breeding
     this.enableOfflineBreeding = true;
     this.offlineBreedingInterval = DurationValue.parse("30m");
     this.maxOfflineEggsPerPlot = 1;
-    this.xpPerStep = 1.0;
-    this.pricePerXp = 5.0;
   }
 
   public void check() {
+    if (daycareMode == null || daycareMode.isEmpty()) {
+      daycareMode = "pokemon";
+    }
     if (ticksToWalking < 20) {
       ticksToWalking = 20;
     }
     if (multiplierSteps < 1.0f) {
       multiplierSteps = 1.0f;
     }
-    if (daycareMode == null || daycareMode.isEmpty()) {
-      daycareMode = "pokemon";
+    if (pokemmoEggHatchMethod == null) {
+      pokemmoEggHatchMethod = EggHatchMethod.TIME;
+    }
+    if (pokemmoEggHatchTime == null) {
+      pokemmoEggHatchTime = DurationValue.parse("10m");
+    }
+    if (pokemmoEggHatchTimePermissions == null) {
+      pokemmoEggHatchTimePermissions = new HashMap<>();
     }
   }
 
@@ -184,12 +213,11 @@ public class Config {
       return false;
     }
     PlayerUtils.sendMessage(
-      player,
-      UltraDaycare.language.getMessageCooldownOpenMenu()
-        .replace("%cooldown%", PlayerUtils.getCooldown(currentCooldown)),
-      UltraDaycare.language.getPrefix(),
-      TypeMessage.CHAT
-    );
+        player,
+        UltraDaycare.language.getMessageCooldownOpenMenu()
+            .replace("%cooldown%", PlayerUtils.getCooldown(currentCooldown)),
+        UltraDaycare.language.getPrefix(),
+        TypeMessage.CHAT);
     return true;
   }
 
@@ -206,18 +234,12 @@ public class Config {
   public void init() {
     Path path = UltraDaycare.getPath().resolve("config.json");
     try {
-      Config config = UtilsFile.read(path, Config.class);
-      if (config != null) {
-        UltraDaycare.config.check();
-      } else {
-        config = new Config();
-      }
+      Config config = UtilsFile.readOrCreate(path, Config.class, Config::new);
       config.check();
       UltraDaycare.config = config;
       UtilsFile.write(path, config);
     } catch (IOException e) {
       e.printStackTrace();
     }
-
   }
 }

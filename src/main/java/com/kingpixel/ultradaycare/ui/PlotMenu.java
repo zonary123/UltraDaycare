@@ -20,13 +20,18 @@ import com.kingpixel.ultradaycare.models.Plot;
 import com.kingpixel.ultradaycare.models.SelectGender;
 import com.kingpixel.ultradaycare.models.User;
 import lombok.Data;
+import com.kingpixel.ultradaycare.api.PokeMMODaycareMode;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 
+import com.cobblemon.mod.common.api.pokemon.stats.Stats;
+import com.cobblemon.mod.common.CobblemonItems;
+import net.minecraft.item.Item;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -161,8 +166,16 @@ public class PlotMenu {
         }).build();
       breedingEntrance.applyTemplate(template, feeButton);
     } else if (UltraDaycare.getActiveMode().consumeParents() && plot.hasTwoParents()) {
+      ItemStack displayBreed = breedButton.getItemStack();
+      if (PokeMMODaycareMode.ID.equalsIgnoreCase(UltraDaycare.config.getDaycareMode())) {
+        java.util.List<String> newLore = new java.util.ArrayList<>(breedButton.getLore());
+        newLore.addAll(getPokeMMOIvsLore(plot.getMale(), plot.getFemale()));
+        displayBreed = displayBreed.copy();
+        displayBreed.set(DataComponentTypes.LORE, new LoreComponent(AdventureTranslator.toNativeL(newLore)));
+      }
+      ItemStack finalDisplayBreed = displayBreed;
       GooeyButton breedBtn = GooeyButton.builder()
-        .display(breedButton.getItemStack())
+        .display(finalDisplayBreed)
         .onClick(action -> {
           UltraDaycare.getActiveMode().onBreed(player, plot, user);
           open(player, plot, user, true);
@@ -232,6 +245,83 @@ public class PlotMenu {
 
   private void addCloseButton(ChestTemplate template, ServerPlayerEntity player) {
     template.set(close.getSlot(), close.getButton(action -> UltraDaycare.language.getPrincipalMenu().open(player), 1, TimeUnit.SECONDS, 1));
+  }
+
+  private List<String> getPokeMMOIvsLore(Pokemon male, Pokemon female) {
+    List<String> ivLore = new java.util.ArrayList<>();
+    ivLore.add("");
+    ivLore.add(UltraDaycare.language.getEggIvPreviewHeader());
+
+    Map<Item, Stats> bracelets = Map.of(
+      CobblemonItems.POWER_WEIGHT, Stats.HP,
+      CobblemonItems.POWER_BRACER, Stats.ATTACK,
+      CobblemonItems.POWER_BELT, Stats.DEFENCE,
+      CobblemonItems.POWER_ANKLET, Stats.SPEED,
+      CobblemonItems.POWER_LENS, Stats.SPECIAL_ATTACK,
+      CobblemonItems.POWER_BAND, Stats.SPECIAL_DEFENCE
+    );
+
+    Stats maleLockedStat = bracelets.get(male.heldItem().getItem());
+    Stats femaleLockedStat = bracelets.get(female.heldItem().getItem());
+
+    List<Stats> checkStats = List.of(
+      Stats.HP, Stats.ATTACK, Stats.DEFENCE,
+      Stats.SPECIAL_ATTACK, Stats.SPECIAL_DEFENCE, Stats.SPEED
+    );
+
+    Map<Stats, String> statNames = Map.of(
+      Stats.HP, "HP",
+      Stats.ATTACK, "Atk",
+      Stats.DEFENCE, "Def",
+      Stats.SPECIAL_ATTACK, "SpA",
+      Stats.SPECIAL_DEFENCE, "SpD",
+      Stats.SPEED, "Spe"
+    );
+
+    for (Stats stat : checkStats) {
+      boolean maleLocked = (maleLockedStat == stat);
+      boolean femaleLocked = (femaleLockedStat == stat);
+      int maleIv = male.getIvs().getOrDefault(stat);
+      int femaleIv = female.getIvs().getOrDefault(stat);
+      String name = statNames.get(stat);
+
+      if (maleLocked && femaleLocked) {
+        if (maleIv == femaleIv) {
+          ivLore.add(UltraDaycare.language.getEggIvPreviewLockedFormat()
+              .replace("%stat%", name)
+              .replace("%value%", String.valueOf(maleIv)));
+        } else {
+          ivLore.add(UltraDaycare.language.getEggIvPreviewLockedRangeFormat()
+              .replace("%stat%", name)
+              .replace("%min%", String.valueOf(Math.min(maleIv, femaleIv)))
+              .replace("%max%", String.valueOf(Math.max(maleIv, femaleIv))));
+        }
+      } else if (maleLocked) {
+        ivLore.add(UltraDaycare.language.getEggIvPreviewLockedFormat()
+            .replace("%stat%", name)
+            .replace("%value%", String.valueOf(maleIv)));
+      } else if (femaleLocked) {
+        ivLore.add(UltraDaycare.language.getEggIvPreviewLockedFormat()
+            .replace("%stat%", name)
+            .replace("%value%", String.valueOf(femaleIv)));
+      } else {
+        if (maleIv == femaleIv) {
+          ivLore.add(UltraDaycare.language.getEggIvPreviewEqualFormat()
+              .replace("%stat%", name)
+              .replace("%value%", String.valueOf(maleIv)));
+        } else {
+          int min = Math.min(maleIv, femaleIv);
+          int max = Math.max(maleIv, femaleIv);
+          int avg = (maleIv + femaleIv) / 2;
+          ivLore.add(UltraDaycare.language.getEggIvPreviewRangeFormat()
+              .replace("%stat%", name)
+              .replace("%min%", String.valueOf(min))
+              .replace("%max%", String.valueOf(max))
+              .replace("%avg%", String.valueOf(avg)));
+        }
+      }
+    }
+    return ivLore;
   }
 
 }
