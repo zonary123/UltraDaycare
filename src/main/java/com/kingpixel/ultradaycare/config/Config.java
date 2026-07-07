@@ -29,160 +29,92 @@ public class Config {
   // ==========================================
   // 1. System & Database Configuration
   // ==========================================
-  private boolean debug;
-  private String lang;
-  private List<String> commands;
-  private String commandEggInfo;
-  private String daycareMode;
-  private DataBaseConfig dataBase;
-  private UserInfoOptions userInfoOptions;
+  private boolean debug = false;
+  private String lang = "en";
+  private List<String> commands = List.of("daycare");
+  private String commandEggInfo = "egginfo";
+  private String daycareMode = "pokemon";
+  private EggHatchMethod pokemmoEggHatchMethod = EggHatchMethod.STEPS;
+  private DataBaseConfig dataBase = new DataBaseConfig();
+  private UserInfoOptions userInfoOptions = new UserInfoOptions();
 
   // ==========================================
   // 2. General Daycare & Breeding Settings
   // ==========================================
-  private boolean fixIlegalAbilities;
-  private boolean canUseNativeGUI;
-  private boolean showIvs;
-  private boolean spawnEggWorld;
-  private int raritySpawnEgg;
-  private boolean allowElytra;
-  private boolean dobbleDitto;
-  private FilterPokemons dobbleDittoFilter;
+  private boolean fixIlegalAbilities = true;
+  private boolean canUseNativeGUI = false;
+  private boolean showIvs = false;
+  private boolean spawnEggWorld = true;
+  private int raritySpawnEgg = 2048;
+  private boolean allowElytra = false;
+  private boolean dobbleDitto = false;
+  private FilterPokemons dobbleDittoFilter = new FilterPokemons();
   private PokemonBlackList blackList;
-  private List<String> whitelist;
-  private Map<String, Integer> limitEggs;
+  private List<String> whitelist = new ArrayList<>();
+  private Map<String, Integer> limitEggs = new HashMap<>(Map.of("", 1, "group.vip", 2));
 
   // ==========================================
   // 3. Step & Time Hatching Progress
   // ==========================================
-  private long ticksToWalking;
-  private boolean globalMultiplierSteps;
-  private float multiplierSteps;
-  private Map<String, Float> multiplierStepsPermission;
-  private double defaultSteps;
-  private Map<EggGroup, Double> steps;
-  private List<String> abilityAcceleration;
-  private double multiplierAbilityAcceleration;
-  private double reduceEggStepsVehicle;
-  private List<String> permittedVehicles;
-  private EggHatchMethod pokemmoEggHatchMethod;
-  private DurationValue pokemmoEggHatchTime;
-  private Map<String, DurationValue> pokemmoEggHatchTimePermissions;
+  private long ticksToWalking = 20;
+  private boolean globalMultiplierSteps = false;
+  private float multiplierSteps = 1.0f;
+  private Map<String, Float> multiplierStepsPermission = new HashMap<>(Map.of("multipliersteps.vip", 2.0f));
+  private double defaultSteps = 128D;
+  private Map<EggGroup, Double> steps = new EnumMap<>(EggGroup.class);
+  private List<String> abilityAcceleration = List.of("magmaarmor", "flamebody", "steamengine");
+  private double multiplierAbilityAcceleration = 2.0;
+  private double reduceEggStepsVehicle = 2.0;
+  private List<String> permittedVehicles = List.of("minecraft:boat", "minecraft:horse", "cobblemon:pokemon");
+  private DurationValue pokemmoEggHatchTime = DurationValue.parse("10m");
+  private Map<String, DurationValue> pokemmoEggHatchTimePermissions = new HashMap<>(
+      Map.of("ultradaycare.hatch.vip", DurationValue.parse("5m")));
 
   // ==========================================
   // 4. Cooldowns & Slots
   // ==========================================
-  private DurationValue cooldownToOpenMenus;
-  private DurationValue cooldown;
-  private Map<String, DurationValue> cooldowns;
-  private DurationValue defaultCooldownBreed;
-  private Map<String, DurationValue> cooldownsBreed;
-  private DurationValue defaultCooldownHatch;
-  private Map<String, DurationValue> cooldownsHatch;
-  private List<Integer> slotPlots;
+  private DurationValue cooldownToOpenMenus = DurationValue.parse("0.5s");
+  private DurationValue cooldown = DurationValue.parse("3m");
+  private Map<String, DurationValue> cooldowns = Map.of(
+      VIP_COOLDOWN, DurationValue.parse("15m"),
+      LEGENDARY_COOLDOWN, DurationValue.parse("10m"),
+      MASTER_COOLDOWN, DurationValue.parse("5m"));
+  private DurationValue defaultCooldownBreed = DurationValue.parse("60s");
+  private Map<String, DurationValue> cooldownsBreed = new HashMap<>(Map.of(VIP_COOLDOWN, DurationValue.parse("30s")));
+  private DurationValue defaultCooldownHatch = DurationValue.parse("60s");
+  private Map<String, DurationValue> cooldownsHatch = new HashMap<>(Map.of(VIP_COOLDOWN, DurationValue.parse("30s")));
+  private List<Integer> slotPlots = new ArrayList<>(List.of(10, 12, 14, 16));
 
   // ==========================================
   // 5. Economy & Paid Features
   // ==========================================
   private EconomyUse economyUse = new EconomyUse("IMPACTOR", "impactor:dollars");
-  private boolean enableBreedingFee;
-  private double breedingFeePrice;
-  private boolean enablePaidExperience;
-  private double payXpPrice;
-  private int payXpAmount;
-  private int maxLevelTraining;
-  private double xpPerStep;
-  private double pricePerXp;
+  private boolean enableBreedingFee = false;
+  private double breedingFeePrice = 1000.0;
+  private boolean enablePaidExperience = false;
+  private double payXpPrice = 100.0;
+  private int payXpAmount = 1;
+  private int maxLevelTraining = 100;
+  private double xpPerStep = 1.0;
+  private double pricePerXp = 5.0;
 
   // ==========================================
   // 6. Offline Breeding
   // ==========================================
-  private boolean enableOfflineBreeding;
-  private DurationValue offlineBreedingInterval;
-  private int maxOfflineEggsPerPlot;
+  private boolean enableOfflineBreeding = true;
+  private DurationValue offlineBreedingInterval = DurationValue.parse("30m");
+  private int maxOfflineEggsPerPlot = 1;
 
   public Config() {
-    // 1. System & Database Configuration
-    this.debug = false;
-    this.lang = "en";
-    this.commands = List.of("daycare");
-    this.commandEggInfo = "egginfo";
-    this.daycareMode = "pokemon";
-    this.dataBase = new DataBaseConfig();
     this.dataBase.setDatabase("ultradaycare");
-    this.userInfoOptions = new UserInfoOptions();
-
-    // 2. General Daycare & Breeding Settings
-    this.fixIlegalAbilities = true;
-    this.canUseNativeGUI = false;
-    this.showIvs = false;
-    this.spawnEggWorld = true;
-    this.raritySpawnEgg = 2048;
-    this.allowElytra = false; // default if not specified
-    this.dobbleDitto = false;
-    this.dobbleDittoFilter = new FilterPokemons();
     this.blackList = PokemonBlackList.createBlackList();
     this.blackList.getPokemons().add("egg");
     this.blackList.getLabels().add("basculegion");
     this.blackList.getLabels().add("legendary");
-    this.whitelist = new ArrayList<>();
-    this.limitEggs = new HashMap<>();
-    this.limitEggs.put("", 1);
-    this.limitEggs.put("group.vip", 2);
 
-    // 3. Step & Time Hatching Progress
-    this.ticksToWalking = 20;
-    this.globalMultiplierSteps = false;
-    this.multiplierSteps = 1.0f;
-    this.multiplierStepsPermission = new HashMap<>();
-    this.multiplierStepsPermission.put("multipliersteps.vip", 2.0f);
-    this.defaultSteps = 128D;
-    this.steps = new EnumMap<>(EggGroup.class);
     for (EggGroup value : EggGroup.values()) {
       this.steps.put(value, defaultSteps);
     }
-    this.abilityAcceleration = List.of("magmaarmor", "flamebody", "steamengine");
-    this.multiplierAbilityAcceleration = 2.0;
-    this.reduceEggStepsVehicle = 2.0;
-    this.permittedVehicles = List.of("minecraft:boat", "minecraft:horse", "cobblemon:pokemon");
-    this.pokemmoEggHatchMethod = EggHatchMethod.TIME;
-    this.pokemmoEggHatchTime = DurationValue.parse("10m");
-    this.pokemmoEggHatchTimePermissions = new HashMap<>();
-    this.pokemmoEggHatchTimePermissions.put("ultradaycare.hatch.vip", DurationValue.parse("5m"));
-
-    // 4. Cooldowns & Slots
-    this.cooldownToOpenMenus = DurationValue.parse("0.5s");
-    this.cooldown = DurationValue.parse("3m");
-    this.cooldowns = Map.of(
-        VIP_COOLDOWN, DurationValue.parse("15m"),
-        LEGENDARY_COOLDOWN, DurationValue.parse("10m"),
-        MASTER_COOLDOWN, DurationValue.parse("5m"));
-    this.defaultCooldownBreed = DurationValue.parse("60s");
-    this.cooldownsBreed = new HashMap<>();
-    this.cooldownsBreed.put(VIP_COOLDOWN, DurationValue.parse("30s"));
-    this.defaultCooldownHatch = DurationValue.parse("60s");
-    this.cooldownsHatch = new HashMap<>();
-    this.cooldownsHatch.put(VIP_COOLDOWN, DurationValue.parse("30s"));
-    this.slotPlots = new ArrayList<>();
-    this.slotPlots.add(10);
-    this.slotPlots.add(12);
-    this.slotPlots.add(14);
-    this.slotPlots.add(16);
-
-    // 5. Economy & Paid Features
-    this.enableBreedingFee = false;
-    this.breedingFeePrice = 1000.0;
-    this.enablePaidExperience = false;
-    this.payXpPrice = 100.0;
-    this.payXpAmount = 1;
-    this.maxLevelTraining = 100;
-    this.xpPerStep = 1.0;
-    this.pricePerXp = 5.0;
-
-    // 6. Offline Breeding
-    this.enableOfflineBreeding = true;
-    this.offlineBreedingInterval = DurationValue.parse("30m");
-    this.maxOfflineEggsPerPlot = 1;
   }
 
   public void check() {
