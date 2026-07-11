@@ -1,12 +1,12 @@
 package com.kingpixel.ultradaycare.mechanics.pokemon;
 
-import com.kingpixel.ultradaycare.mechanics.Mechanics;
-
 import com.cobblemon.mod.common.CobblemonItems;
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.api.pokemon.PokemonPropertyExtractor;
+import com.cobblemon.mod.common.pokemon.FormData;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.mechanics.Mechanics;
 import com.kingpixel.ultradaycare.models.EggBuilder;
 import com.kingpixel.ultradaycare.models.EggForm;
 import com.kingpixel.ultradaycare.models.HatchBuilder;
@@ -186,17 +186,52 @@ public class DayCareForm extends Mechanics {
   /* APPLY / HATCH                                                */
   /* ------------------------------------------------------------ */
 
+  private boolean hasForm(Pokemon pokemon, String form) {
+    if (pokemon == null || form == null || form.isEmpty()) {
+      return false;
+    }
+    for (FormData f : pokemon.getSpecies().getForms()) {
+      if (f.getName().equalsIgnoreCase(form) || f.getName().equalsIgnoreCase(form.replace("an", ""))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private void applyForm(Pokemon egg, String form, Pokemon evo) {
+    if (egg == null || form == null || form.isEmpty() || evo == null) return;
     egg.getPersistentData().putString(TAG, form);
-    PokemonProperties.Companion.parse(form).apply(evo);
+
+    if (hasForm(evo, form)) {
+      PokemonProperties.Companion.parse(form).apply(evo);
+    } else {
+      String bias = form.toLowerCase();
+      if (bias.endsWith("an")) {
+        bias = bias.substring(0, bias.length() - 2);
+      }
+      PokemonProperties.Companion.parse("region_bias=" + bias).apply(evo);
+    }
   }
 
   @Override
   public void applyHatch(HatchBuilder builder) {
+    if (builder == null || builder.getEgg() == null || builder.getPokemon() == null) return;
     String form = builder.getEgg().getPersistentData().getString(TAG);
     debug("[DayCareForm] applyHatch '{}'", form);
 
-    PokemonProperties.Companion.parse(form).apply(builder.getPokemon());
+    if (form != null && !form.isEmpty()) {
+      Pokemon pokemon = builder.getPokemon();
+      if (hasForm(pokemon, form)) {
+        PokemonProperties.Companion.parse(form).apply(pokemon);
+      } else {
+        String bias = form.toLowerCase();
+        if (bias.endsWith("an")) {
+          bias = bias.substring(0, bias.length() - 2);
+        }
+        PokemonProperties.Companion.parse("region_bias=" + bias).apply(pokemon);
+      }
+    }
+
     UltraDaycare.fixBreedable(builder.getPokemon());
     builder.getEgg().getPersistentData().remove(TAG);
   }
