@@ -43,8 +43,7 @@ public final class DataPackDaycare {
 
       System.out.println("[CobbleDaycare] Datapack installed and enabled successfully");
     } catch (Exception e) {
-      System.err.println("[CobbleDaycare] Failed to install datapack");
-      e.printStackTrace();
+      UltraDaycare.LOGGER.error("Failed to install datapack: ", e);
     }
   }
 
@@ -72,6 +71,7 @@ public final class DataPackDaycare {
         try {
           fs = FileSystems.getFileSystem(uri);
         } catch (FileSystemNotFoundException e) {
+          UltraDaycare.LOGGER.error("FileSystem not found, creating new: ", e);
           fs = FileSystems.newFileSystem(uri, Map.of());
         }
 
@@ -87,7 +87,9 @@ public final class DataPackDaycare {
       }
 
     } catch (Exception e) {
-      if (exceptions) e.printStackTrace();
+      if (exceptions) {
+        UltraDaycare.LOGGER.error("Error copying datapack from JAR: ", e);
+      }
     }
   }
 
@@ -111,11 +113,15 @@ public final class DataPackDaycare {
             Files.copy(path, destination, StandardCopyOption.REPLACE_EXISTING);
           }
         } catch (Exception e) {
-          if (exceptions) e.printStackTrace();
+          if (exceptions) {
+            UltraDaycare.LOGGER.error("Error copying file during datapack install: ", e);
+          }
         }
       });
     } catch (Exception e) {
-      if (exceptions) e.printStackTrace();
+      if (exceptions) {
+        UltraDaycare.LOGGER.error("Error walking source path during datapack copy: ", e);
+      }
     }
   }
 

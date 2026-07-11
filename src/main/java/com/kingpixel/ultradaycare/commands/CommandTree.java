@@ -61,7 +61,7 @@ public class CommandTree {
       }
 
     } catch (Exception e) {
-      e.printStackTrace();
+      UltraDaycare.LOGGER.error("Error registering commands: ", e);
     }
   }
 

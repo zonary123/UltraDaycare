@@ -28,7 +28,7 @@ public abstract class PastureBlockMixin {
       UltraDaycare.language.getPrincipalMenu().open((ServerPlayerEntity) player);
       cir.setReturnValue(ActionResult.FAIL);
     } catch (Exception e) {
-      e.printStackTrace();
+      UltraDaycare.LOGGER.error("Error on using pasture block: ", e);
     }
   }
 }

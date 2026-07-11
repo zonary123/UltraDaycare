@@ -148,7 +148,7 @@ public class Language {
       UltraDaycare.language = language;
       UtilsFile.write(path, language);
     } catch (IOException e) {
-      e.printStackTrace();
+      UltraDaycare.LOGGER.error("Error reading language configuration file: ", e);
     }
 
   }

@@ -13,6 +13,7 @@ import com.kingpixel.cobbleutils.util.TypeMessage;
 import com.kingpixel.ultradaycare.UltraDaycare;
 import com.kingpixel.ultradaycare.api.PokeMMODaycareMode;
 import com.kingpixel.ultradaycare.events.HatchEggEvent;
+import com.cobblemon.mod.common.api.events.pokemon.HatchEggEvent.Post;
 import com.kingpixel.ultradaycare.mechanics.pokemon.DayCarePokemon;
 import com.kingpixel.ultradaycare.mechanics.Mechanics;
 import kotlin.jvm.functions.Function0;
@@ -78,8 +79,7 @@ public class EggData {
       );
       packet.sendToPlayer(player);
     } catch (Exception e) {
-      UltraDaycare.LOGGER.error("Error actualizando el feature del huevo: " + e.getMessage());
-      e.printStackTrace();
+      UltraDaycare.LOGGER.error("Error actualizando el feature del huevo: ", e);
     }
 
     if (percentageBlock != egg.getPersistentData().getInt(PERCENTAGE_ROUND_TAG)) {
@@ -188,8 +188,7 @@ public class EggData {
         try {
           mechanic.applyHatch(builder);
         } catch (Exception e) {
-          UltraDaycare.LOGGER.info("Error applying hatch mechanic: " + mechanic.fileName() + " - " + e.getClass().getName());
-          e.printStackTrace();
+          UltraDaycare.LOGGER.error("Error applying hatch mechanic " + mechanic.fileName() + ": ", e);
         }
       }
       var party = Cobblemon.INSTANCE.getStorage().getParty(player);
@@ -201,14 +200,13 @@ public class EggData {
           party.add(builder.getPokemon());
           UUID uuid = player.getUuid();
           builder.getPokemon().setOriginalTrainer(uuid);
-          CobblemonEvents.HATCH_EGG_POST.emit(new com.cobblemon.mod.common.api.events.pokemon.HatchEggEvent.Post(
-            player, builder.getPokemon()));
+           CobblemonEvents.HATCH_EGG_POST.emit(new Post(
+             player, builder.getPokemon()));
           HatchEggEvent.HATCH_EGG_EVENT.emit(player, builder.getPokemon());
         });
       }
     } catch (Exception e) {
-      UltraDaycare.LOGGER.error("Error hatching egg");
-      e.printStackTrace();
+      UltraDaycare.LOGGER.error("Error hatching egg: ", e);
       CobbleUtils.server.execute(() -> Cobblemon.INSTANCE.getStorage().getParty(player).remove(egg));
       PlayerUtils.sendMessage(
         player,

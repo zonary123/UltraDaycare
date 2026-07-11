@@ -22,6 +22,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Carlos Varas Alonso - 11/03/2025 9:09
@@ -67,8 +69,8 @@ public class DayCareAbility extends Mechanics {
         .replace("%activeDitto%", dittoTransmitHA ? CobbleUtils.language.getYes() : CobbleUtils.language.getNo());
   }
 
-  private java.util.List<Ability> getStandardAbilities(Pokemon pokemon) {
-    java.util.List<Ability> list = new java.util.ArrayList<>();
+  private List<Ability> getStandardAbilities(Pokemon pokemon) {
+    List<Ability> list = new ArrayList<>();
     if (pokemon == null)
       return list;
     for (PotentialAbility ability : pokemon.getForm().getAbilities()) {
@@ -124,7 +126,7 @@ public class DayCareAbility extends Mechanics {
     }
 
     // Try standard inheritance
-    java.util.List<Ability> stdAbilities = getStandardAbilities(firstEvolution);
+    List<Ability> stdAbilities = getStandardAbilities(firstEvolution);
     if (!stdAbilities.isEmpty()) {
       Pokemon nonDittoParent = femaleIsDitto ? male : female;
       String parentAbilityName = nonDittoParent.getAbility().getName();

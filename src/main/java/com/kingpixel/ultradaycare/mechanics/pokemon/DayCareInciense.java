@@ -96,7 +96,7 @@ public class DayCareInciense extends Mechanics {
             UtilsFile.writeAsync(file.toPath(), incense);
           }
         } catch (Exception e) {
-          e.printStackTrace();
+          UltraDaycare.LOGGER.error("Error reading incense file: ", e);
         }
       }
     }

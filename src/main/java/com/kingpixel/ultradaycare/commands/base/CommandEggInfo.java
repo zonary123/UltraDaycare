@@ -45,8 +45,7 @@ public class CommandEggInfo {
                               message = mechanic.getEggInfo(message, nbt);
                             } catch (Exception e) {
                               UltraDaycare.LOGGER.error(
-                                  "Error in egg info: " + mechanic.getClass().getSimpleName());
-                              e.printStackTrace();
+                                  "Error in egg info " + mechanic.getClass().getSimpleName() + ": ", e);
                             }
                           }
 

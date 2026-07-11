@@ -275,7 +275,7 @@ public class TaskDayCare implements Runnable {
             updatePlotsBreeding(player, user);
             sendMessage(player);
           } catch (Exception e) {
-            e.printStackTrace();
+            UltraDaycare.LOGGER.error("Error processing player tasks: ", e);
           }
         });
 
@@ -283,7 +283,7 @@ public class TaskDayCare implements Runnable {
         pos.setZ(entity.getZ());
         pos.setLastUpdate(currentTime);
       } catch (Exception e) {
-        e.printStackTrace();
+        UltraDaycare.LOGGER.error("Error processing player movement: ", e);
       }
     }
   }
@@ -293,7 +293,7 @@ public class TaskDayCare implements Runnable {
     try {
       processPlayers();
     } catch (Exception e) {
-      e.printStackTrace();
+      UltraDaycare.LOGGER.error("Error running TaskDayCare: ", e);
     }
   }
 }

@@ -333,7 +333,7 @@ public class Plot {
         user.markDirty();
       return update;
     } catch (Exception e) {
-      e.printStackTrace();
+      UltraDaycare.LOGGER.error("Error updating plot breeding: ", e);
       return false;
     }
   }
@@ -362,7 +362,7 @@ public class Plot {
         if (mechanic.isActive())
           mechanic.applyEgg(eggBuilder);
       } catch (Exception e) {
-        e.printStackTrace();
+        UltraDaycare.LOGGER.error("Error applying mechanic " + mechanic.getClass().getSimpleName() + ": ", e);
       }
     }
     return egg;

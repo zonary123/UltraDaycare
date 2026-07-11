@@ -90,7 +90,7 @@ public abstract class Mechanics {
       UtilsFile.write(path, instance);
       return instance;
     } catch (Exception e) {
-      e.printStackTrace();
+      UltraDaycare.LOGGER.error("Error reading mechanic from file: ", e);
       return null;
     }
   }

@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.4]
+
+### Added
+
+- **Configurable Poké Ball Blacklist**: Added a server-side configurable list `blacklistedBalls` to `pokeball.json` to decide which Poké Balls cannot be inherited (e.g. Master Ball and Cherish Ball by default). Case-insensitive and supports both full IDs and paths.
+
+### Changed
+
+- **Robust Exception Logging**: Refactored empty catches, console error printouts, and `e.printStackTrace()` calls across all mod modules to write full exception traces into the mod's logger (`UltraDaycare.LOGGER.error`).
+
+### Fixed
+
+- **Fixed Poké Ball Mechanic**: Resolved issues with inheritance logic, null-safety, and configuration file initialization/creation.
+
 ## [1.2.3]
 
 ### Added

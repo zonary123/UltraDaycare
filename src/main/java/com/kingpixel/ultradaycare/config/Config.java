@@ -171,7 +171,7 @@ public class Config {
       UltraDaycare.config = config;
       UtilsFile.write(path, config);
     } catch (IOException e) {
-      e.printStackTrace();
+      UltraDaycare.LOGGER.error("Error reading mod configuration file: ", e);
     }
   }
 }

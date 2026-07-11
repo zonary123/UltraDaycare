@@ -33,7 +33,8 @@ public abstract class PreventDamage {
       if (cobbleDaycare$isEgg(pokemon)) {
         cir.setReturnValue(false);
       }
-    } catch (Exception ignored) {
+    } catch (Exception e) {
+      UltraDaycare.LOGGER.error("Error offering held item: ", e);
     }
   }
 
@@ -52,7 +53,8 @@ public abstract class PreventDamage {
           cir.cancel();
         }
       }
-    } catch (Exception ignored) {
+    } catch (Exception e) {
+      UltraDaycare.LOGGER.error("Error processing damage: ", e);
     }
   }
 
@@ -69,7 +71,8 @@ public abstract class PreventDamage {
         cobbleDaycare$givePokemon((ServerPlayerEntity) player, pokemon, pokemonEntity);
         cir.cancel();
       }
-    } catch (Exception ignored) {
+    } catch (Exception e) {
+      UltraDaycare.LOGGER.error("Error processing mob interaction: ", e);
     }
   }
 

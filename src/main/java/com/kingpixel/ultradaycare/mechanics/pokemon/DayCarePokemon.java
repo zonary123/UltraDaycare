@@ -139,7 +139,8 @@ public class DayCarePokemon extends Mechanics {
       if (!genderString.isEmpty()) {
         builder.getPokemon().setGender(Gender.valueOf(genderString));
       }
-    } catch (IllegalArgumentException ignored) {
+    } catch (IllegalArgumentException e) {
+      UltraDaycare.LOGGER.error("Invalid gender string on hatch: ", e);
     }
 
     egg.getPersistentData().remove(TAG_POKEMON);

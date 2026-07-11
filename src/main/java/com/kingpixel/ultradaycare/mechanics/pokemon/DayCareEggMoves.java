@@ -45,7 +45,7 @@ public class DayCareEggMoves extends Mechanics {
         moveNames.add(element.getAsString());
       }
     } catch (Exception e) {
-      UltraDaycare.LOGGER.error("Error parsing move names from JSON: " + e.getMessage());
+      UltraDaycare.LOGGER.error("Error parsing move names from JSON: ", e);
     }
 
     return moveNames;

@@ -32,6 +32,7 @@ import net.minecraft.item.Item;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,6 +41,8 @@ import java.util.concurrent.TimeUnit;
 @Data
 public class PlotMenu {
   private static final String PRICE_LORE = "&7Price: &6%price%";
+  private transient Map<Item, Stats> bracelets = null;
+  private transient Map<Stats, String> statNames = null;
   private int rows;
   private String title;
   private ItemModel male;
@@ -168,7 +171,7 @@ public class PlotMenu {
     } else if (UltraDaycare.getActiveMode().consumeParents() && plot.hasTwoParents()) {
       ItemStack displayBreed = breedButton.getItemStack();
       if (PokeMMODaycareMode.ID.equalsIgnoreCase(UltraDaycare.config.getDaycareMode())) {
-        java.util.List<String> newLore = new java.util.ArrayList<>(breedButton.getLore());
+        List<String> newLore = new ArrayList<>(breedButton.getLore());
         newLore.addAll(getPokeMMOIvsLore(plot.getMale(), plot.getFemale()));
         displayBreed = displayBreed.copy();
         displayBreed.set(DataComponentTypes.LORE, new LoreComponent(AdventureTranslator.toNativeL(newLore)));
@@ -248,18 +251,20 @@ public class PlotMenu {
   }
 
   private List<String> getPokeMMOIvsLore(Pokemon male, Pokemon female) {
-    List<String> ivLore = new java.util.ArrayList<>();
+    List<String> ivLore = new ArrayList<>();
     ivLore.add("");
     ivLore.add(UltraDaycare.language.getEggIvPreviewHeader());
 
-    Map<Item, Stats> bracelets = Map.of(
-      CobblemonItems.POWER_WEIGHT, Stats.HP,
-      CobblemonItems.POWER_BRACER, Stats.ATTACK,
-      CobblemonItems.POWER_BELT, Stats.DEFENCE,
-      CobblemonItems.POWER_ANKLET, Stats.SPEED,
-      CobblemonItems.POWER_LENS, Stats.SPECIAL_ATTACK,
-      CobblemonItems.POWER_BAND, Stats.SPECIAL_DEFENCE
-    );
+    if (bracelets == null) {
+      bracelets = Map.of(
+        CobblemonItems.POWER_WEIGHT, Stats.HP,
+        CobblemonItems.POWER_BRACER, Stats.ATTACK,
+        CobblemonItems.POWER_BELT, Stats.DEFENCE,
+        CobblemonItems.POWER_ANKLET, Stats.SPEED,
+        CobblemonItems.POWER_LENS, Stats.SPECIAL_ATTACK,
+        CobblemonItems.POWER_BAND, Stats.SPECIAL_DEFENCE
+      );
+    }
 
     Stats maleLockedStat = bracelets.get(male.heldItem().getItem());
     Stats femaleLockedStat = bracelets.get(female.heldItem().getItem());
@@ -269,14 +274,16 @@ public class PlotMenu {
       Stats.SPECIAL_ATTACK, Stats.SPECIAL_DEFENCE, Stats.SPEED
     );
 
-    Map<Stats, String> statNames = Map.of(
-      Stats.HP, "HP",
-      Stats.ATTACK, "Atk",
-      Stats.DEFENCE, "Def",
-      Stats.SPECIAL_ATTACK, "SpA",
-      Stats.SPECIAL_DEFENCE, "SpD",
-      Stats.SPEED, "Spe"
-    );
+    if (statNames == null) {
+      statNames = Map.of(
+        Stats.HP, "HP",
+        Stats.ATTACK, "Atk",
+        Stats.DEFENCE, "Def",
+        Stats.SPECIAL_ATTACK, "SpA",
+        Stats.SPECIAL_DEFENCE, "SpD",
+        Stats.SPEED, "Spe"
+      );
+    }
 
     for (Stats stat : checkStats) {
       boolean maleLocked = (maleLockedStat == stat);
