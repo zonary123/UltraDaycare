@@ -57,12 +57,23 @@ public class DayCareForm extends Mechanics {
 
   @Override
   public void applyEgg(EggBuilder builder) {
+    if (builder == null || builder.getEgg() == null) return;
     Pokemon female = builder.getFemale();
     Pokemon male = builder.getMale();
     Pokemon egg = builder.getEgg();
     Pokemon evo = builder.getFirstEvolution();
 
-    Pokemon source = male.heldItem().getItem().equals(CobblemonItems.EVERSTONE) ? male : female;
+    if (female == null && male == null) return;
+    Pokemon source = female;
+    if (male != null && male.heldItem().getItem().equals(CobblemonItems.EVERSTONE)) {
+      source = male;
+    } else if (female != null && female.heldItem().getItem().equals(CobblemonItems.EVERSTONE)) {
+      source = female;
+    } else if (female == null) {
+      source = male;
+    }
+
+    if (source == null) return;
     debug("[DayCareForm] applyEgg source={}", source.showdownId());
 
     String configForm = getConfigForm(source);
@@ -103,6 +114,7 @@ public class DayCareForm extends Mechanics {
 
   @Override
   public void createEgg(ServerPlayerEntity player, Pokemon female, Pokemon egg) {
+    if (female == null || egg == null) return;
     Pokemon evo = female;
     debug("[DayCareForm] createEgg pokemon={}", female.showdownId());
 
@@ -143,12 +155,18 @@ public class DayCareForm extends Mechanics {
   /* ------------------------------------------------------------ */
 
   private String getConfigForm(Pokemon pokemon) {
+    if (pokemon == null) return null;
     for (EggForm eggForm : eggForms) {
       if (eggForm.getPokemons().contains(pokemon.showdownId())) {
         return eggForm.getForm();
       }
     }
-    return forms.get(pokemon.getForm().formOnlyShowdownId());
+    if (pokemon.getForm() == null) return null;
+    String formId = pokemon.getForm().formOnlyShowdownId();
+    if (formId == null || formId.isEmpty()) return null;
+
+    String mappedForm = forms.get(formId.toLowerCase());
+    return mappedForm != null ? mappedForm : formId;
   }
 
   /* ------------------------------------------------------------ */
