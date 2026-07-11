@@ -186,6 +186,7 @@ public class DayCareForm extends Mechanics {
   /* APPLY / HATCH                                                */
   /* ------------------------------------------------------------ */
 
+  // Check if the pokemon species contains the specified form
   private boolean hasForm(Pokemon pokemon, String form) {
     if (pokemon == null || form == null || form.isEmpty()) {
       return false;
