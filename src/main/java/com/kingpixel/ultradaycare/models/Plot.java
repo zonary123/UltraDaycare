@@ -326,6 +326,8 @@ public class Plot {
           }
           update = true;
           eggProducedSincePayment = true;
+          processFertility(male);
+          processFertility(female);
           setTime(player);
         }
       }
@@ -366,6 +368,22 @@ public class Plot {
       }
     }
     return egg;
+  }
+
+  public static final String FERTILITY_TAG = "fertility";
+
+  private void processFertility(Pokemon pokemon) {
+    if (pokemon == null || !UltraDaycare.config.isEnableFertility()) return;
+
+    var nbt = pokemon.getPersistentData();
+    int fertility = nbt.contains(FERTILITY_TAG) ? nbt.getInt(FERTILITY_TAG) : UltraDaycare.config.getMaxFertility();
+    fertility = Math.max(0, fertility - 1);
+    nbt.putInt(FERTILITY_TAG, fertility);
+
+    if (fertility <= 0) {
+      UltraDaycare.setBreedable(pokemon, false);
+      nbt.putBoolean(CobbleUtilsTags.BREEDABLE_BUILDER_TAG, true);
+    }
   }
 
   public synchronized void addPokemon(ServerPlayerEntity player, Pokemon pokemon, SelectGender gender,

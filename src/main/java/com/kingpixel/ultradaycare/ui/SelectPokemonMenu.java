@@ -112,7 +112,7 @@ public class SelectPokemonMenu {
   private void addPokemon(@NotNull Pokemon pokemon, Plot plot, ServerPlayerEntity player,
                           SelectGender gender, User user, List<Button> buttons) {
     ItemStack display = PokemonItem.from(pokemon);
-    List<String> lore = PokemonUtils.replaceLore(pokemon);
+    List<String> lore = PlotMenu.getPokemonLore(pokemon);
 
     GooeyButton button = GooeyButton.builder()
       .display(display)

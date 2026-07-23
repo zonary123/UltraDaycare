@@ -37,6 +37,7 @@ public class Language {
   private String messageRemovedFemale;
   private String messageRemovedMale;
   private String messageCannotBreed;
+  private String loreFertility;
 
   // Economy & Training Messages
   private String messageExperiencePaid;
@@ -92,6 +93,7 @@ public class Language {
 
     this.eggInfo = eggInfoBuilder.toString();
     this.messageCannotBreed = "%prefix% &cYou cannot breed this pokemons";
+    this.loreFertility = "&7Fertility: &e%fertility%&7/&e%max_fertility%";
     this.eggName = "%steps%/%cycles% %pokemon%";
     this.messageReload = "%prefix% &aReloaded";
     this.messageCooldownBreed = "%prefix% &7Cooldown to breed %cooldown%";
@@ -122,6 +124,9 @@ public class Language {
   }
 
   public void check() {
+    if (loreFertility == null) {
+      loreFertility = "&7Fertility: &e%fertility%&7/&e%max_fertility%";
+    }
     if (eggIvPreviewHeader == null) {
       eggIvPreviewHeader = "&d&lEgg IV Preview:";
     }

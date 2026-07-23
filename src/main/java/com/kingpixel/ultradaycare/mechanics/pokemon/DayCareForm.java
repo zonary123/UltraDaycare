@@ -22,6 +22,8 @@ import java.util.*;
 public class DayCareForm extends Mechanics {
 
   public static final String TAG = "form";
+  private static final String FORM_PREFIX = "form=";
+  private static final String REGION_BIAS_PREFIX = "region_bias=";
 
   private final Map<String, String> forms = new HashMap<>();
   private final List<EggForm> eggForms = new ArrayList<>();
@@ -75,7 +77,18 @@ public class DayCareForm extends Mechanics {
 
     if (source == null) return;
     debug("[DayCareForm] applyEgg source={}", source.showdownId());
+    processSourceForm(source, egg, evo);
+  }
 
+  @Override
+  public void createEgg(ServerPlayerEntity player, Pokemon female, Pokemon egg) {
+    if (female == null || egg == null) return;
+    Pokemon evo = female;
+    debug("[DayCareForm] createEgg pokemon={}", female.showdownId());
+    processSourceForm(female, egg, evo);
+  }
+
+  private void processSourceForm(Pokemon source, Pokemon egg, Pokemon evo) {
     String configForm = getConfigForm(source);
     if (configForm != null) {
       if (!isBlacklisted(configForm)) {
@@ -87,48 +100,6 @@ public class DayCareForm extends Mechanics {
     }
 
     var props = source.createPokemonProperties(
-      PokemonPropertyExtractor.FORM,
-      PokemonPropertyExtractor.ASPECTS
-    );
-
-    if (props.getForm() != null && blacklistForm.contains(props.getForm())) {
-      props.setForm("");
-    }
-    Set<String> aspects = new HashSet<>(props.getAspects());
-    aspects.removeIf(aspect -> {
-      if (aspect.startsWith("gender=") || aspect.startsWith("shiny=")) return true;
-      for (String blacklisted : blacklistFeatures) {
-        if (aspect.contains(blacklisted)) return true;
-      }
-      return false;
-    });
-    props.setAspects(aspects);
-
-    String formStr = props.asString(" ");
-    applyForm(egg, formStr, evo);
-  }
-
-  /* ------------------------------------------------------------ */
-  /* CREATE EGG                                                   */
-  /* ------------------------------------------------------------ */
-
-  @Override
-  public void createEgg(ServerPlayerEntity player, Pokemon female, Pokemon egg) {
-    if (female == null || egg == null) return;
-    Pokemon evo = female;
-    debug("[DayCareForm] createEgg pokemon={}", female.showdownId());
-
-    String configForm = getConfigForm(female);
-    if (configForm != null) {
-      if (!isBlacklisted(configForm)) {
-        applyForm(egg, configForm, evo);
-      } else {
-        applyForm(egg, "", evo);
-      }
-      return;
-    }
-
-    var props = female.createPokemonProperties(
       PokemonPropertyExtractor.FORM,
       PokemonPropertyExtractor.ASPECTS
     );
@@ -186,31 +157,96 @@ public class DayCareForm extends Mechanics {
   /* APPLY / HATCH                                                */
   /* ------------------------------------------------------------ */
 
-  // Check if the pokemon species contains the specified form
-  private boolean hasForm(Pokemon pokemon, String form) {
-    if (pokemon == null || form == null || form.isEmpty()) {
-      return false;
+  private String resolveFormName(Pokemon pokemon, String form) {
+    if (pokemon == null || form == null || form.trim().isEmpty()) {
+      return null;
     }
+    String target = form.trim().toLowerCase();
+    if (target.contains("=") || target.contains(" ")) {
+      return target;
+    }
+
     for (FormData f : pokemon.getSpecies().getForms()) {
-      if (f.getName().equalsIgnoreCase(form) || f.getName().equalsIgnoreCase(form.replace("an", ""))) {
-        return true;
+      String fName = f.getName().toLowerCase();
+      if (fName.equalsIgnoreCase(target) || fName.equalsIgnoreCase(forms.getOrDefault(target, target))) {
+        return f.getName();
       }
     }
-    return false;
+
+    String mapped = forms.get(target);
+    if (mapped != null) {
+      for (FormData f : pokemon.getSpecies().getForms()) {
+        if (f.getName().equalsIgnoreCase(mapped)) {
+          return f.getName();
+        }
+      }
+    }
+
+    return null;
   }
 
   private void applyForm(Pokemon egg, String form, Pokemon evo) {
     if (egg == null || form == null || form.isEmpty() || evo == null) return;
-    egg.getPersistentData().putString(TAG, form);
 
-    if (hasForm(evo, form)) {
-      PokemonProperties.Companion.parse(form).apply(evo);
-    } else {
-      String bias = form.toLowerCase();
-      if (bias.endsWith("an")) {
-        bias = bias.substring(0, bias.length() - 2);
+    String cleanForm = resolveFormName(evo, form);
+    if (cleanForm == null) {
+      cleanForm = form;
+    }
+    // Clean string format if it comes as aspect string like "form=alolan" or "alolan aspects..."
+    if (cleanForm.startsWith(FORM_PREFIX)) {
+      cleanForm = cleanForm.substring(FORM_PREFIX.length());
+    } else if (cleanForm.contains("=")) {
+      for (String part : cleanForm.split(" ")) {
+        if (part.startsWith(FORM_PREFIX)) {
+          cleanForm = part.substring(FORM_PREFIX.length());
+          break;
+        }
       }
-      PokemonProperties.Companion.parse("region_bias=" + bias).apply(evo);
+    }
+
+    egg.getPersistentData().putString(TAG, cleanForm);
+    applyFormToPokemon(evo, form);
+  }
+
+  private String formToRegionBias(String form) {
+    if (form == null) return null;
+    String clean = form.toLowerCase().trim();
+    if (clean.startsWith(FORM_PREFIX)) clean = clean.substring(FORM_PREFIX.length());
+
+    if (clean.contains("alola") || clean.contains("alolan")) return "alola";
+    if (clean.contains("hisui") || clean.contains("hisuian")) return "hisui";
+    if (clean.contains("galar") || clean.contains("galarian")) return "galar";
+    if (clean.contains("paldea") || clean.contains("paldean")) return "paldea";
+    return null;
+  }
+
+  private void applyFormToPokemon(Pokemon pokemon, String form) {
+    if (pokemon == null || form == null || form.trim().isEmpty()) return;
+
+    String targetForm = form.trim().toLowerCase();
+    if (targetForm.startsWith(FORM_PREFIX)) {
+      targetForm = targetForm.substring(FORM_PREFIX.length());
+    }
+
+    String resolvedForm = resolveFormName(pokemon, targetForm);
+    String regionBias = formToRegionBias(targetForm);
+
+    if (resolvedForm != null) {
+      try {
+        PokemonProperties.Companion.parse(FORM_PREFIX + resolvedForm).apply(pokemon);
+        debug("[DayCareForm] Applied direct form='{}' to {}", resolvedForm, pokemon.showdownId());
+      } catch (Exception e) {
+        debug("[DayCareForm] Error applying form='{}' to {}: {}", resolvedForm, pokemon.showdownId(), e.getMessage());
+      }
+    }
+
+    if (regionBias != null) {
+      try {
+        PokemonProperties.Companion.parse(REGION_BIAS_PREFIX + regionBias).apply(pokemon);
+        debug("[DayCareForm] Applied region_bias='{}' to {}", regionBias, pokemon.showdownId());
+      } catch (Exception e) {
+        debug("[DayCareForm] Error applying region_bias='{}' to {}: {}", regionBias, pokemon.showdownId(), e.getMessage());
+      }
     }
   }
 
@@ -221,16 +257,7 @@ public class DayCareForm extends Mechanics {
     debug("[DayCareForm] applyHatch '{}'", form);
 
     if (form != null && !form.isEmpty()) {
-      Pokemon pokemon = builder.getPokemon();
-      if (hasForm(pokemon, form)) {
-        PokemonProperties.Companion.parse(form).apply(pokemon);
-      } else {
-        String bias = form.toLowerCase();
-        if (bias.endsWith("an")) {
-          bias = bias.substring(0, bias.length() - 2);
-        }
-        PokemonProperties.Companion.parse("region_bias=" + bias).apply(pokemon);
-      }
+      applyFormToPokemon(builder.getPokemon(), form);
     }
 
     UltraDaycare.fixBreedable(builder.getPokemon());

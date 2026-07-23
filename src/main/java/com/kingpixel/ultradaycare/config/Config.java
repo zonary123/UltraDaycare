@@ -49,6 +49,8 @@ public class Config {
   private boolean allowElytra = false;
   private boolean dobbleDitto = false;
   private FilterPokemons dobbleDittoFilter = new FilterPokemons();
+  private boolean enableFertility = false;
+  private int maxFertility = 5;
   private PokemonBlackList blackList;
   private List<String> whitelist = new ArrayList<>();
   private Map<String, Integer> limitEggs = new HashMap<>(Map.of("", 1, "group.vip", 2));

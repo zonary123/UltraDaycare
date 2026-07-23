@@ -99,7 +99,7 @@ public class PlotMenu {
     // Male
     GooeyButton mButton = GooeyButton.builder()
       .display(plot.getMale() != null ? PokemonItem.from(plot.getMale()) : male.getItemStack())
-      .with(DataComponentTypes.LORE, new LoreComponent(AdventureTranslator.toNativeL(PokemonUtils.replaceLore(plot.getMale()))))
+      .with(DataComponentTypes.LORE, new LoreComponent(AdventureTranslator.toNativeL(getPokemonLore(plot.getMale()))))
       .onClick(action -> handleParentClick(plot, user, SelectGender.MALE, action.getPlayer()))
       .build();
     male.applyTemplate(template, mButton);
@@ -107,10 +107,23 @@ public class PlotMenu {
     // Female
     GooeyButton fButton = GooeyButton.builder()
       .display(plot.getFemale() != null ? PokemonItem.from(plot.getFemale()) : female.getItemStack())
-      .with(DataComponentTypes.LORE, new LoreComponent(AdventureTranslator.toNativeL(PokemonUtils.replaceLore(plot.getFemale()))))
+      .with(DataComponentTypes.LORE, new LoreComponent(AdventureTranslator.toNativeL(getPokemonLore(plot.getFemale()))))
       .onClick(action -> handleParentClick(plot, user, SelectGender.FEMALE, action.getPlayer()))
       .build();
     female.applyTemplate(template, fButton);
+  }
+
+  public static List<String> getPokemonLore(Pokemon pokemon) {
+    List<String> lore = PokemonUtils.replaceLore(pokemon);
+    if (pokemon != null && UltraDaycare.config.isEnableFertility()) {
+      var nbt = pokemon.getPersistentData();
+      int current = nbt.contains(Plot.FERTILITY_TAG) ? nbt.getInt(Plot.FERTILITY_TAG) : UltraDaycare.config.getMaxFertility();
+      String line = UltraDaycare.language.getLoreFertility()
+        .replace("%fertility%", String.valueOf(current))
+        .replace("%max_fertility%", String.valueOf(UltraDaycare.config.getMaxFertility()));
+      lore.add(line);
+    }
+    return lore;
   }
 
   private void handleParentClick(Plot plot, User user, SelectGender gender, ServerPlayerEntity player) {

@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.5]
+
+### Added
+
+- **Fertility System**: Added an optional, server-configurable fertility mechanic (`enableFertility` and `maxFertility`). Pokémon lose 1 fertility point per bred egg, and once fertility reaches 0, their breedable status is automatically disabled.
+- **Fertility Lore Display**: Added `loreFertility` to language configuration (`lang/*.json`) to display a Pokémon's current/max fertility at the end of its item lore in daycare menus when fertility is enabled.
+
+### Fixed
+
+- **Regional Forms Inheritance**: Resolved regional form inheritance issues (Alola, Galar, Hisui, Paldea) for eggs. Prioritized direct plain form name parsing (`alolan`) and regional evolution biases (`region_bias=<region>`). Ensured clean form metadata string format for NBT storage and `/egginfo`.
+
 ## [1.2.4]
 
 ### Added
