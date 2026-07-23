@@ -39,3 +39,4 @@ forge*changelog.txt
 */generated/resources/*
 /fabric/src/generated/resources/cobblemon-common.accesswidener
 /actual_versions/
+Cobblemon-fabric-*

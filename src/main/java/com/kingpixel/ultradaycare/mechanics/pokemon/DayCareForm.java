@@ -22,13 +22,12 @@ import java.util.*;
 public class DayCareForm extends Mechanics {
 
   public static final String TAG = "form";
-  private static final String FORM_PREFIX = "form=";
   private static final String REGION_BIAS_PREFIX = "region_bias=";
 
   private final Map<String, String> forms = new HashMap<>();
   private final List<EggForm> eggForms = new ArrayList<>();
-  private final List<String> blacklistForm = new ArrayList<>();
-  private final List<String> blacklistFeatures = new ArrayList<>();
+  private final Set<String> blacklistForm = new HashSet<>();
+  private final Set<String> blacklistFeatures = new HashSet<>();
 
   public DayCareForm() {
     validateData();
@@ -132,9 +131,8 @@ public class DayCareForm extends Mechanics {
         return eggForm.getForm();
       }
     }
-    if (pokemon.getForm() == null) return null;
     String formId = pokemon.getForm().formOnlyShowdownId();
-    if (formId == null || formId.isEmpty()) return null;
+    if (formId.isEmpty()) return null;
 
     String mappedForm = forms.get(formId.toLowerCase());
     return mappedForm != null ? mappedForm : formId;
@@ -192,17 +190,6 @@ public class DayCareForm extends Mechanics {
     if (cleanForm == null) {
       cleanForm = form;
     }
-    // Clean string format if it comes as aspect string like "form=alolan" or "alolan aspects..."
-    if (cleanForm.startsWith(FORM_PREFIX)) {
-      cleanForm = cleanForm.substring(FORM_PREFIX.length());
-    } else if (cleanForm.contains("=")) {
-      for (String part : cleanForm.split(" ")) {
-        if (part.startsWith(FORM_PREFIX)) {
-          cleanForm = part.substring(FORM_PREFIX.length());
-          break;
-        }
-      }
-    }
 
     egg.getPersistentData().putString(TAG, cleanForm);
     applyFormToPokemon(evo, form);
@@ -211,7 +198,6 @@ public class DayCareForm extends Mechanics {
   private String formToRegionBias(String form) {
     if (form == null) return null;
     String clean = form.toLowerCase().trim();
-    if (clean.startsWith(FORM_PREFIX)) clean = clean.substring(FORM_PREFIX.length());
 
     if (clean.contains("alola") || clean.contains("alolan")) return "alola";
     if (clean.contains("hisui") || clean.contains("hisuian")) return "hisui";
@@ -224,29 +210,21 @@ public class DayCareForm extends Mechanics {
     if (pokemon == null || form == null || form.trim().isEmpty()) return;
 
     String targetForm = form.trim().toLowerCase();
-    if (targetForm.startsWith(FORM_PREFIX)) {
-      targetForm = targetForm.substring(FORM_PREFIX.length());
-    }
-
-    String resolvedForm = resolveFormName(pokemon, targetForm);
     String regionBias = formToRegionBias(targetForm);
 
-    if (resolvedForm != null) {
-      try {
-        PokemonProperties.Companion.parse(FORM_PREFIX + resolvedForm).apply(pokemon);
-        debug("[DayCareForm] Applied direct form='{}' to {}", resolvedForm, pokemon.showdownId());
-      } catch (Exception e) {
-        debug("[DayCareForm] Error applying form='{}' to {}: {}", resolvedForm, pokemon.showdownId(), e.getMessage());
-      }
-    }
+    StringBuilder query = new StringBuilder();
+    query.append(targetForm);
 
     if (regionBias != null) {
-      try {
-        PokemonProperties.Companion.parse(REGION_BIAS_PREFIX + regionBias).apply(pokemon);
-        debug("[DayCareForm] Applied region_bias='{}' to {}", regionBias, pokemon.showdownId());
-      } catch (Exception e) {
-        debug("[DayCareForm] Error applying region_bias='{}' to {}: {}", regionBias, pokemon.showdownId(), e.getMessage());
-      }
+      query.append(" ").append(REGION_BIAS_PREFIX).append(regionBias);
+    }
+
+    try {
+      String queryStr = query.toString();
+      PokemonProperties.Companion.parse(queryStr).apply(pokemon);
+      debug("[DayCareForm] Applied properties '{}' to {}", queryStr, pokemon.showdownId());
+    } catch (Exception e) {
+      debug("[DayCareForm] Error applying properties '{}' to {}: {}", query.toString(), pokemon.showdownId(), e.getMessage());
     }
   }
 
