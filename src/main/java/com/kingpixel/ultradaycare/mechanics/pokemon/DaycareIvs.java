@@ -3,7 +3,7 @@ package com.kingpixel.ultradaycare.mechanics.pokemon;
 import com.kingpixel.ultradaycare.mechanics.Mechanics;
 
 import com.cobblemon.mod.common.api.pokemon.stats.Stats;
-import com.cobblemon.mod.common.item.CobblemonItem;
+import net.minecraft.item.Item;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobbleutils.util.Utils;
 import com.kingpixel.ultradaycare.UltraDaycare;
@@ -37,7 +37,7 @@ public class DaycareIvs extends Mechanics {
     Stats.SPECIAL_DEFENCE, "SpecialDefense",
     Stats.SPEED, "Speed"
   );
-  private static Map<CobblemonItem, Stats> bracelets;
+  private static Map<Item, Stats> bracelets;
 
   private int defaultIvsTransfer;
   private int destinyKnotIvsTransfer;
@@ -134,7 +134,7 @@ public class DaycareIvs extends Mechanics {
 
   private boolean hasDestinyKnot(List<Pokemon> parents) {
     for (Pokemon parent : parents) {
-      if (parent.heldItem().getItem().equals(DESTINY_KNOT)) {
+      if (parent.heldItem().isOf(DESTINY_KNOT)) {
         return true;
       }
     }
@@ -174,12 +174,10 @@ public class DaycareIvs extends Mechanics {
         POWER_BAND, Stats.SPECIAL_DEFENCE
       );
     }
-    if (pokemon.heldItem().getItem() instanceof CobblemonItem item) {
-      Stats stat = bracelets.get(item);
-      if (stat != null) {
-        applyIvs(pokemon, egg, stat, cloneStats);
-        return true;
-      }
+    Stats stat = bracelets.get(pokemon.heldItem().getItem());
+    if (stat != null) {
+      applyIvs(pokemon, egg, stat, cloneStats);
+      return true;
     }
     return false;
   }

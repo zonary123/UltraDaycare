@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.1] - 2026-10-17
+
+### Fixed
+
+- **Cobblemon 1.8 Compatibility**: Fixed a crash when breeding Pokémon holding a Destiny Knot or Power items.
+
 ## [1.3.0] - 2026-10-12
 
 ### Added

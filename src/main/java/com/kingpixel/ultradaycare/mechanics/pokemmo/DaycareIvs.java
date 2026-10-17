@@ -1,7 +1,7 @@
 package com.kingpixel.ultradaycare.mechanics.pokemmo;
 
 import com.cobblemon.mod.common.api.pokemon.stats.Stats;
-import com.cobblemon.mod.common.item.CobblemonItem;
+import net.minecraft.item.Item;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.kingpixel.cobbleutils.CobbleUtils;
 import com.kingpixel.cobbleutils.util.Utils;
@@ -36,7 +36,7 @@ public class DaycareIvs extends Mechanics {
     Stats.SPECIAL_DEFENCE, "SpecialDefense",
     Stats.SPEED, "Speed"
   );
-  private static Map<CobblemonItem, Stats> bracelets;
+  private static Map<Item, Stats> bracelets;
   private float percentagePowerItem;
 
   public DaycareIvs() {
@@ -73,16 +73,12 @@ public class DaycareIvs extends Mechanics {
 
     // Check held braces
     Stats maleLockedStat = null;
-    if (male.heldItem().getItem() instanceof CobblemonItem item) {
-      if (Utils.getRandom().nextFloat() * 100 < getPercentagePowerItem()) {
-        maleLockedStat = bracelets.get(item);
-      }
+    if (Utils.getRandom().nextFloat() * 100 < getPercentagePowerItem()) {
+      maleLockedStat = bracelets.get(male.heldItem().getItem());
     }
     Stats femaleLockedStat = null;
-    if (female.heldItem().getItem() instanceof CobblemonItem item) {
-      if (Utils.getRandom().nextFloat() * 100 < getPercentagePowerItem()) {
-        femaleLockedStat = bracelets.get(item);
-      }
+    if (Utils.getRandom().nextFloat() * 100 < getPercentagePowerItem()) {
+      femaleLockedStat = bracelets.get(female.heldItem().getItem());
     }
 
     for (Stats stat : stats) {
