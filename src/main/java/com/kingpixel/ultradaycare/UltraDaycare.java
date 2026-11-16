@@ -15,6 +15,7 @@ import com.kingpixel.cobbleutils.Model.CobbleUtilsTags;
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.cobbleutils.util.PokemonUtils;
 import com.kingpixel.cobbleutils.util.Utils;
+import com.kingpixel.cobbleutils.util.UtilsFile;
 import com.kingpixel.cobbleutils.util.UtilsLogger;
 import com.kingpixel.cobbleutils.util.async.AsyncContext;
 import com.kingpixel.cobbleutils.util.async.UtilsAsync;
@@ -198,6 +199,7 @@ public class UltraDaycare implements ModInitializer {
   }
 
   private static void files() {
+    UtilsFile.extractWiki(UltraDaycare.class, getPath());
     config.init();
     language.init();
     modeMechanics.clear();

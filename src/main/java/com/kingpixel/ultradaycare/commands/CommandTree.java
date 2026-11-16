@@ -2,6 +2,7 @@ package com.kingpixel.ultradaycare.commands;
 
 import com.kingpixel.cobbleutils.api.PermissionApi;
 import com.kingpixel.ultradaycare.UltraDaycare;
+import com.kingpixel.ultradaycare.api.DaycareApi;
 import com.kingpixel.ultradaycare.commands.admin.*;
 import com.kingpixel.ultradaycare.commands.base.CommandEggInfo;
 import com.mojang.brigadier.CommandDispatcher;
@@ -49,7 +50,7 @@ public class CommandTree {
           .executes(context -> {
             if (context.getSource().isExecutedByPlayer()) {
               ServerPlayerEntity player = context.getSource().getPlayer();
-              UltraDaycare.language.getPrincipalMenu().open(player);
+              DaycareApi.openPrincipalMenu(player);
             }
             return 1;
           }).then(
@@ -58,8 +59,9 @@ public class CommandTree {
               .then(
                 CommandManager.argument("player", EntityArgumentType.player())
                   .executes(context -> {
-                    ServerPlayerEntity player = EntityArgumentType.getPlayer(context, "player");
-                    UltraDaycare.language.getPrincipalMenu().open(player);
+                    ServerPlayerEntity target = EntityArgumentType.getPlayer(context, "player");
+                    ServerPlayerEntity sender = context.getSource().getPlayer();
+                    DaycareApi.openPrincipalMenu(sender, target);
                     return 1;
                   })
               )

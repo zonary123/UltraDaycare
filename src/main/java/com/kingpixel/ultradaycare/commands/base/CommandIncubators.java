@@ -1,8 +1,7 @@
 package com.kingpixel.ultradaycare.commands.base;
 
 import com.kingpixel.cobbleutils.api.PermissionApi;
-import com.kingpixel.ultradaycare.UltraDaycare;
-import com.kingpixel.ultradaycare.models.User;
+import com.kingpixel.ultradaycare.api.DaycareApi;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -28,10 +27,7 @@ public class CommandIncubators {
             .executes(context -> {
               if (context.getSource().isExecutedByPlayer()) {
                 ServerPlayerEntity player = context.getSource().getPlayer();
-                User user = UltraDaycare.database.getUser(player);
-                if (user != null) {
-                  UltraDaycare.language.getIncubatorsMenu().open(player, user);
-                }
+                DaycareApi.openIncubatorsMenu(player);
               }
               return 1;
             })
@@ -43,10 +39,9 @@ public class CommandIncubators {
                         CommandManager.argument("player", EntityArgumentType.player())
                             .executes(context -> {
                               ServerPlayerEntity target = EntityArgumentType.getPlayer(context, "player");
-                              User user = UltraDaycare.database.getUser(target);
-                              if (user != null && context.getSource().isExecutedByPlayer()) {
+                              if (context.getSource().isExecutedByPlayer()) {
                                 ServerPlayerEntity admin = context.getSource().getPlayer();
-                                UltraDaycare.language.getIncubatorsMenu().open(admin, user);
+                                DaycareApi.openIncubatorsMenu(admin, target);
                               }
                               return 1;
                             })

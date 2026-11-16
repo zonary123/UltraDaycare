@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.4.0] - 2026-11-16
+
+### Added
+
+- **Custom Menu Support for External UI Mods**: Companion mods and custom UI systems (like Rotom Phone, web panels, or custom GUI plugins) can now replace UltraDaycare's default chest menus with their own screens using the new `DaycareMenuProvider` SPI.
+- **Headless Actions & Direct Controls**: Companion mods can now interact with daycare plots and incubators directly in code without opening a chest menu (depositing/withdrawing parents, collecting eggs, claiming training experience, buying incubators, and hatching eggs).
+- **Rich Player Daycare Profiles & ViewModels**: External mods can now easily read a player's active plots, deposited parents, pending experience, remaining cooldowns, active incubators, and stored eggs using clean, read-only data models.
+- **Dedicated Lightweight API JAR**: Published builds now automatically produce and distribute `UltraDaycare-...-api.jar`, making it simple for addon developers to build integrations without packaging the whole mod.
+
+## [1.3.2] - 2026-10-18
+
+### Added
+
+- **Automatic In-Game Wiki Guide**: Added a built-in `WIKI.md` guide that is automatically extracted into your `config/ultradaycare/` directory on startup, explaining everything about daycare plots, breeding modes (Standard vs. PokeMMO), incubators, egg steps, and commands without needing external help!
+
+### Changed
+
+- **CobbleUtils Dependency**: Updated CobbleUtils integration to version `1.3.8`.
+
 ## [1.3.1] - 2026-10-17
 
 ### Fixed

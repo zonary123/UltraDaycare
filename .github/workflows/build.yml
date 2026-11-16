@@ -102,16 +102,16 @@ jobs:
               -F "file=@${CHANGELOG_FILE}"
           fi
           
-          # 3️⃣ Enviar después el archivo .jar
-          if [ -n "$FILE" ] && [ -f "$FILE" ]; then
-            curl -s -X POST "$DISCORD_WEBHOOK_URL" \
-              -F "file=@${FILE}"
-          fi
+          # 3️⃣ Enviar todos los JARs (excepto sources) como archivos adjuntos
+          for FILE in build/libs/*.jar; do
+            if [[ "$FILE" != *"-sources.jar" ]]; then
+              echo "Enviando $FILE a Discord..."
+              curl -s -X POST "$DISCORD_WEBHOOK_URL" -F "file=@${FILE}"
+            fi
+          done
 
       - name: Publish to Modrinth
         run: |
-          FILE=$(ls build/libs/*.jar | grep -v "sources" | head -n1)
-
           # Verificar si la versión ya existe
           EXISTS=$(curl -s "https://api.modrinth.com/v2/project/$MOD_NAME/version" | \
             jq -r ".[] | select(.version_number==\"$MOD_VERSION\") | .version_number")
@@ -121,4 +121,10 @@ jobs:
             exit 0
           fi
 
-          ./gradlew modrinth -PuploadFile="$FILE" -PmodrinthVersion="$MOD_VERSION"
+          # Subir todos los JARs (excepto sources) a Modrinth
+          for FILE in build/libs/*.jar; do
+            if [[ "$FILE" != *"-sources.jar" ]]; then
+              echo "Subiendo $FILE a Modrinth..."
+              ./gradlew modrinth -PuploadFile="$FILE" -PmodrinthVersion="$MOD_VERSION"
+            fi
+          done
